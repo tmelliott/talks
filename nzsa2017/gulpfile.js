@@ -15,6 +15,7 @@ var assets = './assets/';
 var sassdir = assets + 'css/sass/';
 var sassmain = assets + 'css/app.sass';
 var scriptdir = assets + 'js/scripts/';
+var vendordir = assets + 'js/vendor/';
 var reveal = assets + 'revealjs/';
 
 gulp.task('sass', function() {
@@ -40,6 +41,7 @@ gulp.task('scripts', function() {
               // --- add plugins as necessary
               // reveal + 'plugin/math.js',
               d3 + 'd3.min.js',
+              vendordir + '*.js',
               scriptdir + '*.js'])
         .pipe(concat('app.min.js'))
         .pipe(uglify())

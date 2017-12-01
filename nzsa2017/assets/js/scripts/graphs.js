@@ -5,16 +5,18 @@ function graphs() {
 
   busdata = [];
   points_visible = false;
-  d3.csv("data/vehicles.csv", function(d) {
-    return {
-      id: d.id,
-      lat: +d.lat,
-      lng: +d.lng,
-      route: d.route
-    };
-  }, function(data) {
-    busdata = data;
-  });
+  // d3.csv("data/vehicles.csv", function(d) {
+  //   return {
+  //     id: d.id,
+  //     lat: +d.lat,
+  //     lng: +d.lng,
+  //     route: d.route
+  //   };
+  // }, function(data) {
+  //   busdata = data;
+  // });
+
+
 
   d3.csv("data/route110.csv", function(d) {
     return {
@@ -96,8 +98,69 @@ function aklMap() {
   }).addTo(aklmap);
   aklsvg = d3.select(aklmap.getPanes().overlayPane)
         .append("svg");
+
+  getBusData();
+  setInterval(getBusData, 10000);
 }
 
+function getBusData () {
+  protobuf.load("assets/proto/gtfs-realtime.proto", function(err, root) {
+      if (err)
+          throw err;
+      var f = root.lookupType("transit_realtime.FeedMessage");
+      var xhr = new XMLHttpRequest();
+      var vp = "https://dl.dropboxusercontent.com/s/1fvto9ex649mkri/vehicle_locations.pb?dl=1";
+      xhr.open("GET", vp, true);
+      xhr.responseType = "arraybuffer";
+      xhr.onload = function(evt) {
+          var m = f.decode (new Uint8Array(xhr.response));
+          if (busdata.length == 0) {
+            busdata = m.entity;
+            addPointsToMap();
+          } else {
+            updateData(m.entity);
+          }
+      }
+      xhr.send(null);
+  });
+}
+
+function updateData(data) {
+  console.log("update");
+  // do a check to see if the data has changed ... 
+  busdata = data;
+
+  busdata.forEach(function(d) {
+    d.pt = project(d.vehicle.position.longitude, d.vehicle.position.latitude);
+  });
+
+  pts = aklsvg.selectAll("circle")
+    .data(busdata, function(d) { return d.vehicle.vehicle.id; });
+
+
+  pts.transition().duration(10000)
+      .ease(d3.easeLinear)
+      .attr("cx", function(d) { return d.pt.x; })
+      .attr("cy", function(d) { return d.pt.y; });
+
+  pts.enter()
+    .append("circle")
+      .attr("cx", function(d) { return d.pt.x; })
+      .attr("cy", function(d) { return d.pt.y; })
+      .attr("r", 5)
+      .attr("opacity", 0)
+        .transition()
+          .duration(1000)
+          .attr("opacity", 1)
+          .attr("r", 2);
+
+  pts.exit()
+    .transition()
+      .duration(1000)
+      .attr("opacity", 0)
+      .remove();
+
+}
 
 function addPointsToMap() {
   // d3.select(".aklsvgoverlay").remove();
@@ -109,11 +172,11 @@ function addPointsToMap() {
 
   // modify the data
   busdata.forEach(function(d) {
-    d.pt = project(d.lng, d.lat);
+    d.pt = project(d.vehicle.position.longitude, d.vehicle.position.latitude);
   });
 
   aklbuses = aklsvg.selectAll("circle")
-    .data(busdata, function(d) { return d.id; })
+    .data(busdata, function(d) { return d.vehicle.vehicle.id; })
     .enter()
       .append("circle")
       .attr("cx", function(d) { return d.pt.x; })
