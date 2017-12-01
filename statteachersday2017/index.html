@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>Stat Teachers' Day 2017 | Predicting Bus Arrival</title>
+    <link rel="stylesheet" href="assets/css/app.css">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.2.0/dist/leaflet.css"
+        integrity="sha512-M2wvCLH6DSRazYeZRIm1JnYyh22purTM+FDB5CsyxtQJYeKq83arPe5wgbNmcFXGqiSH2XR8dT/fJISVA1r/zQ=="
+        crossorigin=""/>
+  </head>
+  <body>
+    <div id="aklMap"></div>
+    <div class="reveal">
+      <div class="slides">
+
+        <section data-state="titlepage">
+
+          <h4 class="cursive">The path to</h4>
+          <h2>
+            Computational statistics
+          </h2>
+          <p class="cursive">and the tale of how I unexpectedly found it.</p>
+          <!-- <h4>take you?</h4> -->
+          <p style="margin-top: 3em">Tom Elliott</p>
+          <img src="assets/img/uoa.png" alt="University of Auckland" width = "300" class="bare">
+        </section>
+
+        <section data-state="intro">
+          <h1 class="cursive">Who am I?</h1>
+          <ol>
+            <li class="fragment">PhD Candidate, predicting buses (started mid-2015)</li>
+            <li class="fragment">Lead iNZight developer (since ~2014/15)</li>
+          </ol>
+        </section>
+
+        <section data-state="whoami">
+          <h1 class="cursive">How did I get here &hellip;?</h1>
+        </section>
+
+        <!-- <section data-state="myhistory"></section> -->
+        <section data-state="myhistory-born"></section>
+        <section data-state="myhistory-grewup">
+          <div class="stretch"></div>
+          <p class="fragment cursie text-left ">At this point I &hellip;</p>
+          <ul class="">
+            <li class="fragment">wanted to be a vet (until Yr13!)</li>
+            <li class="fragment">had a natural competency with computers</li>
+          </ul>
+        </section>
+        <section data-state="myhistory-highschool">
+          <div class="stretch"></div>
+          <ul class="list-unstyled" id="HSsublist">
+            <li class="fragment" data-fragment-index="1">
+              <strong>CIE</strong>
+            </li>
+            <li class="fragment" data-fragment-index="1">
+              <span class="english">English, AS</span>
+              <span class="fragment" data-fragment-index="2">French, AS</span>
+            </li>
+            <li class="fragment" data-fragment-index="1"><span class="fragment highlight-red" data-fragment-index="4">Maths, 
+              AS<span class="fragment" data-fragment-index="2">+A2</span></span>
+              <span class="fragment subjcomment current-visible" data-fragment-index="3">calculus + statistics &rarr;</span>
+            </li>
+            <li class="fragment" data-fragment-index="1">Chemistry, 
+              AS<span class="fragment" data-fragment-index="2">+A2</span>
+              <!-- <span class="fragment subjcomment current-visible" data-fragment-index="4"> &rarr;</span> -->
+            </li>
+            <li class="fragment" data-fragment-index="1">
+              <span class="fragment highlight-blue" data-fragment-index="6">Biology</span>, 
+              AS<span class="fragment" data-fragment-index="2">+A2</span>
+              <span class="fragment subjcomment current-visible" data-fragment-index="5">"What is the null?" &rarr;</span>
+            </li>
+          </ul>
+        </section>
+        <section data-state="myhistory-uoa">
+          <ul class="" id="UOAsublist">
+            <li class="fragment text-left">
+              <strong>Bachelor of Science</strong><br>
+              <span class="marine">Marine Science</span><br>
+              <!-- <span class="fragment" style="margin-left: 1em">&rarr; 2nd semester, "data analysis" - using R!</span><br> -->
+              <span class="fragment">Biological Sciences + Statistics</span>
+            </li>
+            <li class="fragment">
+              BSc Honours, Masters, and now PhD &hellip;<br>
+              <em>all in statistics!</em>
+            </li>
+            <li class="fragment">
+              2013 (Honours): email from Chris Wild:<br>
+              <img src="assets/img/cwild.png" alt="">
+            </li>
+          </ul>
+          <div class="stretch"></div>
+        </section>
+
+        <section data-state="endofhist"></section>
+
+        <section data-state="compstats1" id="compstats1">
+          <p class="cursive">The path to</p>
+          <h2>Computational Statistics</h2>
+
+          <p class="cursive">and &hellip; what exactly is it?</p>
+
+          <p style="margin-top: 3em" class="fragment">
+            Basically, any statistics that require a lot of computing.
+          </p>
+        </section>
+
+        <section data-state="compstats" id="compstats">
+          <p class="cursive text-left">A few examples &hellip;</p>
+  
+          <ul class="list-unstyled stacked">
+            <li class="fragment current-visible text-center">
+              <img src="assets/img/galaxy.jpg" alt="" height="400"><br>
+              <p>Galaxies and blackholes (BSc Hons)</p>
+            </li>            
+            <li class="fragment current-visible text-center">
+              <img src="assets/img/fishschool.jpg" alt="" height="400"><br>
+              Fisheries management (MSc)
+            </li>            
+            <li class="fragment current-visible text-center">
+              <img src="assets/img/buses.jpg" alt="" height="400"><br>
+              Public transport (PhD, current)
+            </li>
+          </ul>
+        </section>
+
+        <section data-state="bustitle">
+          <h2>Predicting bus arrival times</h2>
+          <h4 class="cursive">using estimated road network state</h4>
+        </section>
+
+        <section data-state="aim">
+            <p class="cursive text-left">Aim &hellip;</p>
+            <p class="cursiv">
+                Use travel times of previous buses travelling along road segments 
+                to improve arrival time predictions of upcoming buses
+            </p>
+
+
+        </section>
+
+        <section data-state="showpoints"></section>
+
+        <section data-state="route110">
+            <p class="stretch"></p>
+            <ol class="hidden">
+              <li class="fragment">Imaginary fleet, clustered around real bus</li>
+              <li class="fragment">Let them travel independently until new observation recieved</li>
+              <li class="fragment">"Bootstrap resample" based on proximity to real bus</li>
+              <li class="fragment">Travel &hellip;</li>
+              <li class="fragment">Resample &hellip;</li>
+              <li class="fragment">Travel &hellip;</li>
+              <li class="fragment">Resample &hellip;</li>
+              <li class="fragment">Travel &hellip;</li>
+            </ol>
+        </section>
+          
+        
+
+        <section data-state="segSpeeds">
+          <p class="text-left" style="display:none">
+            <span class="fragment">Model all buses</span>
+            <span class="fragment">to estimate "real-time" speed along roads</span>
+            <span class="fragment"></span>
+          </p>
+        </section>
+
+        <!-- <section>
+          <h1>Thank you!</h1>
+        </section> -->
+      </div>
+    </div>
+
+    <script src="https://unpkg.com/leaflet@1.2.0/dist/leaflet.js"
+      integrity="sha512-lInM/apFSqyy1o6s89K4iQUKg6ppXEgsVxT35HbzUupEVRh2Eu9Wdl4tHj7dZO0s1uvplcYGmt3498TtHq+log=="
+      crossorigin=""></script>
+    <script src="assets/js/app.min.js"></script>
+  </body>
+</html>
