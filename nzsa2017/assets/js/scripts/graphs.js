@@ -86,8 +86,8 @@ function graphs() {
 
 function aklMap() {
   aklmap = new L.Map("aklMap", {
-    center: [-36.845794, 174.860478],
-    zoom: 11,
+    center: [-36.870794, 174.760478],
+    zoom: 13,
     zoomControl: false,
     attributionControl: false
   });
@@ -100,7 +100,7 @@ function aklMap() {
         .append("svg");
 
   getBusData();
-  setInterval(getBusData, 10000);
+  setInterval(getBusData, 60000);
 }
 
 function getBusData () {
@@ -138,7 +138,7 @@ function updateData(data) {
     .data(busdata, function(d) { return d.vehicle.vehicle.id; });
 
 
-  pts.transition().duration(10000)
+  pts.transition().duration(60000)
       .ease(d3.easeLinear)
       .attr("cx", function(d) { return d.pt.x; })
       .attr("cy", function(d) { return d.pt.y; });
@@ -147,12 +147,12 @@ function updateData(data) {
     .append("circle")
       .attr("cx", function(d) { return d.pt.x; })
       .attr("cy", function(d) { return d.pt.y; })
-      .attr("r", 5)
+      .attr("r", 10)
       .attr("opacity", 0)
         .transition()
           .duration(1000)
           .attr("opacity", 1)
-          .attr("r", 2);
+          .attr("r", 4);
 
   pts.exit()
     .transition()
@@ -181,12 +181,12 @@ function addPointsToMap() {
       .append("circle")
       .attr("cx", function(d) { return d.pt.x; })
       .attr("cy", function(d) { return d.pt.y; })
-      .attr("r", 5)
+      .attr("r", 4)
       .attr("opacity", 0)
-        .transition().delay(500)
-          .duration(function(d) { return Math.floor(Math.random() * 5000); })
+        .transition().duration(1000)
+          .delay(function(d) { return Math.floor(Math.random() * 3000); })
           .attr("opacity", 1)
-          .attr("r", 2);
+          .attr("r", 4);
 
   points_visible = true;
 }
