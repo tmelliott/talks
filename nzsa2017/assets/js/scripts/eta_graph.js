@@ -22,7 +22,9 @@ function clearEtaLine () {
 }
 
 function oldgraphETAs () {
-
+    if ($(".busIcon").length == 0) {
+        setTimeout(addPointsToMap, 1000);
+    }
     var margin = {top: 20, right: 20, bottom: 30, left: 50},
         width = $("#ETAgraph").width() - margin.left - margin.right,
         height = $("#ETAgraph").height() - margin.top - margin.bottom;
@@ -40,8 +42,8 @@ function oldgraphETAs () {
         d3.line()
             .x(function(d) { return xl2(d.time); })
             .y(function(d) { return yl2(d.eta); });
-            // .curve(d3.curveStepAfter);
 
+    if ($("#ETAgraph svg").length > 0) return;
     etagraph = 
         d3.select("#ETAgraph").append("svg")
             .attr("width", width + margin.left + margin.right)

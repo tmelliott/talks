@@ -25,13 +25,6 @@ function loadoldETAs () {
         .attr("d", linefun(etalinedata));
 
     buspos = {"x": 0, "y": -1, "height": 100};
-    // bussvg = 
-    //     etasvg.append("svg:image")
-    //         .attr("xlink:href", "assets/img/bus.svg")
-    //         .attr("id", "bus1")
-    //         // .attr("x", xl(buspos.x)).attr("y", yl(buspos.y))
-    //         .attr("height", buspos.height + "px")
-    //         .attr("opacity", 0);
 
     var state = Reveal.getCurrentSlide().attributes["data-state"];
     if (state == undefined) return;
@@ -41,7 +34,6 @@ function loadoldETAs () {
     Reveal.addEventListener("fragmenthidden", oldETAs2);
 
     Reveal.addEventListener("theProblem", clearETAs);
-    // Reveal.addEventListener("etagraphOld", clearETAs);
 }
 
 function clearETAs () {
@@ -83,6 +75,7 @@ function oldETAs () {
                 .duration(500)
                 .attr("opacity", 1);
 
+    if ($("#bus1").length > 0) return;
     bussvg = 
         etasvg.append("svg:image")
             .attr("xlink:href", "assets/img/bus.svg")

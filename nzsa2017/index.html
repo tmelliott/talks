@@ -13,20 +13,27 @@
     <div class="reveal">
       <div class="slides">
 
-        <section data-state="titlepage">
+        <section data-state="titlepage" class="titlepage" data-transition="fade">
           <h3 class="cursive stretch">Predicting bus arrival times using estimated road network state</h3>
-          <p style="margin-top: 5em" class="cursive">Tom Elliott</p>
-          <img src="assets/img/uoa.png" alt="University of Auckland" width = "300" class="bare">
+
+          <div class="bottom left">
+            <img src="assets/img/uoa.png" alt="University of Auckland" width="260" class="bare">
+          </div>
+          <div class="bottom right">
+            <ul class="list-unstyled text-right">
+              Tom Elliott<br>
+              <li class="small"><a href="">tomelliott.co.nz/talks/nzsa2017</a></li>
+              <li class="small">Twitter/Github: <a href="">tmelliott</a></li>
+            </ul>
+          </div>
         </section>
 
-        <!-- <section data-state="aim">
-            <p class="cursive">
-                Use travel times of previous buses travelling along road segments 
-                to improve arrival time predictions of upcoming buses
-            </p>
-
-
-        </section> -->
+        <section data-state="realtimebuses" data-transition="fade-in slide-out">
+          <p class="stretch"></p>
+          <p class="small">Approx. positions, within 1 minute 
+            <span class="fragment"><em>for all of Auckland!</em></span>
+          </p>
+        </section>
       
         <section data-state="theProblem">
           <h2 class="cursive">Part 1: Motivation</h2>
@@ -41,7 +48,6 @@
             <li class="fragment">Bus arrives at a stop, delay is recorded</li>
             <li class="fragment">ETA = scheduled arrival time + delay</li>
             <li class="fragment">Repeat for all stops until it reaches yours &hellip;<br>
-              <!-- <span class="fragment">assuming the delay is recorded and relayed to AT</span> -->
             </li>
           </ol>
           <span class="hideme fragment">stop3</span>
@@ -51,19 +57,19 @@
         </section>
 
         <section data-state="etagraphOld">
-          <p class="cursive text-left">ETAs for a person waiting at the 7:40 stop:</p>
+          <p class="text-left">ETAs for a person waiting at the 7:40 stop:</p>
           <div id="ETAgraph" class="etagraph stretch"></div>
-          <ul class="cursive text-left">
+          <ul class="text-left">
             <li>Initial expected waiting time: <span class="">10 minutes</span>
               <span class="fragment"></span>
             </li>
-            <li>Actual waiting time: <span  class="fragment">16 minutes</span></li>
+            <li>Actual waiting time: <span  class="fragment emph">16 minutes</span></li>
           </ul>
         </section>
 
         <section data-state="ourSolution">
-          <h2 class="cursive">Part 2: Proposed solution</h2>
-          <ol class="cursive">
+          <h2>Part 2: Proposed solution</h2>
+          <ol>
             <li class="fragment">Develop improved model to estimate vehicle speeds</li>
             <li class="fragment">Update network state as buses travel along roads</li>
             <li class="fragment">Use network state to estimate arrival times</li>
@@ -71,7 +77,7 @@
         </section>
 
         <section data-state="busmodel" data-transition="slide-in fade-out">
-          <h4 class="cursive ">1. Bus model: particle filter</h4>
+          <h4>1. Bus model: particle filter</h4>
           <ul>
             <li class="fragment">Flexibility: easily handles asymmetry, multimodality</li>
             <li class="fragment">Intuitive likelihood (distance between two points)</li>
@@ -81,44 +87,51 @@
         </section>
 
         <section data-state="busmodel2" data-transition="fade">
-            <h4 class="stretch">1. Bus model: particle filter</h4>
+            <h4 class="">1. Bus model: particle filter</h4>
+            <div class="smaller">
+              <p style="margin-top: 2em; margin-left: 30%" class="text-left">
+                <span class="fragment" data-fragment-index="1">$ X_k = \begin{bmatrix} d_k \\ v_k \end{bmatrix} $</span>
+                <span class="fragment" data-fragment-index="5">$ = f(X_{k-1}) $</span>
+              </p>
+              <p class="text-left" style="margin-left: 30%">
+                <span class="fragment" data-fragment-index="2"><span style="color: orangered">$ Y_k $</span> 
+                  $ = \begin{bmatrix} \phi_k \\ \lambda_k \end{bmatrix} $</span>
+                <span class="fragment" data-fragment-index="3">$ = h(X_k) $</span>
+              </p>
+              <p class="text-left" style="margin-left: 30%">
+                <span class="fragment" data-fragment-index="6">
+                  $ g\left[h(X^{(i)}_k) | Y_k\right] \sim 
+                  \mathrm{Binormal}(0, \Sigma) $
+                </span>
+              </p>
+            </div>
+            <ul class="list-unstyled hidden">
+              <li class="fragment" data-fragment-index="4">Let them travel independently until new observation recieved</li>
+              <li class="fragment" data-fragment-index="7">"Bootstrap resample" based on proximity to real bus</li>
+              <li class="fragment" data-fragment-index="8">Travel &hellip;</li>
+              <li class="fragment" data-fragment-index="9">Resample &hellip;</li>
+              <li class="fragment" data-fragment-index="10">Travel &hellip;</li>
+              <li class="fragment" data-fragment-index="11">Resample &hellip;</li>
+              <li class="fragment" data-fragment-index="12">Travel &hellip;</li>
+            </ul>
             <p class="stretch"></p>
-            <ol class="hidden">
-              <li class="fragment">Imaginary fleet, clustered around real bus</li>
-              <li class="fragment">Let them travel independently until new observation recieved</li>
-              <li class="fragment">"Bootstrap resample" based on proximity to real bus</li>
-              <li class="fragment">Travel &hellip;</li>
-              <li class="fragment">Resample &hellip;</li>
-              <li class="fragment">Travel &hellip;</li>
-              <li class="fragment">Resample &hellip;</li>
-              <li class="fragment">Travel &hellip;</li>
-            </ol>
+            <p class="text-left smaller" style="margin-left: 30%">
+              <span class="fragment" data-fragment-index="7">
+                $ w_i = \frac{\ell(X_k^{(i)} | Y_k, \Sigma)}{\sum_j \ell(X_k^{(j)} | Y_k, \Sigma)} $
+              </span>
+            </p>
         </section>
 
         <section data-state="busmodel3" data-transition="fade-in slide-out">
           <h4 class="cursive">1. Bus model: particle filter</h4>
           <p class="cursive text-left">All we need to do is &hellip;</p>
-          <ul class="text-left cursive ">
-            <li class="fragment">Model all buses in Auckland (1000+ at peak hour)</li>
-            <li class="fragment">In real-time, target is 30 seconds or faster<br><br></li>
-            <li class="fragment">Goodbye R, hello C++</li>
-<!--             <li class="fragment">goodbye.R
-              <pre><code>cat("Goodbye, world!\n")
----
-$ R -f goodbye.R
-Goodbye, world!</code></pre>
-            </li>
-            <li class="fragment">hello.cpp
-<pre><code>#include &lt;iostream&gt;
-int main() {
-  std::cout << "Hello, world!" << std::endl;
-  return 0;
-}
----
-$ gcc hello.cpp -o hello && ./hello 
-Hello, World!</code></pre>
-            </li> -->
-          </ul>
+          <div class="boxed">
+            <ul class="text-left">
+              <li class="fragment">Model all buses in Auckland (1000+ at peak hour)</li>
+              <li class="fragment">In real-time, target is 30 seconds or faster<br><br></li>
+              <li class="fragment">Goodbye R, hello C++</li>
+            </ul>
+          </div>
           <p class="stretch"></p>
         </section>
 
@@ -127,8 +140,14 @@ Hello, World!</code></pre>
           <ul class="text-left cursive">
             <li class="fragment">Road segment = stretch of road between two intersections</li>
             <li class="fragment">Independent of route</li>
-            <li class="fragment">State = [travel time, variance]</li>
+            <li class="fragment" style="margin-top: 1em">Network state parameters: <br>
+              $\tau_\ell$ = travel time along segment $\ell$<br>
+              $\xi_\ell$ = variance of travel time along segment $\ell$
+            </li>
             <li class="fragment">Data = estimated travel time of buses along segment</li>
+            <li class="fragment" style="margin-top: 1em">
+              Implemented using Kalman filter
+            </li>
           </ul>
           <p class="stretch"></p>
         </section>

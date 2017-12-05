@@ -1,22 +1,13 @@
 function graphs() {
   // load all the graphs ...
 
+  mapCenter = [-36.8523, 174.7691];
+  routeCenter = [-36.843871, 174.685693];
   aklMap();
+
 
   busdata = [];
   points_visible = false;
-  // d3.csv("data/vehicles.csv", function(d) {
-  //   return {
-  //     id: d.id,
-  //     lat: +d.lat,
-  //     lng: +d.lng,
-  //     route: d.route
-  //   };
-  // }, function(data) {
-  //   busdata = data;
-  // });
-
-
 
   d3.csv("data/route110.csv", function(d) {
     return {
@@ -39,14 +30,13 @@ function graphs() {
     var state = Reveal.getCurrentSlide().attributes["data-state"];
     if (state == undefined) return;
     if (state.value == "busmodel") addPointsToMap();
+    if (state.value == "busmodel2") demoRoute();
   });
 
-  Reveal.addEventListener('aim', function() {
-    // remove points, if they exist!
-    removePoints();
-  });
+  Reveal.addEventListener('fragmentshown', fragmentForward);
+  Reveal.addEventListener('fragmenthidden', fragmentBack);
 
-  Reveal.addEventListener('ourSolution', removePoints);
+  Reveal.addEventListener('ourSolution', function() { removePoints(); });
 
   Reveal.addEventListener('busmodel', function() {
     if (busdata.length == 0) {
@@ -56,26 +46,26 @@ function graphs() {
     removeSegmentLines();
 
     // add points, if they don't already
-    removePoints();
+    
+    removePoints(100);
     setTimeout(function() {
-      addPointsToMap(busdata, aklmap);
-    }, 1000);
+      zoomMap(11);
+    }, 100);
+    // setTimeout(function() {
+    //   addPointsToMap(busdata, aklmap);
+    // }, 1000);
   });
+
   Reveal.addEventListener('busmodel2', function() {
     demoRoute();
   });
-  Reveal.addEventListener("fragmentshown", doParticles);
-  Reveal.addEventListener("fragmenthidden", doParticles);
 
   Reveal.addEventListener("busmodel3", function() {
-    removePoints();
-    // setTimeout(function() {
-    //   addPointsToMap();
-    // }, 2000);
+    removePoints(100);
+    setTimeout(function() {
+      zoomMap(11);
+    });
   });
-
-  Reveal.addEventListener("fragmentshown", doSegmentStuff);
-  Reveal.addEventListener("fragmenthidden", doSegmentStuff);
 
   Reveal.addEventListener("prediction", function() {
     removeSegmentLines();
@@ -83,11 +73,47 @@ function graphs() {
   });
 }
 
+function fragmentForward () {
+  var state = Reveal.getCurrentSlide().attributes["data-state"];
+  if (state == undefined) return;
+  switch (state.value) {
+    case "realtimebuses":
+      zoomMap(11);
+      break;
+    case "busmodel2":
+      doParticles(true);
+      break;
+    // case "busmodel3":
+    //   opacifyBuses();
+    //   break;
+    case "segSpeeds":
+      doSegmentStuff(true);
+      break;
+  }
+}
+
+function fragmentBack () {
+  var state = Reveal.getCurrentSlide().attributes["data-state"];
+  if (state == undefined) return;
+  switch (state.value) {
+    case "realtimebuses":
+      zoomMap(16);
+      break;
+    case "busmodel2":
+      doParticles(false);
+      break;
+    case "segSpeeds":
+      doSegmentStuff(false);
+      break;
+  }
+}
+
 
 function aklMap() {
+  var Zoom = Reveal.getState().indexh < 2 ? 16 : (Reveal.getState().indexh == 7 ? 13 : 11);
   aklmap = new L.Map("aklMap", {
-    center: [-36.870794, 174.760478],
-    zoom: 13,
+    center: Reveal.getState().indexh == 7 ? routeCenter : mapCenter,
+    zoom: Zoom,
     zoomControl: false,
     attributionControl: false
   });
@@ -126,7 +152,9 @@ function getBusData () {
 }
 
 function updateData(data) {
-  console.log("update");
+  // if current slide doesn't have any points, don't add them!
+  if ($(".busIcon").length == 0) return;
+
   // do a check to see if the data has changed ... 
   busdata = data;
 
@@ -134,25 +162,25 @@ function updateData(data) {
     d.pt = project(d.vehicle.position.longitude, d.vehicle.position.latitude);
   });
 
-  pts = aklsvg.selectAll("circle")
+  pts = aklsvg.selectAll(".busIcon")
     .data(busdata, function(d) { return d.vehicle.vehicle.id; });
 
 
-  pts.transition().duration(60000)
+  pts.transition().duration(50000)
       .ease(d3.easeLinear)
-      .attr("cx", function(d) { return d.pt.x; })
-      .attr("cy", function(d) { return d.pt.y; });
+      .attr("x", function(d) { return d.pt.x; })
+      .attr("y", function(d) { return d.pt.y; });
 
   pts.enter()
-    .append("circle")
-      .attr("cx", function(d) { return d.pt.x; })
-      .attr("cy", function(d) { return d.pt.y; })
-      .attr("r", 10)
+    .append("svg:image")
+      .attr("xlink:href", "assets/img/bus-blue.png")
+      .attr("class", "busIcon" + (aklmap.getZoom () > 14 ? "" : " busIcon-small"))
+      .attr("x", function(d) { return d.pt.x; })
+      .attr("y", function(d) { return d.pt.y; })
       .attr("opacity", 0)
         .transition()
           .duration(1000)
-          .attr("opacity", 1)
-          .attr("r", 4);
+          .attr("opacity", 1);
 
   pts.exit()
     .transition()
@@ -162,13 +190,14 @@ function updateData(data) {
 
 }
 
-function addPointsToMap() {
-  // d3.select(".aklsvgoverlay").remove();
+function addPointsToMap(speed) {
+  if ($.inArray(Reveal.getState().indexh, [5, 6, 7, 8, 9, 11]) > -1) return;
+  if ($(".busIcon").length > 0) return; // points exist ...
+  if (speed == undefined) speed = 1000;
   aklsvg = d3.select(aklmap.getPanes().overlayPane)
         .select("svg").attr("class", "aklsvgoverlay")
           .attr("height", $("#aklMap").height())
           .attr("width", $("#aklMap").width());
-        //  g = aklsvg.append("g");
 
   // modify the data
   busdata.forEach(function(d) {
@@ -178,29 +207,33 @@ function addPointsToMap() {
   aklbuses = aklsvg.selectAll("circle")
     .data(busdata, function(d) { return d.vehicle.vehicle.id; })
     .enter()
-      .append("circle")
-      .attr("cx", function(d) { return d.pt.x; })
-      .attr("cy", function(d) { return d.pt.y; })
-      .attr("r", 4)
-      .attr("opacity", 0)
-        .transition().duration(1000)
-          .delay(function(d) { return Math.floor(Math.random() * 3000); })
-          .attr("opacity", 1)
-          .attr("r", 4);
+      .append("svg:image")
+        .attr("xlink:href", "assets/img/bus-blue.png")
+        .attr("class", "busIcon" + (aklmap.getZoom () > 14 ? "" : " busIcon-small"))
+        .attr("x", function(d) { return d.pt.x; })
+        .attr("y", function(d) { return d.pt.y; })
+        .attr("opacity", 0)
+          .transition().duration(speed)
+            .delay(function(d) { return Math.floor(Math.random() * 3 * speed); })
+            .attr("opacity", 1);
 
   points_visible = true;
 }
 
 function removePoints(speed) {
-  if (speed == undefined) speed = 1000;
-  if (aklmap.getZoom () != 11) {
-    var cnt = [-36.845794, 174.860478];
-    aklmap.flyTo(cnt, 11);
-  }
+  if (speed == undefined) speed = 500;
+
+  aklsvg.selectAll(".busIcon")
+    .transition()
+      .duration(300)
+      .delay(function(d) { return Math.floor(Math.random() * speed); })
+      .attr("opacity", 0)
+      .remove();
 
   aklsvg.selectAll("circle")
     .transition()
-      .duration(function(d) { return Math.floor(Math.random() * speed); })
+      .duration(300)
+      .delay(function(d) { return Math.floor(Math.random() * speed); })
       .attr("opacity", 0)
       .remove();
 
@@ -214,6 +247,11 @@ function removePoints(speed) {
   points_visible = false;
 }
 
+// function opacifyBuses() {
+//   aklsvg.selectAll(".busIcon")
+//     .transition().duration(300)
+//       .attr("opacity", 0.2);
+// }
 
 function project(x, y) {
   var pt = aklmap.latLngToLayerPoint(new L.LatLng(y, x));
@@ -221,14 +259,46 @@ function project(x, y) {
 }
 
 
+function zoomMap(zoom) {
+  var ind = Reveal.getState().indexh;
+  var newZoom = zoom == undefined ? 14 : zoom,
+      ctr = mapCenter;
+  if (ind > 2 && ind <= 6) {
+    newZoom = 11;
+  } else if (ind == 7) {
+    newZoom = 13;
+    ctr = routeCenter;
+  } else if (ind > 7) {
+    newZoom = 11;
+    ctr = mapCenter;
+  }
+  if (newZoom == aklmap.getZoom ()) return;
+
+  removePoints(0);
+  setTimeout(function() {
+    aklmap.flyTo(ctr, newZoom, {"duration": 1, "easeLinearity": 0.5});
+  }, 100);
+  setTimeout(function() {
+    addPointsToMap(0);
+  }, 1100);
+}
+
+// NOTE: to do
+// - turn circles into a orange/blue bus (particle slides)
+// - speed up the latter half of the route ...
+// - 
+
 
 function demoRoute() {
   removePoints();
-  setTimeout(function() {
-    var cnt = [-36.843871, 174.685693];
-    aklmap.flyTo(cnt, 13);
-  }, 1000);
-  setTimeout(addRouteLine, 2500);
+  var wait = aklmap.getZoom() != 13;
+  if (wait) {
+    setTimeout(function() {
+      var cnt = [-36.843871, 174.685693];
+      aklmap.flyTo(cnt, 13);
+    }, 1000);
+  }
+  setTimeout(addRouteLine, 2500 * wait);
 }
 
 function addRouteLine() {
@@ -271,43 +341,36 @@ function addRouteLine() {
   particles.forEach(function(d) { 
     d.pt = path.getPointAtLength(d.d); 
   });
-
-  realbus = {"lat": -36.832347, "lng": 174.617887};
-  realbus.pt = project(realbus.lng, realbus.lat);
-  aklsvg.append("circle")
-    .attr("class", "realbus")
-    .attr("cx", realbus.pt.x)
-    .attr("cy", realbus.pt.y)
-    .attr("r", 0)
-    .attr("opacity", 0)
-    .transition().delay(500)
-      .duration(500)
-      .attr("r", 7)
-      .attr("opacity", 1);
 }
 
-function doParticles() {
+function showFirstBus() {
+  realbus = {"lat": -36.832347, "lng": 174.617887};
+  realbus.pt = project(realbus.lng, realbus.lat);
+  aklsvg
+    .append("svg:image")
+      .attr("xlink:href", "assets/img/bus-red.png")
+      .attr("class", "realbus busIcon busIcon-large")
+      .attr("x", realbus.pt.x - 9)
+      .attr("y", realbus.pt.y - 9)
+      .attr("opacity", 0)
+      .transition().delay(500)
+        .duration(500)
+        .attr("opacity", 1);
+}
+
+function doParticles(forward) {
   var state = Reveal.getCurrentSlide().attributes["data-state"];
   if (state == undefined) return;
   if (state.value != "busmodel2") return;
   var f = Reveal.getState().indexf;
-  switch(f) {
-    case 0: 
+  switch(f-1) {
+    case 0:
+      showFirstBus();
+      break;
+    case 2: 
       addParticles();
       break;
-    case 1:
-      moveParticles();
-      break;
-    case 2:
-      resampleParticles();
-      break;
     case 3:
-      moveParticles();
-      break;
-    case 4:
-      resampleParticles();
-      break;
-    case 5:
       moveParticles();
       break;
     case 6:
@@ -315,6 +378,15 @@ function doParticles() {
       break;
     case 7:
       moveParticles();
+      break;
+    case 8:
+      resampleParticles();
+      break;
+    case 9:
+      moveParticles();
+      break;
+    case 10:
+      resampleParticles();
       break;
   }
 }
@@ -332,7 +404,7 @@ function addParticles() {
       .append("circle")
       .attr("class", "particle")
       .attr("transform", function(d) { return "translate(" + d.pt.x + "," + d.pt.y + ")"; })
-      .attr("r", 5)
+      .attr("r", 4)
       .attr("opacity", 0)
         .transition().delay(500)
           .duration(500)
@@ -362,26 +434,26 @@ function moveParticles() {
     case 3:
       var p2 = {"lat": -36.864646, "lng": 174.733029};
       break;
-    case 4:
-      var p2 = {"lat": -36.850464, "lng": 174.762619};
-      break;
+    // case 4:
+    //   var p2 = {"lat": -36.850464, "lng": 174.762619};
+    //   break;
   }
+  var speed = particles[0].it > 2 ? 5000 : 10000;
   p2.pt = project(p2.lng, p2.lat);
   aklsvg.selectAll(".particle")
     .transition()
-      .duration(10000)
+      .duration(speed)
       .ease(d3.easeLinear)
       .attrTween("transform", translateParticle());
 
-  aklsvg.append("circle")
-    .attr("class", "realbus")
-    .attr("cx", p2.pt.x)
-    .attr("cy", p2.pt.y)
+  aklsvg.append("svg:image")
+    .attr("xlink:href", "assets/img/bus-red.png")
+    .attr("class", "realbus busIcon busIcon-large")
+    .attr("x", p2.pt.x - 9)
+    .attr("y", p2.pt.y - 9)
     .attr("opacity", 0)
-    .attr("r", 0)
-    .transition().delay(10000-300).duration(300)
-      .attr("opacity", 1)
-      .attr("r", 7);
+    .transition().delay(speed-300).duration(300)
+      .attr("opacity", 1);
 }
 
 function resampleParticles() {
@@ -470,7 +542,7 @@ function createSegmentsLines() {
 
 function showSegmentLines() {
   // removePoints(30000);
-  aklsvg.selectAll("circle")
+  aklsvg.selectAll(".busIcon")
     .transition().duration(10000)
       .attr("opacity", 0)
       .remove();
