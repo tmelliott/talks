@@ -13,8 +13,11 @@
     <div class="reveal">
       <div class="slides">
 
-        <section data-state="titlepage" class="titlepage" data-transition="fade">
-          <h3 class="cursive stretch">Predicting bus arrival times using estimated road network state</h3>
+        <section data-state="titlepage" class="titlepage" data-transition="slide">
+          <!-- <h3 class="cursive stretch">Predicting bus arrival times using estimated road network state</h3> -->
+          <h4 class="cursive stretch">
+            Real-time transit network modelling for improved arrival time predictions
+          </h4>
 
           <div class="bottom left">
             <img src="assets/img/uoa.png" alt="University of Auckland" width="260" class="bare">
@@ -28,9 +31,9 @@
           </div>
         </section>
 
-        <section data-state="realtimebuses" data-transition="fade-in slide-out">
+        <section data-state="realtimebuses" data-transition="slide">
           <p class="stretch"></p>
-          <p class="small">Approx. positions, within 1 minute 
+          <p class="small">Approx. real-time positions 
             <span class="fragment"><em>for all of Auckland!</em></span>
           </p>
         </section>
@@ -70,18 +73,23 @@
         <section data-state="ourSolution">
           <h2>Part 2: Proposed solution</h2>
           <ol>
-            <li class="fragment">Develop improved model to estimate vehicle speeds</li>
-            <li class="fragment">Update network state as buses travel along roads</li>
-            <li class="fragment">Use network state to estimate arrival times</li>
+            <li class="fragment">Develop improved vehicle model</li>
+            <li class="fragment">Model network state (road travel times)</li>
+            <li class="fragment">Predict arrival times using vehicle + network states</li>
           </ol>
         </section>
 
         <section data-state="busmodel" data-transition="slide-in fade-out">
           <h4>1. Bus model: particle filter</h4>
+
+          <p class="stretch"></p>
+          <!-- <p>Advantages</p> -->
           <ul>
-            <li class="fragment">Flexibility: easily handles asymmetry, multimodality</li>
-            <li class="fragment">Intuitive likelihood (distance between two points)</li>
-            <li class="fragment">Transition function can be as complicated as necessary</li>
+            <li class="fragment list-tick"><strong>Flexibility</strong>: asymmetry, multimodality</li>
+            <li class="fragment list-tick"><strong>Intuitive likelihood</strong>: distance between two points</li>
+            <li class="fragment list-tick"><strong>Transition function</strong>: explicitly model bus behaviour</li>
+
+            <li class="fragment list-cross" style="margin-top: 1em"><strong>Computationally demanding</strong></li>
           </ul>
           <p class="stretch"></p>
         </section>
@@ -154,30 +162,46 @@
 
         <section data-state="segSpeeds" data-transition="fade-in slide-out">
           <h4 class="">2. Network Model</h4>
+          <p class="stretch"></p>
           <ol class="">
             <li class="fragment">Model all buses in real time</li>
             <li class="fragment">Update network state as buses traverse segments</li>
           </ol>
-          <p class="stretch"></p>
         </section>
 
         <section data-state="prediction">
           <h4>3: Arrival time prediction</h4>
   
           <ul>
-            <li class="fragment">Sum travel time of road segments along the route</li>
-            <li class="fragment">For each particle to obtain a distribution</li>
-            <li class="fragment">Include additional uncertainty for traffic lights, intermediate stops</li>
-            <li class="fragment">Prediction intervals to account for uncertainty<br> (e.g., 10-16 minutes)</li>
+            <li class="fragment">ETA = sum road segment travel times</li>
+            <li class="fragment">Calculate ETA for each particle<br>
+              <small>Simulate travel times, stop/traffic light wait times, etc</small>
+            </li>
+            <li class="fragment"><strong>ETA distribution</strong> incorporates remaining uncertainty</li>
+            <li class="fragment"><strong>Prediction intervals</strong> to communicate to commuters<br> 
+              e.g., 10-16 minutes vs. 12 minutes</li>
           </ul>        
 
           <p class="stretch"></p>
         </section>
 
-        <section data-state="end">
+        <section data-state="end" class="titlepage" data-transition="slide-in fade-out">
+          <h4 class="stretch"></h4>
+        
+          <p class="top right">Questions?</p>
+
           <!-- <p class="stretch"></p> -->
-          <!-- <p>End of the line.</p> -->
-          <h2>Thank you!</h2>
+          <div class="bottom right">
+            <ul class="list-unstyled text-right">
+              <!-- Tom Elliott<br> -->
+              <li class="small">Slides available: <a href="">tomelliott.co.nz/talks/nzsa2017</a></li>
+              <!-- <li class="small">Twitter/Github: <a href="">tmelliott</a></li> -->
+            </ul>
+          </div>
+        </section>
+
+        <section data-state="thanks" data-transition="fade">
+          <h2>Thank You</h2>
         </section>
       </div>
     </div>

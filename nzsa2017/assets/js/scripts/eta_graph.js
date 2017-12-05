@@ -6,6 +6,7 @@ function loadEtaGraph () {
         {"time":40,"eta":5},{"time":40,"eta":6},{"time":41,"eta":5},{"time":42,"eta":4},{"time":43,"eta":3},
         {"time":44,"eta":2},{"time":45,"eta":1},{"time":46,"eta":0},{"time":47,"eta":0},{"time":48,"eta":0}];
 
+    etagraph = undefined;
 
     var state = Reveal.getCurrentSlide().attributes["data-state"];
     if (state == undefined) return;
@@ -18,7 +19,9 @@ function loadEtaGraph () {
 }
 
 function clearEtaLine () {
-    etagraph.selectAll(".line").remove();
+    if (etagraph != undefined) {
+        etagraph.selectAll(".line").remove();
+    }
 }
 
 function oldgraphETAs () {

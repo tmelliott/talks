@@ -36,6 +36,14 @@ function graphs() {
   Reveal.addEventListener('fragmentshown', fragmentForward);
   Reveal.addEventListener('fragmenthidden', fragmentBack);
 
+  Reveal.addEventListener('realtimebuses', function() {
+    addPointsToMap(1000);
+  });
+  Reveal.addEventListener('theProblem', function() {
+    console.log("hello");
+    removePoints();
+  });
+
   Reveal.addEventListener('ourSolution', function() { removePoints(); });
 
   Reveal.addEventListener('busmodel', function() {
@@ -44,16 +52,10 @@ function graphs() {
       return;
     }
     removeSegmentLines();
-
-    // add points, if they don't already
-    
     removePoints(100);
     setTimeout(function() {
       zoomMap(11);
     }, 100);
-    // setTimeout(function() {
-    //   addPointsToMap(busdata, aklmap);
-    // }, 1000);
   });
 
   Reveal.addEventListener('busmodel2', function() {
@@ -61,15 +63,25 @@ function graphs() {
   });
 
   Reveal.addEventListener("busmodel3", function() {
-    removePoints(100);
-    setTimeout(function() {
-      zoomMap(11);
-    });
+    removeSegmentLines();
+    zoomMap();
+  });
+
+  Reveal.addEventListener("networkmodel", function() {
+    zoomMap();
   });
 
   Reveal.addEventListener("prediction", function() {
     removeSegmentLines();
-    removePoints();
+    removePoints(100);
+    setTimeout(function() {
+      zoomMap();
+    }, 1000);
+  });
+
+  Reveal.addEventListener("end", function () {
+    zoomMap();
+    setTimeout(addPointsToMap, 1000);
   });
 }
 
@@ -83,9 +95,6 @@ function fragmentForward () {
     case "busmodel2":
       doParticles(true);
       break;
-    // case "busmodel3":
-    //   opacifyBuses();
-    //   break;
     case "segSpeeds":
       doSegmentStuff(true);
       break;
@@ -108,9 +117,32 @@ function fragmentBack () {
   }
 }
 
+function getSlideZoom() {
+  var Zoom;
+  switch (Reveal.getState().indexh) {
+    case 0:
+    case 1:
+    case 11:
+    case 12:
+    case 13:
+      Zoom = 16;
+      break;
+    case 7:
+      Zoom = 13;
+      break;
+    case 8:
+    case 9:
+    case 10:
+      Zoom = 12;
+      break;
+    default:
+      Zoom = 11;
+  }
+  return Zoom;
+}
 
 function aklMap() {
-  var Zoom = Reveal.getState().indexh < 2 ? 16 : (Reveal.getState().indexh == 7 ? 13 : 11);
+  var Zoom = getSlideZoom();
   aklmap = new L.Map("aklMap", {
     center: Reveal.getState().indexh == 7 ? routeCenter : mapCenter,
     zoom: Zoom,
@@ -125,17 +157,24 @@ function aklMap() {
   aklsvg = d3.select(aklmap.getPanes().overlayPane)
         .append("svg");
 
-  getBusData();
-  setInterval(getBusData, 60000);
+  getBusData();  
+  setInterval(getBusData, 30000);
 }
 
 function getBusData () {
+  var url;
+  if ($(".busIcon").length == 0) {
+    busdata = [];
+    url = "y4obrzaqecdgemt/vehicle_locations_prev.pb";
+  } else {
+    url = "1fvto9ex649mkri/vehicle_locations.pb";
+  }
   protobuf.load("assets/proto/gtfs-realtime.proto", function(err, root) {
       if (err)
           throw err;
       var f = root.lookupType("transit_realtime.FeedMessage");
       var xhr = new XMLHttpRequest();
-      var vp = "https://dl.dropboxusercontent.com/s/1fvto9ex649mkri/vehicle_locations.pb?dl=1";
+      var vp = "https://dl.dropboxusercontent.com/s/" + url + "?dl=1";
       xhr.open("GET", vp, true);
       xhr.responseType = "arraybuffer";
       xhr.onload = function(evt) {
@@ -143,6 +182,7 @@ function getBusData () {
           if (busdata.length == 0) {
             busdata = m.entity;
             addPointsToMap();
+            setTimeout(getBusData, 1000);
           } else {
             updateData(m.entity);
           }
@@ -166,7 +206,7 @@ function updateData(data) {
     .data(busdata, function(d) { return d.vehicle.vehicle.id; });
 
 
-  pts.transition().duration(50000)
+  pts.transition().duration(29500)
       .ease(d3.easeLinear)
       .attr("x", function(d) { return d.pt.x; })
       .attr("y", function(d) { return d.pt.y; });
@@ -191,7 +231,7 @@ function updateData(data) {
 }
 
 function addPointsToMap(speed) {
-  if ($.inArray(Reveal.getState().indexh, [5, 6, 7, 8, 9, 11]) > -1) return;
+  if ($.inArray(Reveal.getState().indexh, [2, 3, 4, 5, 6, 7, 8, 9, 11]) > -1) return;
   if ($(".busIcon").length > 0) return; // points exist ...
   if (speed == undefined) speed = 1000;
   aklsvg = d3.select(aklmap.getPanes().overlayPane)
@@ -214,7 +254,6 @@ function addPointsToMap(speed) {
         .attr("y", function(d) { return d.pt.y; })
         .attr("opacity", 0)
           .transition().duration(speed)
-            .delay(function(d) { return Math.floor(Math.random() * 3 * speed); })
             .attr("opacity", 1);
 
   points_visible = true;
@@ -247,12 +286,6 @@ function removePoints(speed) {
   points_visible = false;
 }
 
-// function opacifyBuses() {
-//   aklsvg.selectAll(".busIcon")
-//     .transition().duration(300)
-//       .attr("opacity", 0.2);
-// }
-
 function project(x, y) {
   var pt = aklmap.latLngToLayerPoint(new L.LatLng(y, x));
   return pt;
@@ -261,32 +294,22 @@ function project(x, y) {
 
 function zoomMap(zoom) {
   var ind = Reveal.getState().indexh;
-  var newZoom = zoom == undefined ? 14 : zoom,
-      ctr = mapCenter;
-  if (ind > 2 && ind <= 6) {
-    newZoom = 11;
-  } else if (ind == 7) {
-    newZoom = 13;
-    ctr = routeCenter;
-  } else if (ind > 7) {
-    newZoom = 11;
-    ctr = mapCenter;
-  }
+  var newZoom = zoom == undefined ? getSlideZoom() : zoom;
+  var ctr = mapCenter;
   if (newZoom == aklmap.getZoom ()) return;
+  if (ind == 7) {
+    ctr = routeCenter;
+  }
 
+  var easeadd = $(".busIcon").length == 0;
   removePoints(0);
   setTimeout(function() {
     aklmap.flyTo(ctr, newZoom, {"duration": 1, "easeLinearity": 0.5});
   }, 100);
   setTimeout(function() {
-    addPointsToMap(0);
+    addPointsToMap(2000 * easeadd);
   }, 1100);
 }
-
-// NOTE: to do
-// - turn circles into a orange/blue bus (particle slides)
-// - speed up the latter half of the route ...
-// - 
 
 
 function demoRoute() {

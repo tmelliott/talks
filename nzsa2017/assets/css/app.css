@@ -4151,6 +4151,12 @@ body {
     width: 100%;
     text-align: center; }
 
+.reveal li.list-tick strong {
+  color: #009900; }
+
+.reveal li.list-cross strong {
+  color: #cc0000; }
+
 .titlepage {
   position: relative; }
   .titlepage .left {
@@ -4162,6 +4168,9 @@ body {
   .titlepage .bottom {
     position: absolute;
     bottom: 0; }
+  .titlepage .top {
+    position: absolute;
+    top: 0; }
   .titlepage .left img, .titlepage .right img, .titlepage .bottom img, .titlepage .top img {
     margin: 0; }
 
