@@ -8,14 +8,16 @@ function loadEtaGraph () {
 
     etagraph = undefined;
 
-    var state = Reveal.getCurrentSlide().attributes["data-state"];
-    if (state == undefined) return;
-    if (state.value == "etagraphOld") oldgraphETAs();
+    // var state = Reveal.getCurrentSlide().attributes["data-state"];
+    // if (state == undefined) return;
+    // if (state.value == "etagraphOld") oldgraphETAs();
     Reveal.addEventListener("etagraphOld", oldgraphETAs);
     Reveal.addEventListener("currentETAs", clearEtaLine);
 
     Reveal.addEventListener("fragmentshown", showgraphLine);
     Reveal.addEventListener("fragmenthidden", showgraphLine);
+
+    oldgraphETAs();
 }
 
 function clearEtaLine () {

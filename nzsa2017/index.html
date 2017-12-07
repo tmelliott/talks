@@ -17,6 +17,7 @@
           <!-- <h3 class="cursive stretch">Predicting bus arrival times using estimated road network state</h3> -->
           <h4 class="cursive stretch">
             Real-time transit network modelling for improved arrival time predictions
+            <div style="margin-top: 1em"><small>IASC-NZSA 2017</small></div>
           </h4>
 
           <div class="bottom left">
@@ -75,8 +76,8 @@
           <h2>Part 2</h2>
           <h3>Proposed predictive framework</h3>
           <ol>
-            <li class="fragment">Develop improved vehicle model</li>
-            <li class="fragment">Model network state (road travel times)</li>
+            <li class="fragment">Improved vehicle state model (speed)</li>
+            <li class="fragment">Network state model (road travel times)</li>
             <li class="fragment">Predict arrival times using vehicle + network states</li>
           </ol>
         </section>
@@ -108,12 +109,6 @@
                   $ = \begin{bmatrix} \phi_k \\ \lambda_k \end{bmatrix} $</span>
                 <span class="fragment" data-fragment-index="3">$ = h(X_k) $</span>
               </p>
-              <p class="text-left" style="margin-left: 30%">
-                <span class="fragment" data-fragment-index="6">
-                  $ g\left[h(X^{(i)}_k) | Y_k\right] \sim 
-                  \mathrm{Binormal}(0, \Sigma) $
-                </span>
-              </p>
             </div>
             <ul class="list-unstyled hidden">
               <li class="fragment" data-fragment-index="4">Let them travel independently until new observation recieved</li>
@@ -125,10 +120,19 @@
               <li class="fragment" data-fragment-index="12">Travel &hellip;</li>
             </ul>
             <p class="stretch"></p>
-            <p class="text-left smaller" style="margin-left: 30%">
-              <span class="fragment" data-fragment-index="7">
-                $ w_i = \frac{\ell(X_k^{(i)} | Y_k, \Sigma)}{\sum_j \ell(X_k^{(j)} | Y_k, \Sigma)} $
-              </span>
+            <div class="smaller" style="margin-left: 30%">
+              <p class="text-left">
+                <span class="fragment" data-fragment-index="6">
+                  $ Y_k | X_k^{(i)}, \Sigma \sim \mathrm{Binormal}(h(X_k^{(i)}), \Sigma) $
+                  <!-- $ g\left[h(X^{(i)}_k) | Y_k\right] \sim 
+                  \mathrm{Binormal}(0, \Sigma) $ -->
+                </span>
+              </p>
+              <p class="text-left">
+                <span class="fragment" data-fragment-index="7">
+                  $ w_i = \frac{\ell(X_k^{(i)} | Y_k, \Sigma)}{\sum_j \ell(X_k^{(j)} | Y_k, \Sigma)} $
+                </span>
+              </p>
             </p>
         </section>
 
@@ -182,6 +186,7 @@
             <li class="fragment"><strong>ETA distribution</strong> incorporates remaining uncertainty</li>
             <li class="fragment"><strong>Prediction intervals</strong> to communicate to commuters<br> 
               e.g., 10-16 minutes vs. 12 minutes</li>
+            <li class="fragment" style="margin-top: 1em"><strong>Future Work</strong>: journey planning?</li>
           </ul>        
 
           <p class="stretch"></p>

@@ -18,8 +18,8 @@ $(document).ready(function() {
   	]
   });
 
-  loadoldETAs();
-  loadEtaGraph();
+  // loadoldETAs();
+  // loadEtaGraph();
 
   // more functions?
   graphs();

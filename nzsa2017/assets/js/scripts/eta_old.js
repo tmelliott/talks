@@ -1,6 +1,6 @@
 function loadoldETAs () {
     var width = $("#ETA1").width(),
-        height = $("#ETA1").height();
+        height = Math.max(400, $("#ETA1").height());
 
     window.etasvg = 
         d3.select("#ETA1").append("svg")
@@ -26,14 +26,15 @@ function loadoldETAs () {
 
     buspos = {"x": 0, "y": -1, "height": 100};
 
-    var state = Reveal.getCurrentSlide().attributes["data-state"];
-    if (state == undefined) return;
-    if (state.value == "currentETAs") oldETAs();
+    // var state = Reveal.getCurrentSlide().attributes["data-state"];
+    // if (state == undefined) return;
+    // if (state.value == "currentETAs") oldETAs();
     Reveal.addEventListener("currentETAs", oldETAs);
     Reveal.addEventListener("fragmentshown", oldETAs2);
     Reveal.addEventListener("fragmenthidden", oldETAs2);
-
     Reveal.addEventListener("theProblem", clearETAs);
+
+    oldETAs();
 }
 
 function clearETAs () {

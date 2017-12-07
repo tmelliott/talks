@@ -44,6 +44,17 @@ function graphs() {
     removePoints();
   });
 
+  var state = Reveal.getCurrentSlide().attributes["data-state"];
+  if (state == undefined) return;
+  
+  if (state.value == "currentETAs") loadoldETAs();
+  Reveal.addEventListener("currentETAs", loadoldETAs);
+
+  if (state.value == "etagraphOld") loadEtaGraph();
+  Reveal.addEventListener("etagraphOld", loadEtaGraph);
+
+
+
   Reveal.addEventListener('ourSolution', function() { removePoints(); });
 
   Reveal.addEventListener('busmodel', function() {
@@ -75,7 +86,7 @@ function graphs() {
     removeSegmentLines();
     removePoints(100);
     setTimeout(function() {
-      zoomMap();
+      zoomMap(16, 2);
     }, 1000);
   });
 
@@ -195,6 +206,9 @@ function updateData(data) {
   // if current slide doesn't have any points, don't add them!
   if ($(".busIcon").length == 0) return;
 
+  if (Reveal.getState().indexh == 10 &&
+      Reveal.getState().indexf != 0) return;
+
   // do a check to see if the data has changed ... 
   busdata = data;
 
@@ -232,6 +246,8 @@ function updateData(data) {
 
 function addPointsToMap(speed) {
   if ($.inArray(Reveal.getState().indexh, [2, 3, 4, 5, 6, 7, 8, 9, 11]) > -1) return;
+  if (Reveal.getState().indexh == 10 &&
+      Reveal.getState().indexf != 0) return;
   if ($(".busIcon").length > 0) return; // points exist ...
   if (speed == undefined) speed = 1000;
   aklsvg = d3.select(aklmap.getPanes().overlayPane)
@@ -292,7 +308,7 @@ function project(x, y) {
 }
 
 
-function zoomMap(zoom) {
+function zoomMap(zoom, speed) {
   var ind = Reveal.getState().indexh;
   var newZoom = zoom == undefined ? getSlideZoom() : zoom;
   var ctr = mapCenter;
@@ -300,11 +316,12 @@ function zoomMap(zoom) {
   if (ind == 7) {
     ctr = routeCenter;
   }
+  if (speed == undefined) speed = 0.5;
 
   var easeadd = $(".busIcon").length == 0;
   removePoints(0);
   setTimeout(function() {
-    aklmap.flyTo(ctr, newZoom, {"duration": 1, "easeLinearity": 0.5});
+    aklmap.flyTo(ctr, newZoom, {"duration": 1, "easeLinearity": speed});
   }, 100);
   setTimeout(function() {
     addPointsToMap(2000 * easeadd);
@@ -532,10 +549,6 @@ function doSegmentStuff() {
     case 1:
       showSegmentLines();
       break;
-    case 2:
-      removeSegmentLines();
-      removePoints();
-      break;
   }
 }
 
@@ -564,9 +577,10 @@ function createSegmentsLines() {
 }
 
 function showSegmentLines() {
-  // removePoints(30000);
+  // removePoints(10000);
   aklsvg.selectAll(".busIcon")
-    .transition().duration(10000)
+    .transition().duration(500)
+      .delay(function(d) { return Math.floor(Math.random() * 20000); })
       .attr("opacity", 0)
       .remove();
 
@@ -588,7 +602,7 @@ function showSegmentLines() {
         })
         .attr("opacity", 0)
         .transition().duration(1000)
-          .delay(function(d) { return Math.floor(Math.random() * 30000); })
+          .delay(function(d) { return Math.floor(Math.random() * 20000); })
           .attr("opacity", 0.5);
 
 }
