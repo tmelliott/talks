@@ -4100,12 +4100,6 @@ body {
     fill: orangered; }
   #aklMap line {
     stroke-width: 3; }
-  #aklMap .busIcon {
-    height: 18px; }
-  #aklMap .busIcon-small {
-    height: 8px; }
-  #aklMap .busIcon-large {
-    height: 25px; }
 
 .etagraph svg .routeline {
   fill: none;

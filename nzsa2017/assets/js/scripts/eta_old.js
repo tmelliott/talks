@@ -84,6 +84,7 @@ function oldETAs () {
             .attr("x", xl(buspos.x))
             .attr("y", yl(buspos.y) - buspos.height / 2)
             .attr("height", buspos.height + "px")
+            .attr("width", buspos.height + "px")
             .attr("opacity", 0)
         .transition().delay(1500)
             .duration(500)
