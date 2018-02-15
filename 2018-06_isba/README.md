@@ -1,28 +1,32 @@
-# Some cool title
+# How can we improve bus ETAs? Using real-time position data to estimate road state
 ## ISBA 2018 - Edinburgh
 
-_Keywords_: 
-`recursive bayes`
-`particle filter`
-`kalman filter`
-`public transport`
-`gtfs`
+_Keywords: 
+recursive bayes,
+particle filter,
+Kalman filter,
+public transport,
+gtfs_
 
-The one critical piece of information that is not incorporated into many 
-bus arrival-time prediction methods is real-time congestion.
-We have been developing a framework that uses publicly available
-vehicle location data to estimate the state---including 
-travel times along individual roads---of each bus in the 
-public transport network, 
-in order to determine the real-time state (i.e., congestion)
-of roads within the network.
-This new source of information can then be used to make
-improved arrival-time predictions,
-or (as is most likely) to quantify as much of the uncertainty as possible,
-and communicating this to commuters (e.g., using prediction intervals).
 
-The vehicle model has been implemented using a particle filter,
-a robust and flexible method for recursive state estimate.
-However, the network state has only a single parameter---travel time---and 
-so we have been able to implement an extended Kalman filter (EKF) that,
-without any input, converges to the prior (based on historical data).
+Many bus arrival-time prediction methods do not account for congestion
+levels of roads along the route.
+For example, real-time feeds based on GTFS, an API specification for transit data
+used in Auckland, New Zealand and many other cities worldwide,
+use "scheduled arrival time + current delay".
+If it were available, this congestion information
+would greatly increase the reliability of arrival-time predictions,
+and improve commuter satisfaction.
+While no direct measurement of congestion is available (at least in general),
+we do have GPS trajectories for recent buses along upcoming roads.
+We have developed a particle filter that implements an improved vehicle model
+to estimate vehicle state using real-time vehicle locations from a GTFS feed.
+From this we can estimate the vehicle's travel time along road segments,
+which is in turn used to update the state of the road network
+using an (extended) Kalman filter.
+In the absence of recent buses, the network model
+has been formulated to converge towards a time-dependent prior
+based on historical data, allowing for peak periods.
+The vehicle and road network states can then be combined to generate
+a predictive distribution of arrival times.
+
