@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>useR! 2018 | Tom Elliott</title>
+    <link rel="stylesheet" href="assets/css/app.css">
+  </head>
+  <body>
+    <div class="reveal">
+      <div class="slides">
+        <section id="titlepage" class="titlepage">
+          <h3>
+            Historical data based priors for<br> better bus arrival-time prediction
+          </h3>
+          <div style="margin-top: 1em" class="stretch">
+            <img src="https://user2018.r-project.org/img/user_au_logo.png" alt="" class="bare"
+              height="150"><br>
+            <small>Brisbane, 2018</small>
+          </div>
+
+          <div class="title-footer-container">
+            <div class="title-footer-left">
+              <p class="text-left">Tom Elliott</p>
+              <p class="small text-left">
+                  <i class="fa fa-github"></i> <a href="">@tmelliott</a> 
+                  <br>
+                  <i class="fa fa-twitter"></i> <a href="">@tomelliottnz</a>
+                  <br>
+                  <i class="fa fa-envelope"></i>
+                  <a href="">tom.elliott@auckland.ac.nz</a>
+              </p>
+            </div>
+
+            <div class="title-footer-right">
+              <img src="assets/img/uoa.png" alt="University of Auckland" width="260" class="bare">
+            </div>
+          </div>
+        </section><!-- .titlepage -->
+
+
+        <section id="overview">
+          <h3>Project Overview</h3>
+          
+          <p><strong>Primary aim:</strong>
+            predict bus arrival time using travel time information from other buses</p>
+          
+          <p>Bayesian framework for network state:</p>
+
+          <p>
+            <span class="fragment highlight-red highlight-once" data-fragment-index="3">$\Pr(\theta|x)$</span>
+            $\propto$ 
+            <span class="fragment highlight-red highlight-once" data-fragment-index="4">$\Pr(\theta)$</span> 
+            <span class="fragment highlight-red highlight-once" data-fragment-index="2">$\Pr(x|\theta)$</span>
+          </p>
+
+          <ol>
+            <li class="fragment highlight-red" data-fragment-index="1">model all buses in network in real-time</li>
+            <li class="fragment highlight-red" data-fragment-index="2">use vehicle speed estimates to update network state</li>
+            <li class="fragment highlight-red" data-fragment-index="3">incorporate network state in arrival time predictions</li>
+          </ol>
+
+        </section><!-- #overview -->
+
+        <section id="network">
+          <h3>Constructing a GTFS road network</h3>
+
+          <ol>
+            <li>Raw GTFS data consists of one polyline per route</li>
+            <li>Convert GPS paths to road network using algorithm adapted from Zhang et al. (2017)</li>
+            <li>Represent each route as sequence of road segments</li>
+          </ol>
+        </section>
+
+        <section id="historicalData">
+          <h3>Historical data based prior I</h3>
+
+          <ol>
+            <li>One year of GTFS real-time data (~100 million obs)
+              <p class="text-center">
+                $\boldsymbol{y}_i =\;[$
+                <span class="fragment highlight-red highlight-once" data-fragment-index="1">$t_i$</span>
+                $,$
+                <span class="fragment highlight-red highlight-once" data-fragment-index="2">$\phi_i$</span>
+                $,$
+                <span class="fragment highlight-red highlight-once" data-fragment-index="2">$\lambda_i$</span>
+                $,$
+                <span class="fragment highlight-red highlight-once" data-fragment-index="1">
+                  <span class="fragment highlight-red highlight-once" data-fragment-index="2">$\mathit{trip}_i$</span>
+                </span>
+                $]$
+              </p>
+              <small>A <strong>trip</strong> is an instance of a route at a scheduled time of day</small>
+            </li>
+            <li>Filter observations <strong class="fragment highlight-red highlight-once" data-fragment-index="1">temporally</strong> and <strong class="fragment highlight-red highlight-once" data-fragment-index="2">spatially</strong></li>
+            <li>Match each $y_i$ to nearest point on path<br>
+            $\Rightarrow$ distance traveled, $x_i \Rightarrow$ segment, $r_i$
+              <p class="text-center">
+              $\boldsymbol z_i =\;[$
+              $t_i$
+              $,$
+              $x_i$
+              $,$
+              $r_i$
+              $,$
+              $\mathit{trip}_i$
+              $]$
+              </p>
+            </li>
+          </ol>
+
+          <span class="fragment"></span>
+          
+        </section><!-- #historicalData -->
+
+
+        <section id="model">
+          <h3>Historical data based prior II</h3>
+
+          <ul>
+            <li>do stuff</li>
+          </ul>
+
+        </section><!-- #model -->
+        
+
+        <section id="future">
+          <h3>What's next?</h3>
+
+          <ul>
+            <li>More complex, spline-based models:<br>
+            speed $=$ $s_1$(distance, time) $ + $ error</li>
+            <li>Find fast estimation procedure to model entire year,<br>
+              <small>include additional covariates: yesterday, last Xday, school holidays, etc</small>
+            </li>
+            <li>Finish and release R package to construct road network and generate prior: 
+              <code class="small">gtfsnetwork</code>
+            </li>
+          </ul>
+        </section>
+      </div>
+    </div>
+
+    <script src="assets/js/app.min.js"></script>
+  </body>
+</html>
