@@ -1,0 +1,377 @@
+\documentclass[plainboxedsections]{sciposter}
+
+%\usepackage{subcaption}
+\usepackage{multicol}
+\usepackage{amsmath,amsfonts}
+\usepackage{graphicx}
+\usepackage{xcolor}
+\usepackage{wrapfig}
+\usepackage{cite}
+\usepackage{subfig}
+
+\definecolor{BoxCol}{rgb}{0.01,0.31,0.52}
+\definecolor{SectionCol}{rgb}{1,1,1}
+
+\norightlogo
+\leftlogo{figs/UOA-VC-RGB}
+\title{Improving bus arrival-time estimates\\
+    \Huge{using real-time vehicle positions to estimate road state}}
+\author{Tom Elliott and Thomas Lumley}
+\institute{Department of Statistics, University of Auckland, New Zealand}
+\email{tom.elliott@auckland.ac.nz}
+\conference{2018 ISBA World Meeting, Edinburgh, UK, June 24--29 2018}
+
+\newcommand{\bX}{\boldsymbol X}
+\newcommand{\bY}{\boldsymbol Y}
+\newcommand{\bR}{\boldsymbol R}
+\newcommand{\bv}{\boldsymbol v}
+
+<<knitr,echo=FALSE>>=
+knitr::opts_chunk$set(message=FALSE,warning=FALSE,results='hide',echo=FALSE)
+@
+
+<<libraries>>=
+suppressPackageStartupMessages({
+    library(tidyverse)
+    library(ggplot2)
+    library(dbplyr)
+    library(RSQLite)
+    library(ggmap)
+})
+
+<<r_setup,cache=TRUE>>=
+gtfs.db <- "../../TransitNetworkModel/gtfs.db"
+gtfs <- dbConnect(SQLite(), gtfs.db)
+
+shapeid <- gtfs %>% tbl("routes") %>% select(shape_id, route_id) %>%
+    filter(route_id %like% "27401%") %>%
+    head(1) %>% collect %>% pluck('shape_id')
+shape <- gtfs %>% tbl("shapes") %>%
+    filter(shape_id == shapeid) %>% arrange(seq) %>% collect
+
+dbDisconnect(gtfs)
+
+shp <- shape %>% filter(between(dist_traveled, 2700, 3800))
+xr = extendrange(shp$lng, f = 2) 
+yr = extendrange(shp$lat)
+bbox = c(xr[1], yr[1], xr[2], yr[2])
+akl = get_stamenmap(bbox, zoom = 16, maptype = "toner-hybrid")
+
+map <- ggmap(akl) +
+    geom_path(aes(lng, lat), data = shape, color = "skyblue2",
+              alpha = 0.9, lwd = 2) +
+    theme(axis.text = element_blank(), 
+          axis.ticks = element_blank(),
+          panel.grid.major = element_blank()) + xlab("") + ylab("")
+
+
+bearing <- function(a, b) {
+    ## convert to radians!!
+    lam.a <- a[1] * pi / 180
+    lam.b <- b[1] * pi / 180
+    phi.a <- a[2] * pi / 180
+    phi.b <- b[2] * pi / 180
+    th.rad <- atan2(sin(lam.b - lam.a) * cos(phi.b),
+                    cos(phi.a) * sin(phi.b) - sin(phi.a) * cos(phi.b) * cos(lam.b - lam.a))
+    (th.rad * 180 / pi) %% 360
+}
+
+partialSegment <- function(x, theta, d, R = 6371000) {
+    ## Compute the Lat/Lon after traveling distance D
+    ## from point X at a bearing of THETA
+    
+    delta <- d / R ## for single calculation
+    theta <- theta * pi / 180  ## convert to radians
+    phi.s <- x[2] * pi / 180
+    lam.s <- x[1] * pi / 180
+    
+    phi.z <- asin(sin(phi.s) * cos(delta) + cos(phi.s) * sin(delta) * cos(theta))
+    lam.z <- lam.s + atan2(sin(theta) * sin(delta) * cos(phi.s),
+                           cos(delta) - sin(phi.s) * sin(phi.z))
+    c(phi.z, lam.z) * 180 / pi
+}
+h <- function(d, sh) {
+    i <- which(sh$dist_traveled > d)[1]
+    if (sh$dist_traveled[i-1] == d) return(c(sh$lat[i-1], sh$lng[i-1]))
+    a <- c(sh$lng[i-1], sh$lat[i-1])
+    b <- c(sh$lng[i], sh$lat[i])
+    theta <- bearing(a, b)
+    partialSegment(a, theta, d - sh$dist_traveled[i-1])
+}
+
+
+p <- dget("particles.dat") %>% as.tibble
+T <- unique(p$timestamp)
+
+set.seed(2)
+dobs <- 3300
+Yobs <- h(dobs, shape) + rnorm(2, 0, 0.0001)
+@
+
+
+\begin{document}
+\maketitle
+
+
+% \begin{minipage}[t]{0.58\linewidth}
+\begin{minipage}[t]{0.38\linewidth}
+    \section{Introduction\phantom{j}}
+    \begin{itemize}
+        \item real-time prediction is hard, requires both current position and future travel times
+        \item position tracking well studied, 
+            e.g., Kalman Filter \cite{Wall99analgorithm,Dailey_2001,Cathey_2003}, 
+            particle filter \cite{Hans_2015}, etc.
+        \item estimating and predicting road state (i.e., travel time along roads) less developed, 
+            particularly for bus prediction
+        \item several papers use other vehicles \emph{on the same route} \cite{Yu_2011}
+        \item no generic attempt to model travel times independently of route
+        \item many public transport providers don't use any form of traffic model, 
+            instead relying on scheduled stop times (often inaccurate, don't respond to real-time events)
+    \end{itemize}
+% \end{minipage}
+% \hspace{0.04\linewidth}
+% \begin{minipage}[t]{0.38\linewidth}
+%     \section{Objectives}
+%     \begin{itemize}
+%         \item estimate real-time state (including speed) of buses using sparse (approx.\ 30~seconds) GPS observations
+%         \item construct a road network (intersections connected by road segments) from GTFS route shape data
+%         \item map real-time positions to a physical road segment, and update its state
+%         \item use road state estimates to predict future travel times 
+%     \end{itemize}
+% \end{minipage}
+
+% \vspace{0.02\linewidth}
+% \fboxsep=0pt
+% \begin{minipage}[t]{0.38\linewidth}
+    \section{Vehicle state model\phantom{j}}
+
+    \textbf{Goal:} estimate vehicle state $\bX_k$ (trip distance traveled and speed)
+        from observed GPS positions, $\bY_k$, at time $t_k$
+    \begin{itemize}
+        \item sequential Bayesian methods well suited to real-time vehicle tracking
+        \item the \textbf{particle filter} is a general, flexible estimation method using
+            a sample of particles $\tilde\bX_k =(\bX_k^{(i)})_{i=1}^N$ to approximate state
+        \item handles multimodality (e.g., when passing bus stops) and assymetry 
+            (e.g., bus cannot go backwards)
+        \item involves two steps: \emph{predict} future state, and \emph{update} state
+            using likelihood function
+
+        \item measurement function $h:\mathbb{R}\mapsto\mathbb{R}^2$ calculates map (GPS) position
+            of each particle based on distance traveled along shape
+        \item start with vehicle state $\tilde\bX_{k-1}$
+<<vehicle_state_initial,fig.width=8,fig.height=3,out.width='0.85\\linewidth',fig.align='center'>>=
+p1 <- p %>% filter(k == 1 & between(t, T[1], T[2]))
+
+set.seed(1)
+pids <- p1 %>% filter(d < 2820) %>% pluck('particle_id') %>%
+    unique %>% sample(10)
+
+p1f <- p1 %>% filter(particle_id %in% pids)
+x1 <- ggplot(p1f %>% filter(t == T[1])) +
+    geom_point(aes(t, d), col = "orangered", size = 3, pch = 19) +
+    scale_x_datetime(breaks = T[1:2], limits = T[1:2],
+        labels = c(expression(t[k-1]), expression(t[k]))) +
+    # xlim(T[1], T[2]) + #ylim(min(p1f$d), max(p1f$d)) +
+    xlab("Time") + ylab("Distance traveled") + ylim(2700, 3800) +
+    theme(axis.text.y = element_blank(),
+          axis.ticks.y = element_blank(),
+          axis.text.x = element_text(size = 14),
+          panel.grid.major.y = element_blank(),
+          panel.grid.minor = element_blank())# +
+#    geom_vline(xintercept = T[2], lty = 2, colour = "red")
+
+
+dx1 <- sapply(p1f %>% filter(t == T[1]) %>% pluck('d'), h, sh = shape) %>%
+    t %>% as.tibble %>% mutate(lat = V1, lng = V2) %>% select(lat, lng)
+m1 <- map + geom_point(aes(lng, lat), data = dx1, colour = "orangered",
+                       size = 2, stroke = 2, pch = 21, fill = "white") +
+    geom_point(aes(x = Yobs[2], y = Yobs[1]), pch = 4, colour = "red",
+               size = 1.5, stroke = 2)
+gridExtra::grid.arrange(x1, m1, ncol = 2, widths = c(3, 1))
+@
+        \item new observation recieved at time $t_k$
+        \item transition function $f$ predicts state of each particle
+            based on previous state at time $t_{k-1}$,
+            with system noise parameter $Q_k$
+            \begin{equation*}
+                \bX_k^{(i)} = f(\bX_k^{(i)}, w_k),\quad
+                w_k \sim N(0, Q_{k-1})
+            \end{equation*}
+<<vehicle_state_predict,fig.width=8,fig.height=3,out.width='0.85\\linewidth',fig.align='center',results='show'>>=
+x2 <- x1 + geom_path(aes(t, d, group = particle_id),
+                     data = p1f, lty = 2) +
+    geom_point(aes(t, d), data = p1f %>% filter(t == T[2]),
+               size = 1.5, pch = 19)
+
+dx2 <- sapply(p1f %>% filter(t == T[2]) %>% pluck('d'), h, sh = shape) %>%
+    t %>% as.tibble %>%
+    mutate(id = p1f %>% filter(t == T[2]) %>% pluck('particle_id'),
+           lat = V1, lng = V2) %>%
+    select(id, lat, lng)
+m2 <- map +
+    geom_point(aes(lng, lat), data = dx2, colour = "black", size = 2, stroke = 2,
+               pch = 21, fill = "white") +
+    geom_point(aes(x = Yobs[2], y = Yobs[1]), pch = 4, colour = "red",
+               size = 1.5, stroke = 2)
+gridExtra::grid.arrange(x2, m2, ncol = 2, widths = c(3, 1))
+@
+        \item assume observation $\bY_k$ is a noisy measurement of true 
+            position with error $\sigma^2_y$,
+            and use geographic projection function $g$ such that
+            $\mathit{dist}(g(\bY_1), g(\bY_2))$ is the distance between
+            the two points on the ground
+            \begin{equation*}
+                g(\bY_k) \sim N\left(g(h(\bX_k)), 
+                \begin{bmatrix}
+                    \sigma^2_y & 0 \\ 0 & \sigma^2_y
+                \end{bmatrix}
+                \right)
+            \end{equation*}
+        \item $\delta_k^{(i)}$ is the distance between a particle position and 
+            observed position, which is the sum of two 
+            independent normal r.v.'s, giving the likelihood function
+            \begin{align*}
+                \left(\delta_k^{(i)} / \sigma_y^2\right)
+                &\sim \chi^2(2) \sim \mathrm{Exp}(0.5) \\
+                p(\bY_k | \bX_k^{(i)}) &= 0.5e^{-\delta_k^{(i)} / 2\sigma_y^2}
+            \end{align*}
+        \item update state by resampling particles with replacement, using likelihood weights
+            $w^{(i)} = p(\bY_k | \bX_k^{(i)}) / \sum_{j=1}^N p(\bY_k | \bX_k^{(j)})$
+<<vehicle_state_update,fig.width=8,fig.height=3,out.width='0.85\\linewidth',fig.align='center',results='show'>>=
+ll <- dnorm(p1f %>% filter(t == T[2]) %>% pluck("d"), dobs, 20)
+wt <- ll / sum(ll)
+
+idk <- sample(p1f$particle_id %>% unique, prob = wt, replace = TRUE)
+
+p3 <- p1f %>% mutate(keep = ifelse(particle_id %in% idk, "yes", "no"))
+x3 <- x1 + geom_path(aes(t, d, group = particle_id, colour = keep,
+                         lty = keep),
+               data = p3) +
+    scale_colour_manual(values = c("yes" = "orangered", "no" = "gray")) +
+    scale_linetype_manual(values = c("yes" = 1, "no" = 2)) +
+    geom_point(aes(t, d, colour = keep, size = keep),
+               data = p3 %>% filter(t == T[2])) +
+    scale_size_manual(values = c("yes" = 3, "no" = 1)) +
+    theme(legend.position = 'none')
+
+dx3 <- dx2 %>% mutate(keep = ifelse(id %in% idk, "yes", "no"))
+m3 <- map +
+    geom_point(aes(lng, lat, colour = keep),
+               data = dx3 %>% arrange((keep)),
+               size = 2, stroke = 2, pch = 21, fill = "white") +
+    scale_colour_manual(values = c("yes" = "orangered", "no" = "gray")) +
+    theme(legend.position = "none")
+gridExtra::grid.arrange(x3, m3, ncol = 2, widths = c(3, 1))
+@
+        \item we now have estimate of vehicle speed at time $t_k$,
+            which we can use in section~\ref{sec:nw}
+    \end{itemize}
+
+\end{minipage}
+\hspace{0.04\linewidth}
+\begin{minipage}[t]{0.58\linewidth}
+    \section{GTFS network construction\phantom{j}}
+
+    \textbf{Goal:} to represent each bus route as a sequence of
+    physical road segments between intersections.
+    \begin{enumerate}
+        \item raw GTFS data provides one shape per route, represented as sequence of latitude/longitude coordinates
+        \item identify points of intersection between one or more routes using algorithm adapted from 
+            \cite{Zhang_2017}
+        \item split shapes at intersection points to obtain shapes for each individual road segment
+        \item express each route as a sequence of road segments
+    \end{enumerate}
+
+    \begin{figure}
+        \centering
+        \includegraphics{figs/gtfs-nw_figure1}
+        \hspace{5em}
+        \includegraphics{figs/gtfs-nw_figure2}
+        \caption{An example transit netork produced from five routes.}
+    \end{figure}
+
+    Currently being implemented in the \texttt{gtfsnetwork} package on GitHub: https://github.com/tmelliott/gtfsnetwork
+
+    \section{Network state model\phantom{j}}
+    \label{sec:nw}
+
+    \textbf{Goal:} to model the travel time of transit vehicles along a road now, and in the near-future
+
+    \begin{itemize}
+        \item each segment $j$ has state $\beta^j_r$ (the travel time of vehicles along the segment) 
+            at time $t_r$
+        \item use historical data to determine the prior state $\mu_j(t)$ and $\psi_j(t)$, 
+            the mean and variance of travel time at time $t$
+        \item define transition function $a$ such that the state converges to the prior 
+            \begin{equation*}
+                \beta^j_{r} = a(\beta^j_{r-1}, P^j_{r-1}, \mu_j(t_r), \psi_j(t_r))
+                    = \beta^j_{r-1} + \frac{\lambda P^j_{r-1}}{P^j_{r-1} + \psi_j(t_r)}
+                    (\mu_j(t_r) - \beta^j_{r-1}) + e^j_r,\quad
+                    e^j_r \sim N(0, S_j)
+            \end{equation*}
+<<road_state_prior,fig.width=6,fig.height=4,fig.subcap=c('A', 'B'),fig.align='center',fig.env='figure'>>=
+X <- x <- 20
+P <- p <- 2
+n <- 30
+lambda <- 0
+
+KF <- function(x, P, mu, sigma, delta, lambda = 1/600,
+               keep = FALSE) {
+    if (keep) {
+        hist <- list(x = numeric(delta)+1, P = numeric(delta)+1)
+    }
+    hist$x[1] <- x
+    hist$P[1] <- P
+    for (i in 1:delta) {
+        l <- P / (P + sigma)
+        x <- x + l*lambda * (mu - x)
+        q <- (1 - (1 - l*lambda)^2) * sigma
+        P <- (1 - l*lambda)^2 * P + q
+        ##P <- P + lambda * (x / (x + mu))^2 * (sigma - P)
+        hist$x[i+1] <- x
+        hist$P[i+1] <- P
+    }
+    o <- list(x = x, P = P)
+    if (keep) o$hist <- hist
+    o
+}
+
+pmean <- 30
+pvar <- 30
+r <- KF(20, 1, pmean, pvar, 3600, lambda=1/300, keep = TRUE)
+r <- r$hist %>%
+    as.tibble %>%
+    add_column(i = 1:nrow(.)-1L, .before = 1)
+ti <- 5*60+1
+obsx <- 19
+obsv <- 1
+p0 <- ggplot(r, aes(i/60)) +
+    geom_hline(yintercept = pmean + sqrt(pvar) * c(0, -1, 1),
+               lty = 2, lwd = c(1.5, 1, 1), col = "steelblue") +
+    geom_line(aes(y = pmax(0, x - sqrt(P)))) +
+    geom_line(aes(y = pmax(0, x + sqrt(P)))) +
+    geom_line(aes(y = x), lwd = 1.5) +
+    xlab("Time since last observation (min)") + ylab("Road speed (km/h)")
+
+p1 <- p0 + geom_pointrange(aes(x = 5, y = obsx, ymin = obsx-obsv, ymax = obsx+obsv),
+                    data = NULL, col = "red", fill = "white", pch = 21)
+
+p0
+p1
+@
+
+    \end{itemize}
+
+    \section{Arrival time prediction}
+
+
+    \section{Conclusion}
+
+
+    \bibliographystyle{unsrt}
+
+    {\scriptsize\bibliography{reflist}}
+\end{minipage}
+
+
+\end{document}
