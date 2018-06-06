@@ -1,6 +1,5 @@
-\documentclass[plainboxedsections]{sciposter}
+\documentclass[plainboxedsections,landscape]{sciposter}
 
-%\usepackage{subcaption}
 \usepackage{multicol}
 \usepackage{amsmath,amsfonts}
 \usepackage{graphicx}
@@ -8,11 +7,13 @@
 \usepackage{wrapfig}
 \usepackage{cite}
 \usepackage{subfig}
+% \usepackage{sidecap}
 
 \definecolor{BoxCol}{rgb}{0.01,0.31,0.52}
 \definecolor{SectionCol}{rgb}{1,1,1}
 
-\norightlogo
+
+% \norightlogo
 \leftlogo{figs/UOA-VC-RGB}
 \title{Improving bus arrival-time estimates\\
     \Huge{using real-time vehicle positions to estimate road state}}
@@ -37,6 +38,7 @@ suppressPackageStartupMessages({
     library(dbplyr)
     library(RSQLite)
     library(ggmap)
+    library(egg)
 })
 
 <<r_setup,cache=TRUE>>=
@@ -113,21 +115,56 @@ Yobs <- h(dobs, shape) + rnorm(2, 0, 0.0001)
 \maketitle
 
 
-% \begin{minipage}[t]{0.58\linewidth}
-\begin{minipage}[t]{0.38\linewidth}
-    \section{Introduction\phantom{j}}
+\begin{minipage}[t]{0.59\linewidth}
+    \section{Introduction}
     \begin{itemize}
-        \item real-time prediction is hard, requires both current position and future travel times
+        % \item real-time prediction is hard, requires both current position and future travel times
         \item position tracking well studied, 
             e.g., Kalman Filter \cite{Wall99analgorithm,Dailey_2001,Cathey_2003}, 
             particle filter \cite{Hans_2015}, etc.
         \item estimating and predicting road state (i.e., travel time along roads) less developed, 
             particularly for bus prediction
-        \item several papers use other vehicles \emph{on the same route} \cite{Yu_2011}
-        \item no generic attempt to model travel times independently of route
+        \item several papers use other vehicles \emph{on the same route} \cite{Yu_2011}, 
+            but no generic attempt to model travel times independently of route
         \item many public transport providers don't use any form of traffic model, 
             instead relying on scheduled stop times (often inaccurate, don't respond to real-time events)
     \end{itemize}
+
+% \end{minipage}
+% \begin{minipage}[t]{0.59\linewidth}
+\begin{minipage}[t]{0.33\linewidth}
+    \section{GTFS network construction}
+    % \textbf{Goal:} to represent each bus route as a sequence of
+    % physical road segments between intersections.
+    \begin{itemize}
+        \item \textbf{GTFS} is an API specification for transit APIs \cite{GoogleDevelopers_2006}
+        \item available in over 500 locations worldwide
+        \item therefore, a general approach to `segmenting' the network is required
+    \end{itemize}
+
+    \begin{enumerate}
+        \item raw GTFS data provides \textbf{one shape per route}
+        \item \textbf{identify points of intersection} between one or more routes using algorithm adapted from 
+            \cite{Zhang_2017}
+        \item \textbf{split shapes at intersections} to obtain shapes for each individual road segment
+        \item express each route as a sequence of road segments
+    \end{enumerate}
+
+    \begin{figure}
+        \centering
+        \includegraphics{figs/gtfs-nw_figure1}
+        \hspace{2em}
+        \includegraphics{figs/gtfs-nw_figure2}
+        \caption{An example transit netork produced from five routes. Left: the raw GTFS shapes; Right: the generated transit network with intersections shown as dots.}
+    \end{figure}
+
+    \begin{itemize}
+        \item Implementation in progress: the \texttt{gtfsnetwork} R package, github.com/tmelliott/gtfsnetwork
+    \end{itemize}
+
+    \bibliographystyle{unsrt}
+    {\tiny\bibliography{reflist}}
+
 % \end{minipage}
 % \hspace{0.04\linewidth}
 % \begin{minipage}[t]{0.38\linewidth}
@@ -138,28 +175,34 @@ Yobs <- h(dobs, shape) + rnorm(2, 0, 0.0001)
 %         \item map real-time positions to a physical road segment, and update its state
 %         \item use road state estimates to predict future travel times 
 %     \end{itemize}
-% \end{minipage}
+\end{minipage}
+\hspace{0.01\linewidth}
+\begin{minipage}[t]{0.65\linewidth}
+    \section{Vehicle state model}
 
-% \vspace{0.02\linewidth}
-% \fboxsep=0pt
-% \begin{minipage}[t]{0.38\linewidth}
-    \section{Vehicle state model\phantom{j}}
-
-    \textbf{Goal:} estimate vehicle state $\bX_k$ (trip distance traveled and speed)
-        from observed GPS positions, $\bY_k$, at time $t_k$
+    % \textbf{Goal:} to estimate the state $\bX_k$ of a bus (trip distance traveled and speed)
+    %     from GPS positions, $\bY_k$, at time $t_k$, in real-time
     \begin{itemize}
-        \item sequential Bayesian methods well suited to real-time vehicle tracking
-        \item the \textbf{particle filter} is a general, flexible estimation method using
-            a sample of particles $\tilde\bX_k =(\bX_k^{(i)})_{i=1}^N$ to approximate state
-        \item handles multimodality (e.g., when passing bus stops) and assymetry 
-            (e.g., bus cannot go backwards)
-        \item involves two steps: \emph{predict} future state, and \emph{update} state
-            using likelihood function
-
+        % \vspace{1em}
+        \item sequential Bayesian methods well suited to \textbf{real-time vehicle tracking}
+        \item \textbf{particle filter}: general, flexible estimation method that 
+            uses sample of particles $\tilde\bX_k =(\bX_k^{(i)})_{i=1}^N$,
+            allowing it to handle \textbf{multimodality} (e.g., when passing bus stops) 
+            and \textbf{assymetry} (e.g., bus cannot go backwards)
+        % \item involves two steps: \emph{predict} future state, and \emph{update} state
+        %     using likelihood function
         \item measurement function $h:\mathbb{R}\mapsto\mathbb{R}^2$ calculates map (GPS) position
             of each particle based on distance traveled along shape
-        \item start with vehicle state $\tilde\bX_{k-1}$
-<<vehicle_state_initial,fig.width=8,fig.height=3,out.width='0.85\\linewidth',fig.align='center'>>=
+    \end{itemize}
+
+    \begin{minipage}[t]{0.49\linewidth}
+
+
+        % \end{itemize}
+    % \end{minipage}
+    % \hspace{0.01\linewidth}
+    % \begin{minipage}{0.49\linewidth}
+<<vehicle_state_initial,fig.width=5,fig.height=3,out.width='\\linewidth',fig.align='center'>>=
 p1 <- p %>% filter(k == 1 & between(t, T[1], T[2]))
 
 set.seed(1)
@@ -187,17 +230,27 @@ m1 <- map + geom_point(aes(lng, lat), data = dx1, colour = "orangered",
                        size = 2, stroke = 2, pch = 21, fill = "white") +
     geom_point(aes(x = Yobs[2], y = Yobs[1]), pch = 4, colour = "red",
                size = 1.5, stroke = 2)
-gridExtra::grid.arrange(x1, m1, ncol = 2, widths = c(3, 1))
+# ggarrange(x1, m1, widths = c(3, 1))
 @
-        \item new observation recieved at time $t_k$
-        \item transition function $f$ predicts state of each particle
-            based on previous state at time $t_{k-1}$,
-            with system noise parameter $Q_k$
-            \begin{equation*}
-                \bX_k^{(i)} = f(\bX_k^{(i)}, w_k),\quad
-                w_k \sim N(0, Q_{k-1})
-            \end{equation*}
-<<vehicle_state_predict,fig.width=8,fig.height=3,out.width='0.85\\linewidth',fig.align='center',results='show'>>=
+    % \end{minipage}
+
+    % \begin{minipage}{0.49\linewidth}
+    %     \begin{itemize}
+
+        \begin{enumerate}
+            \item predict trajectory of each particle 
+                using transition function $f$ and system noise parameter $Q_k$
+                \begin{equation*}
+                    \bX_k^{(i)} = f(\bX_k^{(i)}, w_k),\quad
+                    w_k \sim N(0, Q_{k-1})
+                \end{equation*}
+        
+        
+    %     \end{itemize}
+    % \end{minipage}
+    % \hspace{0.01\linewidth}
+    % \begin{minipage}{0.49\linewidth}
+<<vehicle_state_predict,fig.width=5,fig.height=3,out.width='\\linewidth',fig.align='center'>>=
 x2 <- x1 + geom_path(aes(t, d, group = particle_id),
                      data = p1f, lty = 2) +
     geom_point(aes(t, d), data = p1f %>% filter(t == T[2]),
@@ -213,31 +266,55 @@ m2 <- map +
                pch = 21, fill = "white") +
     geom_point(aes(x = Yobs[2], y = Yobs[1]), pch = 4, colour = "red",
                size = 1.5, stroke = 2)
-gridExtra::grid.arrange(x2, m2, ncol = 2, widths = c(3, 1))
+# ggarrange(x2, m2, widths = c(3, 1))
 @
-        \item assume observation $\bY_k$ is a noisy measurement of true 
-            position with error $\sigma^2_y$,
-            and use geographic projection function $g$ such that
-            $\mathit{dist}(g(\bY_1), g(\bY_2))$ is the distance between
-            the two points on the ground
-            \begin{equation*}
-                g(\bY_k) \sim N\left(g(h(\bX_k)), 
-                \begin{bmatrix}
-                    \sigma^2_y & 0 \\ 0 & \sigma^2_y
-                \end{bmatrix}
-                \right)
-            \end{equation*}
-        \item $\delta_k^{(i)}$ is the distance between a particle position and 
-            observed position, which is the sum of two 
-            independent normal r.v.'s, giving the likelihood function
-            \begin{align*}
-                \left(\delta_k^{(i)} / \sigma_y^2\right)
-                &\sim \chi^2(2) \sim \mathrm{Exp}(0.5) \\
-                p(\bY_k | \bX_k^{(i)}) &= 0.5e^{-\delta_k^{(i)} / 2\sigma_y^2}
-            \end{align*}
-        \item update state by resampling particles with replacement, using likelihood weights
-            $w^{(i)} = p(\bY_k | \bX_k^{(i)}) / \sum_{j=1}^N p(\bY_k | \bX_k^{(j)})$
-<<vehicle_state_update,fig.width=8,fig.height=3,out.width='0.85\\linewidth',fig.align='center',results='show'>>=
+    % \end{minipage}
+
+    % \begin{itemize}
+            \item assume $\bY_k$ is a noisy measurement of true 
+                position with GPS error $\sigma^2_y$, and
+                define $g:\mathbb{R}^2\mapsto\mathbb{R}^2$ such that
+                $\mathit{dist}(g(\bY_1), g(\bY_2))$ is the ground distance between
+                the points, then the measurement model is
+                \begin{equation*}
+                    g(\bY_k) \sim N\left(g(h(\bX_k)), 
+                    \begin{bmatrix}
+                        \sigma^2_y & 0 \\ 0 & \sigma^2_y
+                    \end{bmatrix}
+                    \right)
+                \end{equation*}
+                and $(\delta_k^{(i)})^2 = \mathit{dist}(g(h(\bX_k^{(i)})), g(Y_k))^2$
+                is the sum of two independent normal r.v.'s with mean 0 and 
+                variance $\sigma^2_y$
+                \begin{equation*}
+                    \left((\delta_k^{(i)})^2 / \sigma_y^2\right)
+                    \sim \chi^2(2) \sim \mathrm{Exp}(0.5) 
+                \end{equation*}
+            \item evaluated the likelihood for each particle
+                \begin{equation*}
+                    p(\bY_k | \bX_k^{(i)}) = 0.5e^{-(\delta_k^{(i)})^2 / 2\sigma_y^2}
+                \end{equation*}
+            \item update state by resampling particles with replacement, using likelihood weights
+                \begin{equation*}
+                    w^{(i)} = p(\bY_k | \bX_k^{(i)}) / \sum_{j=1}^N p(\bY_k | \bX_k^{(j)})
+                \end{equation*}
+            \item use resulting trajectories to estimate vehicle speed along 
+                road segments to update network in section~\ref{sec:nw}
+        \end{enumerate}
+
+
+        % \begin{itemize}
+        %     \item Particle filter is a computationally intensive estimation method;
+        %         however, using an 8~core, 32~GB RAM Virtual Machine, 
+        %         we are able to model all buses in Auckland (1000+ at peak hour)
+        %         in under 20 seconds.
+        % \end{itemize}
+    \end{minipage}
+    \hspace{0.01\linewidth}
+    \begin{minipage}[t]{0.49\linewidth}
+    \setlength{\figtopskip}{0pt}
+    \setlength{\figbotskip}{0pt}
+<<vehicle_state_update,fig.width=5,fig.height=2.5,out.width='\\linewidth',fig.align='center',fig.cap=c('Left: simulated particle trajectories. Right: particle positions $h(\\bX_k^{(i)})$; observation $\\bY_k$ in red.','$\\bY_k$ (red cross) is a bivariate normal r.v. with mean and variance represented by the black dot and concentric rings, respectively.','After resampling, a posterior sample of trajectories is obtained (orange).'),fig.scap=NA>>=
 ll <- dnorm(p1f %>% filter(t == T[2]) %>% pluck("d"), dobs, 20)
 wt <- ll / sum(ll)
 
@@ -261,55 +338,80 @@ m3 <- map +
                size = 2, stroke = 2, pch = 21, fill = "white") +
     scale_colour_manual(values = c("yes" = "orangered", "no" = "gray")) +
     theme(legend.position = "none")
-gridExtra::grid.arrange(x3, m3, ncol = 2, widths = c(3, 1))
+
+oi = 1
+xr = extendrange(dx2$lng[oi]+c(-0.005, 0.005))
+yr = extendrange(dx2$lat[oi]+c(-0.0001,0.0001))
+bbox = c(xr[1], yr[1], xr[2], yr[2])
+akl = get_googlemap(dx2[oi,c('lng', 'lat')] %>% as.numeric, zoom = 20,
+    maptype="roadmap")
+map <- ggmap(akl) +
+    geom_rect(aes(xmin = -Inf, xmax = Inf, ymin = -Inf, ymax = Inf),
+            fill = "white", alpha = 0.1) +
+    geom_point(aes(lng, lat), data = dx2[oi,], pch = 21, size = 3, stroke = 2,
+               fill = "white") + 
+    geom_point(aes(lng, lat), data = dx2[oi, ], pch = 21, size = 30, stroke = 1,
+                fill = "transparent", color='black') +
+    geom_point(aes(lng, lat), data = dx2[oi, ], pch = 21, size = 60, stroke = 0.5,
+                fill = "transparent", color='black') +
+    ## arrow from particle to obs
+    # geom_segment(aes(dx2$lng[oi]+0.000006, dx2$lat[oi]-0.000015, 
+    #                  xend = Yobs[2]-0.000015, yend = Yobs[1]+0.00003), 
+    #              data = NULL, lwd = 1.5,
+    #              arrow = arrow(length = unit(5, 'mm'))) +
+    geom_point(aes(Yobs[2], Yobs[1]), pch = 4, colour = "red",
+               size = 5, stroke = 2) + 
+    theme(axis.text = element_blank(), 
+          axis.ticks = element_blank(),
+          panel.grid.major = element_blank()) + xlab("") + ylab("")
+
+
+ggarrange(x2, m2, widths = c(3, 1))
+map
+ggarrange(x3, m3, widths = c(3, 1))
 @
-        \item we now have estimate of vehicle speed at time $t_k$,
-            which we can use in section~\ref{sec:nw}
-    \end{itemize}
+    \end{minipage}
+
 
 \end{minipage}
-\hspace{0.04\linewidth}
-\begin{minipage}[t]{0.58\linewidth}
-    \section{GTFS network construction\phantom{j}}
-
-    \textbf{Goal:} to represent each bus route as a sequence of
-    physical road segments between intersections.
-    \begin{enumerate}
-        \item raw GTFS data provides one shape per route, represented as sequence of latitude/longitude coordinates
-        \item identify points of intersection between one or more routes using algorithm adapted from 
-            \cite{Zhang_2017}
-        \item split shapes at intersection points to obtain shapes for each individual road segment
-        \item express each route as a sequence of road segments
-    \end{enumerate}
-
-    \begin{figure}
-        \centering
-        \includegraphics{figs/gtfs-nw_figure1}
-        \hspace{5em}
-        \includegraphics{figs/gtfs-nw_figure2}
-        \caption{An example transit netork produced from five routes.}
-    \end{figure}
-
-    Currently being implemented in the \texttt{gtfsnetwork} package on GitHub: https://github.com/tmelliott/gtfsnetwork
-
-    \section{Network state model\phantom{j}}
+\end{minipage}
+\hspace{0.01\linewidth}
+\begin{minipage}[t]{0.39\linewidth}
+    \section{Network state model}
     \label{sec:nw}
 
-    \textbf{Goal:} to model the travel time of transit vehicles along a road now, and in the near-future
 
-    \begin{itemize}
-        \item each segment $j$ has state $\beta^j_r$ (the travel time of vehicles along the segment) 
-            at time $t_r$
-        \item use historical data to determine the prior state $\mu_j(t)$ and $\psi_j(t)$, 
-            the mean and variance of travel time at time $t$
-        \item define transition function $a$ such that the state converges to the prior 
-            \begin{equation*}
-                \beta^j_{r} = a(\beta^j_{r-1}, P^j_{r-1}, \mu_j(t_r), \psi_j(t_r))
-                    = \beta^j_{r-1} + \frac{\lambda P^j_{r-1}}{P^j_{r-1} + \psi_j(t_r)}
-                    (\mu_j(t_r) - \beta^j_{r-1}) + e^j_r,\quad
-                    e^j_r \sim N(0, S_j)
-            \end{equation*}
-<<road_state_prior,fig.width=6,fig.height=4,fig.subcap=c('A', 'B'),fig.align='center',fig.env='figure'>>=
+    \begin{minipage}[t]{0.59\linewidth}
+        \textbf{Predict step}
+        \begin{itemize}
+            \item each segment $j$ has state $\beta^j_r$ (the speed of vehicles along the segment) 
+                at time $t_r$
+            \item use historical data to determine the prior state $\mu_j(t)$ and $\psi_j(t)$, 
+                the mean and variance of speed at time $t$
+            \item define transition function $a$ such that the state converges to the prior 
+            \item use extended Kalman filter update (EKF) equations, and define system noise such
+                that $P^j_r$, the uncertainty of travel time, converges to $\psi_j(t_r)$
+                % \begin{equation*}
+                %     \beta^j_{r} = a(\beta^j_{r-1}, P^j_{r-1}, \mu_j(t_r), \psi_j(t_r))
+                %         = \beta^j_{r-1} + \frac{\lambda P^j_{r-1}}{P^j_{r-1} + \psi_j(t_r)}
+                %         (\mu_j(t_r) - \beta^j_{r-1}) + e^j_r,\quad
+                %         e^j_r \sim N(0, S_j)
+                % \end{equation*}
+        \end{itemize}
+
+        \textbf{Update step}
+        \begin{itemize}
+            \item observations recieved when vehicles travel along segment
+            \item measurement error calculated using combination of particle variance 
+                and between-vehicle variance (in cases where multiple vehicles are traveling a 
+                road at the same time)
+            \item use EKF update equations to update state at time of observation
+            \item repeat prediction step to obtain updated state forecasts 
+        \end{itemize}
+    \end{minipage}
+    \hspace{0.01\linewidth}
+    \begin{minipage}[t]{0.39\linewidth}
+<<road_state,fig.width=4,fig.height=6,out.width='\\textwidth',fig.align="center">>=
 X <- x <- 20
 P <- p <- 2
 n <- 30
@@ -355,22 +457,52 @@ p0 <- ggplot(r, aes(i/60)) +
 
 p1 <- p0 + geom_pointrange(aes(x = 5, y = obsx, ymin = obsx-obsv, ymax = obsx+obsv),
                     data = NULL, col = "red", fill = "white", pch = 21)
+r2 <- KF(x, p, pmean, pvar, 3600-60*5, lambda=1/300, keep = TRUE)
+r2 <- r2$hist %>%
+    as.tibble %>%
+    add_column(i = 1:nrow(.)-1L + 60*5, .before = 1)
+p3 <- ggplot(r, aes(i/60)) +
+    geom_hline(yintercept = pmean + sqrt(pvar) * c(0, -1, 1),
+               lty = 2, lwd = c(1.5, 1, 1), col = "steelblue") +
+    geom_line(aes(y = pmax(0, x - sqrt(P))), lty = 2, data = r,
+              color = "gray") +
+    geom_line(aes(y = pmax(0, x + sqrt(P))), lty = 2, data = r,
+              color = "gray") +
+    geom_line(aes(y = x), data = r, color = "gray") +
+    geom_line(aes(y = x), data = r2) +
+    geom_line(aes(y = x - sqrt(P)), data = r2, lty = 2) +
+    geom_line(aes(y = x + sqrt(P)), data = r2, lty = 2) +
+    xlab("Time since last observation (min)") + ylab("Road speed (km/h)") +
+    geom_pointrange(aes(x = 5, y = obsx, ymin = obsx-obsv, ymax = obsx+obsv),
+                    col = "red", fill = "white", pch = 21)
 
-p0
-p1
+ggarrange(p1, p3, heights = c(1, 1))
 @
+    
+    \end{minipage}
 
+    \section{Predicting arrival time}
+
+    \begin{itemize}
+        \item for each particle, simulate journey along remainder of route,
+            \textbf{simulating speed} $v^j_t \sim N(\hat\beta^j_t, P^j_t)$ each time particle 
+                enters a new segment $j$
+        \item simulate wait times at intersections and bus stops, 
+            and compute arrival time at each upcoming stop
+        \item resulting ETA distribution can be conveyed to passengers
+        \begin{itemize}
+            \item a point estimate 
+            \item and/or a prediction interval, informing commuters 
+                how soon they need to be at their stop, but also prepare them for a possible wait
+        \end{itemize}
     \end{itemize}
 
-    \section{Arrival time prediction}
+% \end{minipage}
+
+% \begin{minipage}[t]{0.49\linewidth}
+    \section{Conclusion and future work}
 
 
-    \section{Conclusion}
-
-
-    \bibliographystyle{unsrt}
-
-    {\scriptsize\bibliography{reflist}}
 \end{minipage}
 
 
