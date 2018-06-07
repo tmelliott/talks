@@ -12,6 +12,9 @@
 \definecolor{BoxCol}{rgb}{0.01,0.31,0.52}
 \definecolor{SectionCol}{rgb}{1,1,1}
 
+\setlength{\figtopskip}{0pt}
+\setlength{\figbotskip}{0pt}
+
 
 % \norightlogo
 \leftlogo{figs/UOA-VC-RGB}
@@ -113,8 +116,7 @@ Yobs <- h(dobs, shape) + rnorm(2, 0, 0.0001)
 
 \begin{document}
 \maketitle
-
-
+\vspace{-0.5em}
 \begin{minipage}[t]{0.59\linewidth}
     \section{Introduction}
     \begin{itemize}
@@ -179,6 +181,7 @@ Yobs <- h(dobs, shape) + rnorm(2, 0, 0.0001)
 \hspace{0.01\linewidth}
 \begin{minipage}[t]{0.65\linewidth}
     \section{Vehicle state model}
+    \label{sec:pf}
 
     % \textbf{Goal:} to estimate the state $\bX_k$ of a bus (trip distance traveled and speed)
     %     from GPS positions, $\bY_k$, at time $t_k$, in real-time
@@ -312,8 +315,6 @@ m2 <- map +
     \end{minipage}
     \hspace{0.01\linewidth}
     \begin{minipage}[t]{0.49\linewidth}
-    \setlength{\figtopskip}{0pt}
-    \setlength{\figbotskip}{0pt}
 <<vehicle_state_update,fig.width=5,fig.height=2.5,out.width='\\linewidth',fig.align='center',fig.cap=c('Left: simulated particle trajectories. Right: particle positions $h(\\bX_k^{(i)})$; observation $\\bY_k$ in red.','$\\bY_k$ (red cross) is a bivariate normal r.v. with mean and variance represented by the black dot and concentric rings, respectively.','After resampling, a posterior sample of trajectories is obtained (orange).'),fig.scap=NA>>=
 ll <- dnorm(p1f %>% filter(t == T[2]) %>% pluck("d"), dobs, 20)
 wt <- ll / sum(ll)
@@ -381,37 +382,32 @@ ggarrange(x3, m3, widths = c(3, 1))
     \label{sec:nw}
 
 
-    \begin{minipage}[t]{0.59\linewidth}
-        \textbf{Predict step}
+    \begin{minipage}[t]{0.49\linewidth}
         \begin{itemize}
-            \item each segment $j$ has state $\beta^j_r$ (the speed of vehicles along the segment) 
-                at time $t_r$
-            \item use historical data to determine the prior state $\mu_j(t)$ and $\psi_j(t)$, 
-                the mean and variance of speed at time $t$
-            \item define transition function $a$ such that the state converges to the prior 
-            \item use extended Kalman filter update (EKF) equations, and define system noise such
-                that $P^j_r$, the uncertainty of travel time, converges to $\psi_j(t_r)$
-                % \begin{equation*}
-                %     \beta^j_{r} = a(\beta^j_{r-1}, P^j_{r-1}, \mu_j(t_r), \psi_j(t_r))
-                %         = \beta^j_{r-1} + \frac{\lambda P^j_{r-1}}{P^j_{r-1} + \psi_j(t_r)}
-                %         (\mu_j(t_r) - \beta^j_{r-1}) + e^j_r,\quad
-                %         e^j_r \sim N(0, S_j)
-                % \end{equation*}
-        \end{itemize}
+            \item using an adapted extended Kalman filter (EKF) to model network state
+            \item segment $j$ has state $\beta^j_r$ (vehicle speed) 
+                at time $t_r$ with variance $P^j_r$
+            \item Step 1: predict future state
+            \begin{itemize}
+                \item define \textbf{transition function} $a$ such that the state converges to the prior 
+                    (fig.~\ref{fig:road_state1})
+                \item \text{prior mean speed} $\mu_j(t)$ and variance $\psi_j(t)$
+                    at time~$t$ from \textbf{historical data} (blue lines in fig.~\ref{fig:road_state1})
+                \item use EKF equations to recursively predict state in 1~second intervals
+                \item define \textbf{system noise} so $P^j_r$ converges to $\psi_j(t_r)$
+            \end{itemize}
 
-        \textbf{Update step}
-        \begin{itemize}
-            \item observations recieved when vehicles travel along segment
-            \item measurement error calculated using combination of particle variance 
-                and between-vehicle variance (in cases where multiple vehicles are traveling a 
-                road at the same time)
-            \item use EKF update equations to update state at time of observation
-            \item repeat prediction step to obtain updated state forecasts 
+            \item Step 2: update state when observations recieved from step~5 in section~\ref{sec:pf}
+                (red point fig.~\ref{fig:road_state2})
+            \begin{itemize}
+                \item \textbf{measurement error:} variance of particle speeds 
+                \item use EKF update equations to update state at time of observation
+            \end{itemize}
         \end{itemize}
     \end{minipage}
     \hspace{0.01\linewidth}
-    \begin{minipage}[t]{0.39\linewidth}
-<<road_state,fig.width=4,fig.height=6,out.width='\\textwidth',fig.align="center">>=
+    \begin{minipage}[t]{0.49\linewidth}
+<<road_state,fig.width=5,fig.height=2,out.width='\\textwidth',fig.align="center",fig.cap=c('Road state $\\hat\\beta^j$ (with variance $P^j_r$, dashed black lines) converge to the prior (blue lines).','After recieving a vehicle speed estimate (red dot), the state is updated.'),fig.scap=NA>>=
 X <- x <- 20
 P <- p <- 2
 n <- 30
@@ -450,13 +446,13 @@ obsv <- 1
 p0 <- ggplot(r, aes(i/60)) +
     geom_hline(yintercept = pmean + sqrt(pvar) * c(0, -1, 1),
                lty = 2, lwd = c(1.5, 1, 1), col = "steelblue") +
-    geom_line(aes(y = pmax(0, x - sqrt(P)))) +
-    geom_line(aes(y = pmax(0, x + sqrt(P)))) +
+    geom_line(aes(y = pmax(0, x - sqrt(P))), lty = 2) +
+    geom_line(aes(y = pmax(0, x + sqrt(P))), lty = 2) +
     geom_line(aes(y = x), lwd = 1.5) +
     xlab("Time since last observation (min)") + ylab("Road speed (km/h)")
 
-p1 <- p0 + geom_pointrange(aes(x = 5, y = obsx, ymin = obsx-obsv, ymax = obsx+obsv),
-                    data = NULL, col = "red", fill = "white", pch = 21)
+p1 <- p0 #+ geom_pointrange(aes(x = 5, y = obsx, ymin = obsx-obsv, ymax = obsx+obsv),
+         #           data = NULL, col = "red", fill = "white", pch = 21)
 r2 <- KF(x, p, pmean, pvar, 3600-60*5, lambda=1/300, keep = TRUE)
 r2 <- r2$hist %>%
     as.tibble %>%
@@ -476,7 +472,9 @@ p3 <- ggplot(r, aes(i/60)) +
     geom_pointrange(aes(x = 5, y = obsx, ymin = obsx-obsv, ymax = obsx+obsv),
                     col = "red", fill = "white", pch = 21)
 
-ggarrange(p1, p3, heights = c(1, 1))
+# ggarrange(p1, p3, heights = c(1, 1))
+p1
+p3
 @
     
     \end{minipage}
@@ -493,14 +491,21 @@ ggarrange(p1, p3, heights = c(1, 1))
             \item resulting ETA distribution can be conveyed to passengers
             \begin{itemize}
                 \item a point estimate 
-                \item and/or a prediction interval, informing commuters 
-                    how soon they need to be at their stop, but also prepare them for a possible wait
+                \item and/or a prediction interval (for commuters, this would be understood as a min and ``max'' wait time)
             \end{itemize}
+            \item ETAs are typically reported in discrete minutes.
+                For the example in figure~\ref{fig:predict_eta}, the distribution might be summarised with
+            \begin{itemize}
+                \item a \textbf{point estimate} of 5~minutes
+                \item a \textbf{prediction interval} of 4--8~minutes
+            \end{itemize}
+            \item summary statistics need to be chosen such that,
+                as the bus approaches, the estimates decrease
         \end{itemize}
     \end{minipage}
     \hspace{0.01\linewidth}
     \begin{minipage}[t]{0.39\linewidth}
-<<predict_eta,fig.width=4,fig.height=3,out.width='\\textwidth',fig.align="center",fig.cap='Top: travel time predictions for each particle, resulting in a distribution of arrival times for each stop. Bottom: posterior density of ETAs for stop 3.',fig.scap=NA>>=
+<<predict_eta,fig.width=4,fig.height=3,out.width='\\textwidth',fig.align="center",fig.cap='Top: travel time predictions for a bus, showing locations of stops (left axis) and intersections (right axis). Bottom: posterior density of ETAs for stop 3.',fig.scap=NA>>=
 set.seed(928346)
 N <- 50
 x <- runif(N, 1000, 1050)
@@ -535,17 +540,28 @@ p2 <- ggplot(dat[dat$d == Sd[3], ], aes(t/30)) +
 gp1 <- ggplotGrob(p1)
 gp2 <- ggplotGrob(p2)
 gp2$widths <- gp1$widths
+gp1$hheights[1:5] <- unit('0','pt')
 gp2$heights[1:5] <- unit('0','pt')
 gridExtra::grid.arrange(gp1, gp2, heights = c(2, 1))
 @
     \end{minipage}
 
-
-
-% \end{minipage}
-
-% \begin{minipage}[t]{0.49\linewidth}
     \section{Conclusion and future work}
+
+    \begin{itemize}
+        \item segmenting routes into route-independent segments allows vehicle observations to
+            update the road network
+        \item real-time network state used to predict arrival time
+    \end{itemize}
+    \textbf{Next steps:}
+    \begin{itemize}
+        \item improve the network state model:
+            variable speeds along a roads (i.e., $\mu_j(t, d)$ depends on time and distance along segment),
+            include covariates in state transition (adjacent segments, yesterday's traffic, weather, etc.)
+        \item develop a stop-time and intersection-wait time model to more accurately predict
+            wait times
+        \item investigate ideal summary statistics for ETAs (both point and interval prediction)
+    \end{itemize}
 
 
 \end{minipage}
