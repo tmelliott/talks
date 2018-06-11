@@ -1,0 +1,20 @@
+// choose a theme from:
+// [beige, black, blood, league, moon, night, serif, simple, sky, solarized, white]
+@import "../../revealjs/css/theme/source/white"
+
+// decide on fonts
+@import url('https://fonts.googleapis.com/css?family=Indie+Flower')
+
+
+.reveal img.bare
+    border: none
+    background: none
+    box-shadow: none
+
+.reveal .slides section
+    .fragment.highlight-red.visible
+        color: gray
+        &.highlight-once
+            color: black
+        &.current-fragment
+            color: orangered

@@ -9,5 +9,3 @@ This is especially useful in locations with infrequent buses,
 or before and after peak hour when travel times increase and decrease, respectively.
 Using a years' worth of GPS location data from buses in Auckland, New Zealand,
 we explore various models to develop time-dependent priors for bus travel time.
-
-
