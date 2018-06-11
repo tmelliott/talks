@@ -119,17 +119,27 @@ Yobs <- h(dobs, shape) + rnorm(2, 0, 0.0001)
 \vspace{-0.5em}
 \begin{minipage}[t]{0.59\linewidth}
     \section{Introduction}
+
+    
+
     \begin{itemize}
-        % \item real-time prediction is hard, requires both current position and future travel times
-        \item position tracking well studied, 
-            e.g., Kalman Filter \cite{Wall99analgorithm,Dailey_2001,Cathey_2003}, 
-            particle filter \cite{Hans_2015}, etc.
-        \item estimating and predicting road state (i.e., travel time along roads) less developed, 
-            particularly for bus prediction
-        \item several papers use other vehicles \emph{on the same route} \cite{Yu_2011}, 
-            but no generic attempt to model travel times independently of route
-        \item many public transport providers don't use any form of traffic model, 
-            instead relying on scheduled stop times (often inaccurate, don't respond to real-time events)
+        \item real time information (RTI) is a vital component of public transit systems,
+            most importantly providing estimated times of arrival (ETAs) of vehicles
+        \item transit vehicle tracking has been well studied in order to improve ETA accuracy
+            \cite{Wall99analgorithm,Dailey_2001,Cathey_2003,Hans_2015},
+            though these typically focus on individual vehicle or route modeling
+        \item the major cause of unreliability, particularly in networks with poor infrastructure for 
+            vehicles (e.g., priority lanes), is congestion
+        \item it has been shown that using buses from multiple routes for prediction
+            improves estimates \cite{Yu_2011},
+            however this was not generalised to all roads throughout the network
+        \item \textbf{we are proposing a generalised approach to modeling transit vehicles that
+            simultaneously models traffic along roads independently of route,
+            allowing for more accurate arrival time prediction by accounting for real-time traffic conditions}
+        % \item several papers use other vehicles \emph{on the same route} \cite{Yu_2011}, 
+        %     but no generic attempt to model travel times independently of route
+        % \item many public transport providers don't use any form of traffic model, 
+        %     instead relying on scheduled stop times (often inaccurate, don't respond to real-time events)
     \end{itemize}
 
 % \end{minipage}
@@ -139,9 +149,10 @@ Yobs <- h(dobs, shape) + rnorm(2, 0, 0.0001)
     % \textbf{Goal:} to represent each bus route as a sequence of
     % physical road segments between intersections.
     \begin{itemize}
-        \item \textbf{GTFS} is an API specification for transit APIs \cite{GoogleDevelopers_2006}
+        \item \textbf{GTFS} is an API specification for transit data \cite{GoogleDevelopers_2006}
         \item available in over 500 locations worldwide
-        \item therefore, a general approach to `segmenting' the network is required
+        \item we construct a transit network (intersections and connecting road segments) by 
+            from the raw GTFS data  
     \end{itemize}
 
     \begin{enumerate}
@@ -188,14 +199,16 @@ Yobs <- h(dobs, shape) + rnorm(2, 0, 0.0001)
     \begin{itemize}
         % \vspace{1em}
         \item sequential Bayesian methods well suited to \textbf{real-time vehicle tracking}
+        \item in Auckland, GTFS realtime positions obtained approximately every 30 seconds,
+            but high variability
         \item \textbf{particle filter}: general, flexible estimation method that 
             uses sample of particles $\tilde\bX_k =(\bX_k^{(i)})_{i=1}^N$,
-            allowing it to handle \textbf{multimodality} (e.g., when passing bus stops) 
-            and \textbf{assymetry} (e.g., bus cannot go backwards)
+            each transitioned independently
+            so features such as multimodality (e.g., at bus stops) are easily handled
         % \item involves two steps: \emph{predict} future state, and \emph{update} state
         %     using likelihood function
-        \item measurement function $h:\mathbb{R}\mapsto\mathbb{R}^2$ calculates map (GPS) position
-            of each particle based on distance traveled along shape
+        \item measurement function $h:\mathbb{R}\mapsto\mathbb{R}^2$ calculates particle's map position
+            from distance traveled along shape
     \end{itemize}
 
     \begin{minipage}[t]{0.49\linewidth}
@@ -384,9 +397,10 @@ ggarrange(x3, m3, widths = c(3, 1))
 
     \begin{minipage}[t]{0.49\linewidth}
         \begin{itemize}
-            \item using an adapted extended Kalman filter (EKF) to model network state
+            \item network model to estimate and predict network state
             \item segment $j$ has state $\beta^j_r$ (vehicle speed) 
                 at time $t_r$ with variance $P^j_r$
+            \item estimate state using an adapted extended Kalman filter (EKF) algorithm
             \item Step 1: predict future state
             \begin{itemize}
                 \item define \textbf{transition function} $a$ such that the state converges to the prior 
