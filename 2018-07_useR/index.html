@@ -64,72 +64,57 @@
         <section id="network">
           <h3>Constructing a GTFS road network</h3>
 
-          <ol>
-            <li>Raw GTFS data consists of one polyline per route</li>
-            <li>Convert GPS paths to road network using algorithm adapted from Zhang et al. (2017)</li>
-            <li>Represent each route as sequence of road segments</li>
-          </ol>
-        </section>
+          <div class="cont-horiz stretch">
+            <img class="bare" src="assets/img/gtfs-nw_figure1.svg" alt="">
+            <img class="bare fragment" data-fragment-index="1" src="assets/img/gtfs-nw_figure2.svg" alt="">
+          </div>
 
-        <section id="historicalData">
-          <h3>Historical data based prior I</h3>
-
-          <ol>
-            <li>One year of GTFS real-time data (~100 million obs)
-              <p class="text-center">
-                $\boldsymbol{y}_i =\;[$
-                <span class="fragment highlight-red highlight-once" data-fragment-index="1">$t_i$</span>
-                $,$
-                <span class="fragment highlight-red highlight-once" data-fragment-index="2">$\phi_i$</span>
-                $,$
-                <span class="fragment highlight-red highlight-once" data-fragment-index="2">$\lambda_i$</span>
-                $,$
-                <span class="fragment highlight-red highlight-once" data-fragment-index="1">
-                  <span class="fragment highlight-red highlight-once" data-fragment-index="2">$\mathit{trip}_i$</span>
-                </span>
-                $]$
-              </p>
-              <small>A <strong>trip</strong> is an instance of a route at a scheduled time of day</small>
-            </li>
-            <li>Filter observations <strong class="fragment highlight-red highlight-once" data-fragment-index="1">temporally</strong> and <strong class="fragment highlight-red highlight-once" data-fragment-index="2">spatially</strong></li>
-            <li>Match each $y_i$ to nearest point on path<br>
-            $\Rightarrow$ distance traveled, $x_i \Rightarrow$ segment, $r_i$
-              <p class="text-center">
-              $\boldsymbol z_i =\;[$
-              $t_i$
-              $,$
-              $x_i$
-              $,$
-              $r_i$
-              $,$
-              $\mathit{trip}_i$
-              $]$
-              </p>
-            </li>
-          </ol>
-
-          <span class="fragment"></span>
-          
-        </section><!-- #historicalData -->
+        </section><!-- #network -->
 
 
         <section id="model">
-          <h3>Historical data based prior II</h3>
+          <h3>Historical data - single trip</h3>
 
-          <ul>
-            <li>do stuff</li>
-          </ul>
+          <div class="cont-horiz">
+            <img src="" alt="" class="bare">
+          </div>
 
         </section><!-- #model -->
+
+        <section id="model2">
+          <h3>Multiple trips - one route</h3>
+
+          <div class="cont-horiz">
+            <img src="" alt="" class="bare">
+          </div>
+        </section> <!-- #model2 -->
+
+        <section id="model3">
+          <h3>Multiple routes - single road</h3>
+
+          <div class="cont-horiz">
+            <img src="" alt="" class="bare">
+          </div>
+        </section> <!-- #model3 -->
         
+        <section id="model4">
+          <h3>Model speed by distance and time</h3>
+
+          <div class="cont-horiz">
+            <img src="" alt="" class="bare">
+          </div>
+          
+          <p class="small">
+            <code>mgcv::gam(speed ~ s(distance, time))</code>
+          </p>
+        </section> <!-- #model4 -->
 
         <section id="future">
           <h3>What's next?</h3>
 
           <ul>
-            <li>More complex, spline-based models:<br>
-            speed $=$ $s_1$(distance, time) $ + $ error</li>
-            <li>Find fast estimation procedure to model entire year,<br>
+            <li>More complex models (Bayesian heirarchical)<br>
+            <!-- <li>Find fast estimation procedure to model entire year,<br> -->
               <small>include additional covariates: yesterday, last Xday, school holidays, etc</small>
             </li>
             <li>Finish and release R package to construct road network and generate prior: 

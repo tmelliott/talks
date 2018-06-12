@@ -4135,3 +4135,14 @@ span.emph {
 
 .reveal .smaller {
   font-size: 0.7em; }
+
+.cont-horiz {
+  display: flex;
+  align-items: center;
+  justify-content: space-around; }
+
+.nodebox {
+  display: inline-block; }
+
+p.tiny {
+  font-size: 10pt; }
