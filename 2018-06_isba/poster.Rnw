@@ -254,7 +254,9 @@ m1 <- map + geom_point(aes(lng, lat), data = dx1, colour = "orangered",
         \item \textbf{particle filter}: general, flexible estimation method 
             \begin{itemize} 
                 \item vehicle state approximated by a sample of particles 
-                    $\tilde\bX_k =(\bX_k^{(i)})_{i=1}^N$
+                    \begin{equation*}
+                        \tilde\bX_k =(\bX_k^{(i)})_{i=1}^N
+                    \end{equation*}
                 \item particles transitioned independently,
                     so multimodal distributions are no issue
                     (e.g., at bus stops and intersections)
@@ -325,10 +327,14 @@ m2 <- map +
                 \end{equation*}
             \item update state by resampling particles with replacement, using likelihood weights (fig~\ref{fig:vehicle_state_update3})
                 \begin{equation*}
-                    w^{(i)} = p(\bY_k | \bX_k^{(i)}) / \sum_{j=1}^N p(\bY_k | \bX_k^{(j)})
+                    w^{(i)} = \frac{p(\bY_k | \bX_k^{(i)})}{\sum_{j=1}^N p(\bY_k | \bX_k^{(j)})}
                 \end{equation*}
             \item use resulting trajectories to estimate vehicle speed along 
                 road segments to update network in section~\ref{sec:nw}
+                \begin{itemize}
+                    \item $v^j_k$ is the mean speed of the particles, and
+                    \item $e^j_k$ is the variance of particle speeds for a vehicle
+                \end{itemize}
         \end{enumerate}
 
 
@@ -341,7 +347,7 @@ m2 <- map +
     \end{minipage}
     \hspace{0.01\linewidth}
     \begin{minipage}[t]{0.49\linewidth}
-<<vehicle_state_update,fig.width=5,fig.height=2.5,out.width='\\linewidth',fig.align='center',fig.cap=c('Left: simulated particle trajectories. Right: particle positions $h(\\bX_k^{(i)})$; observation $\\bY_k$ in red.','$\\bY_k$ (red cross) is a bivariate normal r.v. with mean and variance represented by the black dot and concentric rings, respectively.','After resampling, a posterior sample of trajectories is obtained (orange).'),fig.scap=NA>>=
+<<vehicle_state_update,fig.width=5,fig.height=2.5,out.width='\\linewidth',fig.align='center',fig.cap=c('Simulated particle trajectories from time $t_{k-1}$ to their predicted state $\\bX_k^{(i)}$ (left), and their computed location $h(\\bX_k^{(i)})$ (right). The reported bus location $\\bY_k$ is shown by a red cross.','$\\bY_k$ (red cross) is a bivariate normal r.v. with mean and variance represented by the black dot and concentric rings, respectively.','After resampling, a posterior sample of trajectories is obtained (orange).'),fig.scap=NA>>=
 ll <- dnorm(p1f %>% filter(t == T[2]) %>% pluck("d"), dobs, 20)
 wt <- ll / sum(ll)
 
@@ -408,33 +414,64 @@ ggarrange(x3, m3, widths = c(3, 1))
     \label{sec:nw}
 
 
-    \begin{minipage}[t]{0.49\linewidth}
+    \begin{minipage}[t]{0.59\linewidth}
         \begin{itemize}
-            \item network model to estimate and predict network state
-            \item segment $j$ has state $\beta^j_r$ (vehicle speed) 
-                at time $t_r$ with variance $P^j_r$
-            \item estimate state using an adapted extended Kalman filter (EKF) algorithm
-            \item Step 1: predict future state
-            \begin{itemize}
-                \item define \textbf{transition function} $a$ such that the state converges to the prior 
-                    (fig.~\ref{fig:road_state1})
-                \item \text{prior mean speed} $\mu_j(t)$ and variance $\psi_j(t)$
-                    at time~$t$ from \textbf{historical data} (blue lines in fig.~\ref{fig:road_state1})
-                \item use EKF equations to recursively predict state in 1~second intervals
-                \item define \textbf{system noise} so $P^j_r$ converges to $\psi_j(t_r)$
-            \end{itemize}
+            \item goal is to develop a model that can estimate
+                \textbf{real-time} and \textbf{future} network state for use in
+                arrival time prediction
+            \item \textbf{network state} is defined as the average speed $\beta^j_r$
+                of buses along road segment $j$ at time $t_r$
+                % \begin{equation*}
+                %     p(\beta^j_r | v^j_r) \propto p(\beta^j_r) p(v^j_r | \beta^j_r)
+                % \end{equation*}
+            \item historical data is used to determine the prior mean and variance
+                (blue lines in figures~\ref{fig:road_state1} and \ref{fig:road_state2})
+                \begin{equation*}
+                    p(\beta^j_r) \sim N(\mu_j(t_r), \psi_j(t_r)^2)
+                \end{equation*}
+            \item parameters $\hat\beta^j_r$ and $P^j_r$ are the state estimate and variance, 
+                respectively,
+                estimated using an adapted \textbf{extended Kalman filter (EKF)} algorithm
+                \begin{equation*}
+                    p(\beta^j_r | v^j_r) \sim N(\hat\beta^j_r, P^j_r)
+                \end{equation*}
+            \begin{enumerate}
+                \item predict future state (fig.~\ref{fig:road_state1})
+                \begin{itemize}
+                    \item \textbf{transition function}
+                        and \textbf{system noise} defined such that 
+                        $\hat\beta^j_r$ and $P^j_r$ \textbf{converge} to
+                        $\mu_j(t_r)$ and $\psi_j(t_r)$, respectively
+                    \item EKF predict equations used to recursively estimate state
+                        in one~second intervals
+                \end{itemize}
 
-            \item Step 2: update state when observations recieved from step~5 in section~\ref{sec:pf}
-                (red point fig.~\ref{fig:road_state2})
-            \begin{itemize}
-                \item \textbf{measurement error:} variance of particle speeds 
-                \item use EKF update equations to update state at time of observation
-            \end{itemize}
+                \item update state (fig.~\ref{fig:road_state2}): 
+                \begin{itemize}
+                    \item use values from step~5 in section~\ref{sec:pf}
+                    \item EKF update equations with observation $v^j_r$ and measurement
+                    error $e^j_r$, respectively
+                \end{itemize}
+            \end{enumerate}
+
+            \item \emph{Here, we are assuming a constant speed along the length of each road; 
+                we are currently working on a model that allows variable speeds.}
+
+            \item this transition function is also used in arrival time prediction
+                (section~\ref{sec:pred})
+                \begin{itemize}
+                    \item takes time for vehicles to travel from current postiion to
+                        road segments further down the route
+                    \item ETAs need to account for predicted congestion behaviour
+                        (for example before/after peak hour), which is defined 
+                        in the prior
+                \end{itemize}
+
         \end{itemize}
     \end{minipage}
     \hspace{0.01\linewidth}
-    \begin{minipage}[t]{0.49\linewidth}
-<<road_state,fig.width=5,fig.height=2,out.width='\\textwidth',fig.align="center",fig.cap=c('Road state $\\hat\\beta^j$ (with variance $P^j_r$, dashed black lines) converge to the prior (blue lines).','After recieving a vehicle speed estimate (red dot), the state is updated.'),fig.scap=NA>>=
+    \begin{minipage}[t]{0.39\linewidth}
+<<road_state,fig.width=4,fig.height=2.5,out.width='\\textwidth',fig.align="center",fig.cap=c('Predicted road state (black) converges to the prior (blue), in terms of both the mean and variance (solid and dashed lines, respectively).','Network state updated using observations of vehicle speed from the particle filter (in red, showing estimated measurement error).'),fig.scap=NA>>=
 X <- x <- 20
 P <- p <- 2
 n <- 30
@@ -472,11 +509,11 @@ obsx <- 19
 obsv <- 1
 p0 <- ggplot(r, aes(i/60)) +
     geom_hline(yintercept = pmean + sqrt(pvar) * c(0, -1, 1),
-               lty = 2, lwd = c(1.5, 1, 1), col = "steelblue") +
+               lty = c(1,2,2), lwd = c(1, 1, 1), col = "steelblue") +
     geom_line(aes(y = pmax(0, x - sqrt(P))), lty = 2) +
     geom_line(aes(y = pmax(0, x + sqrt(P))), lty = 2) +
-    geom_line(aes(y = x), lwd = 1.5) +
-    xlab("Time since last observation (min)") + ylab("Road speed (km/h)")
+    geom_line(aes(y = x)) +
+    xlab("Time since last update (min)") + ylab("Road speed (km/h)")
 
 p1 <- p0 #+ geom_pointrange(aes(x = 5, y = obsx, ymin = obsx-obsv, ymax = obsx+obsv),
          #           data = NULL, col = "red", fill = "white", pch = 21)
@@ -486,7 +523,7 @@ r2 <- r2$hist %>%
     add_column(i = 1:nrow(.)-1L + 60*5, .before = 1)
 p3 <- ggplot(r, aes(i/60)) +
     geom_hline(yintercept = pmean + sqrt(pvar) * c(0, -1, 1),
-               lty = 2, lwd = c(1.5, 1, 1), col = "steelblue") +
+               lty = c(1, 2, 2), lwd = c(1, 1, 1), col = "steelblue") +
     geom_line(aes(y = pmax(0, x - sqrt(P))), lty = 2, data = r,
               color = "gray") +
     geom_line(aes(y = pmax(0, x + sqrt(P))), lty = 2, data = r,
@@ -495,7 +532,7 @@ p3 <- ggplot(r, aes(i/60)) +
     geom_line(aes(y = x), data = r2) +
     geom_line(aes(y = x - sqrt(P)), data = r2, lty = 2) +
     geom_line(aes(y = x + sqrt(P)), data = r2, lty = 2) +
-    xlab("Time since last observation (min)") + ylab("Road speed (km/h)") +
+    xlab("Time since last update (min)") + ylab("Road speed (km/h)") +
     geom_pointrange(aes(x = 5, y = obsx, ymin = obsx-obsv, ymax = obsx+obsv),
                     col = "red", fill = "white", pch = 21)
 
@@ -507,27 +544,30 @@ p3
     \end{minipage}
 
     \section{Predicting arrival time}
+    \label{sec:pred}
 
     \begin{minipage}[t]{0.59\linewidth}
         \begin{itemize}
+            \item accurate arrival time predictions need to consider
+                \textbf{current vehicle location}, \textbf{current traffic state},
+                as well as \textbf{future traffic states}, traffic lights, and intermediate bus stop wait times
             \item for each particle, simulate journey along remainder of route
-            \item \textbf{simulate speed} $v^j_t \sim N(\hat\beta^j_t, P^j_t)$ 
-                for each upcoming segment $j$
-            \item simulate intersection and bus stop wait times
-                and compute arrival time at each upcoming stop
-            \item resulting ETA distribution can be conveyed to passengers
             \begin{itemize}
-                \item a point estimate 
-                \item and/or a prediction interval (for commuters, this would be understood as a min and ``max'' wait time)
+                \item simulate particle speed from network model (normal r.v.)
+                    at time of arrival at each road segment in sequence
+                \item introduce wait times (exponential) at intersections and bus stops
+                \item calculate arrival times at each upcoming stop
             \end{itemize}
+            \item yeilds a distribution of arrival times for each stop (fig~\ref{fig:predict_eta})
             \item ETAs are typically reported in discrete minutes.
-                For the example in figure~\ref{fig:predict_eta}, the distribution might be summarised with
+                For example, the distribution in figure~\ref{fig:predict_eta} might be summarised with
             \begin{itemize}
                 \item a \textbf{point estimate} of 5~minutes
                 \item a \textbf{prediction interval} of 4--8~minutes
             \end{itemize}
             \item summary statistics need to be chosen such that,
-                as the bus approaches, the estimates decrease
+                as the bus approaches, the estimates decrease, 
+                but also \textbf{minimising the probability that the bus arrives sooner than the ETA} 
         \end{itemize}
     \end{minipage}
     \hspace{0.01\linewidth}
@@ -579,14 +619,15 @@ gridExtra::grid.arrange(gp1, gp2, heights = c(2, 1))
         \item segmenting routes into route-independent segments allows vehicle observations to
             update the road network
         \item real-time network state used to predict arrival time
+        \item current real-time C++ implementation takes up to 20~seconds on an 8-core Virtual Machine
+            with 5000~particles per vehicle
     \end{itemize}
     \textbf{Next steps:}
     \begin{itemize}
         \item improve the network state model:
-            variable speeds along a roads (i.e., $\mu_j(t, d)$ depends on time and distance along segment),
-            include covariates in state transition (adjacent segments, yesterday's traffic, weather, etc.)
-        \item develop a stop-time and intersection-wait time model to more accurately predict
-            wait times
+            \textbf{non-constant speeds} along a roads (i.e., $\mu_j(t, d)$ depends on time and distance along segment),
+            include \textbf{covariates in state transition} (adjacent segments, yesterday's traffic, weather, etc.)
+        \item develop a stop- and intersection-wait time model to more accurately simulate wait times 
         \item investigate ideal summary statistics for ETAs (both point and interval prediction)
     \end{itemize}
 
