@@ -1,4 +1,4 @@
-\documentclass[plainboxedsections,landscape,20pt]{sciposter}
+\documentclass[plainboxedsections,portrait,20pt]{sciposter}
 
 \usepackage{multicol}
 \usepackage{amsmath,amsfonts}
@@ -20,7 +20,7 @@
 \leftlogo{figs/UOA-VC-RGB}
 % \title{Improving bus arrival-time estimates\\
 %     \Huge{using real-time vehicle positions to estimate road state}}
-\title{How can be improve bus ETAs?\\
+\title{How can we improve bus ETAs?\\
     {Using real-time position data to estimate road state}}
 \author{Tom Elliott and Thomas Lumley}
 \institute{Department of Statistics, University of Auckland, New Zealand}
@@ -119,7 +119,7 @@ Yobs <- h(dobs, shape) + rnorm(2, 0, 0.0001)
 \begin{document}
 \maketitle
 % \vspace{-0.5em}
-\begin{minipage}[t]{0.59\linewidth}
+\begin{minipage}[t]{0.49\linewidth}
     \section{Introduction}
 
     
@@ -148,7 +148,7 @@ Yobs <- h(dobs, shape) + rnorm(2, 0, 0.0001)
 
 % \end{minipage}
 % \begin{minipage}[t]{0.59\linewidth}
-\begin{minipage}[t]{0.33\linewidth}
+% \begin{minipage}[t]{0.33\linewidth}
     \section{GTFS network construction}
     % \textbf{Goal:} to represent each bus route as a sequence of
     % physical road segments between intersections.
@@ -179,8 +179,7 @@ Yobs <- h(dobs, shape) + rnorm(2, 0, 0.0001)
         \item Implementation in progress: the \texttt{gtfsnetwork} R package, github.com/tmelliott/gtfsnetwork
     \end{itemize}
 
-    \bibliographystyle{unsrt}
-    {\footnotesize\bibliography{reflist}}
+
 
 % \end{minipage}
 % \hspace{0.04\linewidth}
@@ -192,9 +191,9 @@ Yobs <- h(dobs, shape) + rnorm(2, 0, 0.0001)
 %         \item map real-time positions to a physical road segment, and update its state
 %         \item use road state estimates to predict future travel times 
 %     \end{itemize}
-\end{minipage}
-\hspace{0.01\linewidth}
-\begin{minipage}[t]{0.65\linewidth}
+% \end{minipage}
+% \hspace{0.01\linewidth}
+% \begin{minipage}[t]{0.65\linewidth}
     \section{Vehicle state model}
     \label{sec:pf}
 
@@ -209,7 +208,7 @@ Yobs <- h(dobs, shape) + rnorm(2, 0, 0.0001)
 
     % \end{itemize}
 
-    \begin{minipage}[t]{0.49\linewidth}
+    % \begin{minipage}[t]{0.49\linewidth}
 
 
         % \end{itemize}
@@ -245,43 +244,8 @@ m1 <- map + geom_point(aes(lng, lat), data = dx1, colour = "orangered",
                size = 1.5, stroke = 2)
 # ggarrange(x1, m1, widths = c(3, 1))
 @
-    % \end{minipage}
 
-    % \begin{minipage}{0.49\linewidth}
-    %     \begin{itemize}
-
-
-        \item \textbf{particle filter}: general, flexible estimation method 
-            \begin{itemize} 
-                \item vehicle state approximated by a sample of particles 
-                    \begin{equation*}
-                        \tilde\bX_k =(\bX_k^{(i)})_{i=1}^N
-                    \end{equation*}
-                \item particles transitioned independently,
-                    so multimodal distributions are no issue
-                    (e.g., at bus stops and intersections)
-                \item likelihood is intuitive: the distance between the estimated
-                    and observed location
-            \end{itemize}
-        \item measurement function $h:\mathbb{R}\mapsto\mathbb{R}^2$ calculates 
-            particle's map position from distance traveled along shape
-        \item our particle filter estimation procedure is as follows:
-
-        \begin{enumerate}
-            \item predict trajectory of each particle 
-                using transition function $f$ and system noise parameter $Q_k$
-                as shown in figure~\ref{fig:vehicle_state_update1}
-                \begin{equation*}
-                    \bX_k^{(i)} = f(\bX_k^{(i)}, w_k),\quad
-                    w_k \sim N(0, Q_{k-1})
-                \end{equation*}
-        
-        
-    %     \end{itemize}
-    % \end{minipage}
-    % \hspace{0.01\linewidth}
-    % \begin{minipage}{0.49\linewidth}
-<<vehicle_state_predict,fig.width=5,fig.height=3,out.width='\\linewidth',fig.align='center'>>=
+<<vehicle_state_predict,fig.width=6,fig.height=3,out.width='0.6\\linewidth',fig.align='center'>>=
 x2 <- x1 + geom_path(aes(t, d, group = particle_id),
                      data = p1f, lty = 2) +
     geom_point(aes(t, d), data = p1f %>% filter(t == T[2]),
@@ -299,55 +263,9 @@ m2 <- map +
                size = 1.5, stroke = 2)
 # ggarrange(x2, m2, widths = c(3, 1))
 @
-    % \end{minipage}
 
-    % \begin{itemize}
-            \item assume $\bY_k$ is a noisy measurement of true 
-                position with GPS error $\sigma^2_y$ (fig~\ref{fig:vehicle_state_update2}),
-                and define $g:\mathbb{R}^2\mapsto\mathbb{R}^2$ such that
-                $\mathit{dist}(g(\bY_1), g(\bY_2))$ is the ground distance between
-                the points, then the measurement model is
-                \begin{equation*}
-                    g(\bY_k) \sim N\left(g(h(\bX_k)), 
-                    \begin{bmatrix}
-                        \sigma^2_y & 0 \\ 0 & \sigma^2_y
-                    \end{bmatrix}
-                    \right)
-                \end{equation*}
-                and $(\delta_k^{(i)})^2 = \mathit{dist}(g(h(\bX_k^{(i)})), g(Y_k))^2$
-                is the sum of two independent normal r.v.'s with mean 0 and 
-                variance $\sigma^2_y$
-                \begin{equation*}
-                    \left((\delta_k^{(i)})^2 / \sigma_y^2\right)
-                    \sim \chi^2(2) \sim \mathrm{Exp}(0.5) 
-                \end{equation*}
-            \item evaluated the likelihood for each particle
-                \begin{equation*}
-                    p(\bY_k | \bX_k^{(i)}) = 0.5e^{-(\delta_k^{(i)})^2 / 2\sigma_y^2}
-                \end{equation*}
-            \item update state by resampling particles with replacement, using likelihood weights (fig~\ref{fig:vehicle_state_update3})
-                \begin{equation*}
-                    w^{(i)} = \frac{p(\bY_k | \bX_k^{(i)})}{\sum_{j=1}^N p(\bY_k | \bX_k^{(j)})}
-                \end{equation*}
-            \item use resulting trajectories to estimate vehicle speed along 
-                road segments to update network in section~\ref{sec:nw}
-                \begin{itemize}
-                    \item $v^j_k$ is the mean speed of the particles, and
-                    \item $e^j_k$ is the variance of particle speeds for a vehicle
-                \end{itemize}
-        \end{enumerate}
-
-
-        % \begin{itemize}
-        %     \item Particle filter is a computationally intensive estimation method;
-        %         however, using an 8~core, 32~GB RAM Virtual Machine, 
-        %         we are able to model all buses in Auckland (1000+ at peak hour)
-        %         in under 20 seconds.
-        % \end{itemize}
-    \end{minipage}
-    \hspace{0.01\linewidth}
-    \begin{minipage}[t]{0.49\linewidth}
-<<vehicle_state_update,fig.width=5,fig.height=2.5,out.width='\\linewidth',fig.align='center',fig.cap=c('Simulated particle trajectories from time $t_{k-1}$ to their predicted state $\\bX_k^{(i)}$ (left), and their computed location $h(\\bX_k^{(i)})$ (right). The reported bus location $\\bY_k$ is shown by a red cross.','$\\bY_k$ (red cross) is a bivariate normal r.v. with mean and variance represented by the black dot and concentric rings, respectively.','After resampling, a posterior sample of trajectories is obtained (orange).'),fig.scap=NA>>=
+<<vehicle_state_lh_,fig.width=2.5,fig.height=2.5,out.width='0.8\\linewidth',fig.align='center',fig.cap='$\\bY_k$ (red cross) is a bivariate normal r.v. with mean and variance represented by the black dot and concentric rings, respectively.',fig.scap=NA>>=
+#fig.cap=c('Simulated particle trajectories from time $t_{k-1}$ to their predicted state $\\bX_k^{(i)}$ (left), and their computed location $h(\\bX_k^{(i)})$ (right). The reported bus location $\\bY_k$ is shown by a red cross.','$\\bY_k$ (red cross) is a bivariate normal r.v. with mean and variance represented by the black dot and concentric rings, respectively.','After resampling, a posterior sample of trajectories is obtained (orange).'),fig.scap=NA>>=
 ll <- dnorm(p1f %>% filter(t == T[2]) %>% pluck("d"), dobs, 20)
 wt <- ll / sum(ll)
 
@@ -397,24 +315,143 @@ map <- ggmap(akl) +
     theme(axis.text = element_blank(), 
           axis.ticks = element_blank(),
           panel.grid.major = element_blank()) + xlab("") + ylab("")
+@
 
-
+<<vehicle_state,fig.width=6,fig.height=3,out.width='0.4\\linewidth',fig.align='center',fig.show='hide'>>=
+#fig.cap=c('Simulated particle trajectories from time $t_{k-1}$ to their predicted state $\\bX_k^{(i)}$ (left), and their computed location $h(\\bX_k^{(i)})$ (right). The reported bus location $\\bY_k$ is shown by a red cross.','$\\bY_k$ (red cross) is a bivariate normal r.v. with mean and variance represented by the black dot and concentric rings, respectively.','After resampling, a posterior sample of trajectories is obtained (orange).'),fig.scap=NA>>=
 ggarrange(x2, m2, widths = c(3, 1))
-map
 ggarrange(x3, m3, widths = c(3, 1))
 @
-    \end{minipage}
+    % \end{minipage}
+
+    % \begin{minipage}{0.49\linewidth}
+    %     \begin{itemize}
+
+
+
+
+        \item \textbf{particle filter}: general, flexible estimation method 
+            \begin{itemize} 
+                \item vehicle state approximated by a sample of particles 
+                        $\tilde\bX_k =(\bX_k^{(i)})_{i=1}^N$
+                \item particles transitioned independently,
+                    so multimodal distributions are no issue
+                    (e.g., at bus stops and intersections)
+                \item likelihood is intuitive: the distance between the estimated
+                    and observed location
+            \end{itemize}
+        \item measurement function $h:\mathbb{R}\mapsto\mathbb{R}^2$ calculates 
+            particle's map position from distance traveled along shape
+        \item our particle filter estimation procedure is as follows:
+
+        
+
+        \begin{enumerate}
+            \item predict trajectory of each particle 
+                using transition function $f$ and system noise parameter $Q_k$
+                as shown in figure~\ref{fig:vehicle_state1}
+                \begin{equation*}
+                    \bX_k^{(i)} = f(\bX_k^{(i)}, w_k),\quad
+                    w_k \sim N(0, Q_{k-1})
+                \end{equation*}
+        
+        
+    %     \end{itemize}
+    % \end{minipage}
+    % \hspace{0.01\linewidth}
+    % \begin{minipage}{0.49\linewidth}
+
+    % \end{minipage}
+
+    % \begin{itemize}
+
+    \begin{minipage}[t]{0.64\linewidth}
+            \item assume $\bY_k$ is a noisy measurement of true 
+                position with GPS error $\sigma^2_y$ (fig~\ref{fig:vehicle_state_lh}),
+                and define $g:\mathbb{R}^2\mapsto\mathbb{R}^2$ such that
+                $\mathit{dist}(g(\bY_1), g(\bY_2))$ is the ground distance between
+                the points, then the measurement model is
+                \begin{equation*}
+                    g(\bY_k) \sim N\left(g(h(\bX_k)), 
+                    \begin{bmatrix}
+                        \sigma^2_y & 0 \\ 0 & \sigma^2_y
+                    \end{bmatrix}
+                    \right)
+                \end{equation*}
+                and $(\delta_k^{(i)})^2 = \mathit{dist}(g(h(\bX_k^{(i)})), g(Y_k))^2$
+                is the sum of two independent normal r.v.'s with mean 0 and 
+                variance $\sigma^2_y$
+                \begin{equation*}
+                    \left((\delta_k^{(i)})^2 / \sigma_y^2\right)
+                    \sim \chi^2(2) \sim \mathrm{Exp}(0.5) 
+                \end{equation*}
+
+                \item evaluated the likelihood for each particle
+                \begin{equation*}
+                    p(\bY_k | \bX_k^{(i)}) = 0.5e^{-(\delta_k^{(i)})^2 / 2\sigma_y^2}
+                \end{equation*}
+
+
+            \item update state by resampling particles with replacement, using likelihood weights (fig~\ref{fig:vehicle_state2})
+                \begin{equation*}
+                    w^{(i)} = \frac{p(\bY_k | \bX_k^{(i)})}{\sum_{j=1}^N p(\bY_k | \bX_k^{(j)})}
+                \end{equation*}
+        \end{minipage}
+        \begin{minipage}[t]{0.34\linewidth}
+<<vehicle_state_lh,fig.width=2.5,fig.height=2.5,out.width='0.8\\linewidth',fig.align='center',fig.cap='$\\bY_k$ (red cross) is a bivariate normal r.v. with mean and variance represented by the black dot and concentric rings, respectively.',fig.scap=NA>>=
+map
+@
+        \end{minipage}
+
+
+
+        % \begin{itemize}
+        %     \item Particle filter is a computationally intensive estimation method;
+        %         however, using an 8~core, 32~GB RAM Virtual Machine, 
+        %         we are able to model all buses in Auckland (1000+ at peak hour)
+        %         in under 20 seconds.
+        % \end{itemize}
+    % \end{minipage}
+    % \hspace{0.01\linewidth}
+    % \begin{minipage}[t]{0.49\linewidth}
+
+            \item use resulting trajectories to estimate vehicle speed along 
+                road segments to update network in section~\ref{sec:nw}
+                \begin{itemize}
+                    \item $v^j_k$ is the mean speed of the particles, and
+                    \item $e^j_k$ is the variance of particle speeds for a vehicle
+                \end{itemize}
+        \end{enumerate}
+
+
+\begin{figure}
+    \centering
+    \subfigure[Forecasted particle trajectories]{%
+        \includegraphics{figure/vehicle_state-1}
+        \label{fig:vehicle_state1}}
+    \subfigure[Updated particle sample are resampling]{%
+        \includegraphics{figure/vehicle_state-2}
+        \label{fig:vehicle_state2}}
+    \caption{The vehicle state consists of distance traveled (the $y$-axes in the graphs). 
+        The predicted state for each particle involves a trajectory (a), and the final position
+        can be mapped to a location on a map, which makes comparing the predictions to the observation (in red)
+        intuitive and straightforward.}
+    \label{fig:vehicle_state}
+\end{figure}
+
+
+    % \end{minipage}
     \end{itemize}
 
-\end{minipage}
+% \end{minipage}
 \end{minipage}
 \hspace{0.01\linewidth}
-\begin{minipage}[t]{0.39\linewidth}
+\begin{minipage}[t]{0.49\linewidth}
     \section{Network state model}
     \label{sec:nw}
 
 
-    \begin{minipage}[t]{0.59\linewidth}
+    % \begin{minipage}[t]{0.59\linewidth}
         \begin{itemize}
             \item goal is to develop a model that can estimate
                 \textbf{real-time} and \textbf{future} network state for use in
@@ -425,7 +462,7 @@ ggarrange(x3, m3, widths = c(3, 1))
                 %     p(\beta^j_r | v^j_r) \propto p(\beta^j_r) p(v^j_r | \beta^j_r)
                 % \end{equation*}
             \item historical data is used to determine the prior mean and variance
-                (blue lines in figures~\ref{fig:road_state1} and \ref{fig:road_state2})
+                (blue lines in figure~\ref{fig:road_state})
                 \begin{equation*}
                     p(\beta^j_r) \sim N(\mu_j(t_r), \psi_j(t_r)^2)
                 \end{equation*}
@@ -436,7 +473,7 @@ ggarrange(x3, m3, widths = c(3, 1))
                     p(\beta^j_r | v^j_r) \sim N(\hat\beta^j_r, P^j_r)
                 \end{equation*}
             \begin{enumerate}
-                \item predict future state (fig.~\ref{fig:road_state1})
+                \item predict future state, fig.~\ref{fig:road_state1}
                 \begin{itemize}
                     \item \textbf{transition function}
                         and \textbf{system noise} defined such that 
@@ -446,7 +483,7 @@ ggarrange(x3, m3, widths = c(3, 1))
                         in one~second intervals
                 \end{itemize}
 
-                \item update state (fig.~\ref{fig:road_state2}): 
+                \item update state, fig.~\ref{fig:road_state2}
                 \begin{itemize}
                     \item use values from step~5 in section~\ref{sec:pf}
                     \item EKF update equations with observation $v^j_r$ and measurement
@@ -468,10 +505,14 @@ ggarrange(x3, m3, widths = c(3, 1))
                 \end{itemize}
 
         \end{itemize}
-    \end{minipage}
-    \hspace{0.01\linewidth}
-    \begin{minipage}[t]{0.39\linewidth}
-<<road_state,fig.width=4,fig.height=2.5,out.width='\\textwidth',fig.align="center",fig.cap=c('Predicted road state (black) converges to the prior (blue), in terms of both the mean and variance (solid and dashed lines, respectively).','Network state updated using observations of vehicle speed from the particle filter (in red, showing estimated measurement error).'),fig.scap=NA>>=
+    % \end{minipage}
+    % \hspace{0.01\linewidth}
+    % \begin{minipage}[t]{0.39\linewidth}
+
+    \begin{figure}
+    \centering
+<<road_state,fig.width=5,fig.height=3,out.width='0.4\\textwidth',results='asis',fig.show='hide'>>=
+# ,fig.align="center",fig.cap=c('Predicted road state (black) converges to the prior (blue), in terms of both the mean and variance (solid and dashed lines, respectively).','Network state updated using observations of vehicle speed from the particle filter (in red, showing estimated measurement error).'),fig.scap=NA>>=
 X <- x <- 20
 P <- p <- 2
 n <- 30
@@ -540,8 +581,19 @@ p3 <- ggplot(r, aes(i/60)) +
 p1
 p3
 @
+
+    \subfigure[Forecasted network state]{%
+        \includegraphics{figure/road_state-1}
+        \label{fig:road_state1}}
+    \subfigure[Updated and re-forecasted state]{%
+        \includegraphics{figure/road_state-2}
+        \label{fig:road_state2}}
+    \caption{Network road state predictions as defined by the transition function converge towards the prior mean
+        and variance (in blue) over time. These state forecasts are used for predicting future travel times for arrival time prediction, and as the state prediction for the update step that occurs whenever a bus travels along the road segment (in red).}
+    \label{fig:road_state}
+\end{figure}
     
-    \end{minipage}
+    % \end{minipage}
 
     \section{Predicting arrival time}
     \label{sec:pred}
@@ -631,6 +683,8 @@ gridExtra::grid.arrange(gp1, gp2, heights = c(2, 1))
         \item investigate ideal summary statistics for ETAs (both point and interval prediction)
     \end{itemize}
 
+    \bibliographystyle{unsrt}
+    {\footnotesize\bibliography{reflist}}
 
 \end{minipage}
 
