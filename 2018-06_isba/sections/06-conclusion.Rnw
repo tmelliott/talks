@@ -1,0 +1,31 @@
+\section{Conclusion}
+
+\begin{itemize}
+
+    \item segmenting routes allows vehicles to share travel times with others using the same roads
+
+    \item real-time vehicle and network state models combine real-time and historical data
+        to predict arrival time
+
+    \item current real-time C++ implementation takes up to 20~seconds on an 8-core Virtual Machine
+        with 5000~particles per vehicle
+
+\end{itemize}
+
+
+\section{Future work} 
+
+\begin{itemize}
+
+    \item improve network state model:
+        \begin{itemize}
+            \item \textbf{non-constant segment speed}: speed varies by time and distance along road
+            \item \textbf{additional covariates}: adjacent segments, yesterday's traffic, weather, etc.
+        \end{itemize}
+
+    \item stop- and intersection-wait time models to estimate and quantify wait time uncertainty
+
+    \item find optimal point and interval estimates for ETAs
+
+\end{itemize}
+

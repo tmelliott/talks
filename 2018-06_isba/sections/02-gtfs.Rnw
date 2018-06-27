@@ -1,0 +1,39 @@
+\section{GTFS transit network}
+
+\begin{minipage}{0.59\linewidth}
+
+\begin{itemize}
+
+    \item \textbf{GTFS}: API specification for transit data \cite{GoogleDevelopers_2006},
+        500+ locations worldwide
+        \begin{itemize}
+            \item static: routes, \textbf{shapes}, stops, scheduled arrival/departure times
+            \item real-time: \textbf{vehicle locations}, arrival/departure delays
+        \end{itemize}
+
+    \item \textbf{transit network} consists of intersections (nodes) and connecting road segments (edges)
+
+    \item general method for constructing network from raw GTFS data 
+
+        \begin{enumerate}
+            \item Import raw GTFS shape data
+            \item generate network of intersections (nodes) and road segments (edges) using adaptation of \cite{Zhang_2017}
+            \item express each route as a sequence of road segments
+        \end{enumerate}
+
+    \item Implementation in progress: \texttt{gtfsnetwork} R package
+\end{itemize}
+
+\end{minipage}\hspace{0.01\linewidth}
+\begin{minipage}{0.39\linewidth}
+
+\begin{figure}
+    \centering
+    \includegraphics{figs/gtfs-nw_figure1}
+    \hspace{3em}
+    \includegraphics{figs/gtfs-nw_figure2}
+    % \caption{Construction of a GTFS network}
+    \label{fig:gtfs-network}
+\end{figure}
+
+\end{minipage}

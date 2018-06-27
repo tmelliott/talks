@@ -1,0 +1,173 @@
+\section{Vehicle state model}
+\label{sec:pf}
+
+<<vehicle_state_initial,fig.width=5,fig.height=3,out.width='\\linewidth',fig.align='center'>>=
+p1 <- p %>% filter(k == 1 & between(t, T[1], T[2]))
+
+set.seed(1)
+pids <- p1 %>% filter(d < 2820) %>% pluck('particle_id') %>%
+    unique %>% sample(10)
+
+p1f <- p1 %>% filter(particle_id %in% pids)
+x1 <- ggplot(p1f %>% filter(t == T[1])) +
+    geom_point(aes(t, d), col = "orangered", size = 3, pch = 19) +
+    scale_x_datetime(breaks = T[1:2], limits = T[1:2],
+        labels = c(expression(t[k-1]), expression(t[k]))) +
+    # xlim(T[1], T[2]) + #ylim(min(p1f$d), max(p1f$d)) +
+    xlab("Time") + ylab("Distance traveled") + ylim(2700, 3800) +
+    theme(axis.text.y = element_blank(),
+          axis.ticks.y = element_blank(),
+          axis.text.x = element_text(size = 14),
+          panel.grid.major.y = element_blank(),
+          panel.grid.minor = element_blank())# +
+#    geom_vline(xintercept = T[2], lty = 2, colour = "red")
+
+
+dx1 <- sapply(p1f %>% filter(t == T[1]) %>% pluck('d'), h, sh = shape) %>%
+    t %>% as.tibble %>% mutate(lat = V1, lng = V2) %>% select(lat, lng)
+m1 <- map + geom_point(aes(lng, lat), data = dx1, colour = "orangered",
+                       size = 2, stroke = 2, pch = 21, fill = "white") +
+    geom_point(aes(x = Yobs[2], y = Yobs[1]), pch = 4, colour = "red",
+               size = 1.5, stroke = 2)
+# ggarrange(x1, m1, widths = c(3, 1))
+@
+
+<<vehicle_state_predict,fig.width=6,fig.height=3,out.width='0.6\\linewidth',fig.align='center'>>=
+x2 <- x1 + geom_path(aes(t, d, group = particle_id),
+                     data = p1f, lty = 2) +
+    geom_point(aes(t, d), data = p1f %>% filter(t == T[2]),
+               size = 1.5, pch = 19)
+
+dx2 <- sapply(p1f %>% filter(t == T[2]) %>% pluck('d'), h, sh = shape) %>%
+    t %>% as.tibble %>%
+    mutate(id = p1f %>% filter(t == T[2]) %>% pluck('particle_id'),
+           lat = V1, lng = V2) %>%
+    select(id, lat, lng)
+m2 <- map +
+    geom_point(aes(lng, lat), data = dx2, colour = "black", size = 2, stroke = 2,
+               pch = 21, fill = "white") +
+    geom_point(aes(x = Yobs[2], y = Yobs[1]), pch = 4, colour = "red",
+               size = 1.5, stroke = 2)
+# ggarrange(x2, m2, widths = c(3, 1))
+
+ll <- dnorm(p1f %>% filter(t == T[2]) %>% pluck("d"), dobs, 20)
+wt <- ll / sum(ll)
+
+idk <- sample(p1f$particle_id %>% unique, prob = wt, replace = TRUE)
+
+p3 <- p1f %>% mutate(keep = ifelse(particle_id %in% idk, "yes", "no"))
+x3 <- x1 + geom_path(aes(t, d, group = particle_id, colour = keep,
+                         lty = keep),
+               data = p3) +
+    scale_colour_manual(values = c("yes" = "orangered", "no" = "gray")) +
+    scale_linetype_manual(values = c("yes" = 1, "no" = 2)) +
+    geom_point(aes(t, d, colour = keep, size = keep),
+               data = p3 %>% filter(t == T[2])) +
+    scale_size_manual(values = c("yes" = 3, "no" = 1)) +
+    theme(legend.position = 'none')
+
+dx3 <- dx2 %>% mutate(keep = ifelse(id %in% idk, "yes", "no"))
+m3 <- map +
+    geom_point(aes(lng, lat, colour = keep),
+               data = dx3 %>% arrange((keep)),
+               size = 2, stroke = 2, pch = 21, fill = "white") +
+    scale_colour_manual(values = c("yes" = "orangered", "no" = "gray")) +
+    theme(legend.position = "none")
+
+oi = 1
+xr = extendrange(dx2$lng[oi]+c(-0.005, 0.005))
+yr = extendrange(dx2$lat[oi]+c(-0.0001,0.0001))
+bbox = c(xr[1], yr[1], xr[2], yr[2])
+akl = get_googlemap(dx2[oi,c('lng', 'lat')] %>% as.numeric, zoom = 20,
+    maptype="roadmap")
+map <- ggmap(akl) +
+    geom_rect(aes(xmin = -Inf, xmax = Inf, ymin = -Inf, ymax = Inf),
+            fill = "white", alpha = 0.1) +
+    geom_point(aes(lng, lat), data = dx2[oi,], pch = 21, size = 3, stroke = 2,
+               fill = "white", color = "blue") + 
+    geom_point(aes(lng, lat), data = dx2[oi, ], pch = 21, size = 30, stroke = 1,
+                fill = "transparent", color='purple') +
+    geom_point(aes(lng, lat), data = dx2[oi, ], pch = 21, size = 60, stroke = 0.5,
+                fill = "transparent", color='purple') +
+    geom_point(aes(Yobs[2], Yobs[1]), pch = 4, colour = "red",
+               size = 5, stroke = 2) + 
+    theme(axis.text = element_blank(), 
+          axis.ticks = element_blank(),
+          panel.grid.major = element_blank()) + xlab("") + ylab("")
+@
+
+
+\begin{itemize}
+    \item estimate vehicle state $\bX_k$ from a sequence of real-time GPS observations $\bY_k$
+
+    \item \textbf{transition function} $f$ describes behaviour of a bus: 
+        acceleration/deceleration and wait times at bus stops/intersections,
+        where $Q_{k-1}$ is system noise (in vehicle speed)
+        \begin{equation*}
+            \bX_k = f(\bX_{k-1}, w_k),\quad w_k \sim N(0, Q_{k-1})
+        \end{equation*}
+
+    \item \textbf{measurement function} $h$ determines GPS coordinates for a known state
+        using GTFS shape and distance traveled, so measurement model is
+        \begin{equation*}
+            \bY_k = h(\bX_k)
+        \end{equation*}
+        \emph{(we use an equirectangular projection $g$ to work with geographic coordinates)}
+
+
+    \begin{minipage}[t]{0.69\linewidth}
+    \item \textbf{likelihood}: given $\hat\bX_k$, define distance between
+        \textcolor{blue}{$h(\hat\bX_k)$} and \textcolor{red}{$\bY_k$}
+        \begin{equation*}
+            \delta_k = d(\textcolor{blue}{h(\hat\bX_k)}, \textcolor{red}{\bY_k})
+        \end{equation*}
+        then $\delta_k^2$ is the sum of two independent normal random variables
+        with variance \textcolor{purple}{$\sigma_y^2$}
+
+        \begin{equation*}
+            \left(\delta_k^2 / \sigma_y^2\right)
+            \sim \chi^2(2) \sim \mathrm{Exp}(0.5) 
+        \end{equation*}
+
+    \end{minipage}\hspace{0.01\linewidth}
+    \begin{minipage}[t]{0.29\linewidth}
+<<vehicle_state_lh_,fig.width=2.5,fig.height=2.5,out.width='0.8\\linewidth',fig.align='center'>>=
+map
+@
+    \end{minipage}
+
+    \vspace{1em}
+    \item \textbf{particle filter}: flexible estimation method 
+        approximating $\bX_k$ using particles \textcolor{orangered}{$(\bX_k^{(i)})_{i=1}^N$}
+
+        \vspace{0.5em}
+        \begin{minipage}{0.49\linewidth}
+        \begin{enumerate}
+            \item \textbf{predict new state} by transitioning particles up to time $t_k$
+
+
+            \item \textbf{evaluate likelihood} of each particle 
+            \begin{equation*}
+                p(\bY_k | \bX_k^{(i)}) = 0.5e^{-(\delta_k^{(i)})^2 / 2\sigma_y^2}
+            \end{equation*}
+
+            \item \textbf{weighted resample with replacement}
+            \begin{equation*}
+                w^{(i)} = \frac{p(\bY_k | \bX_k^{(i)})}{\sum_{j=1}^N p(\bY_k | \bX_k^{(j)})}
+            \end{equation*}
+        \end{enumerate}
+
+        \end{minipage}\hspace{0.01\linewidth}
+        \begin{minipage}{0.49\linewidth}
+            
+<<vehicle_state_pred,fig.width=6,fig.height=2.8,out.width='\\linewidth',fig.align='center'>>=
+ggarrange(x2, m2, widths = c(3, 1))
+@
+<<vehicle_state_update,fig.width=6,fig.height=2.8,out.width='\\linewidth',fig.align='center'>>=
+ggarrange(x3, m3, widths = c(3, 1))
+@
+        
+        \end{minipage}
+
+  \end{itemize}
+

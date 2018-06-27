@@ -1,0 +1,43 @@
+\section{Introduction}
+
+\begin{minipage}{0.29\linewidth}
+
+\begin{figure}
+    \centering
+    \includegraphics[width=0.95\textwidth]{figs/double-decker-2016.jpg}
+\end{figure}
+
+\end{minipage}
+\hspace{0.01\linewidth}
+\begin{minipage}{0.65\linewidth}
+
+\begin{itemize}
+
+    \item \textbf{real time information (RTI)}:
+        estimated arrival time (ETA), delays, cancellations
+
+    \item helps commuters \textbf{plan journeys} and 
+        \textbf{improves their experience} \cite{TCRP_2003} \ldots but \textbf{only if the information is reliable!}
+
+    \item generating ETAs involves 
+        1.~a \textbf{real-time vehicle tracking} system (e.g., GPS),
+        2.~a \textbf{vehicle state model} to process real-time noisy observations
+            (e.g., Kalman filter \cite{Wall99analgorithm,Dailey_2001,Cathey_2003}, 
+            particle filter \cite{Hans_2015}), and
+        3.~\textbf{travel time predictions} 
+
+    \item predictions often based on scheduled inter-stop travel times,
+        occasionally historical data;
+        however \textbf{real-time travel times} along intermediate roads would seem to be the best predictor
+    
+    \vspace{1em}
+    \item \textbf{proposal}: 
+        a generalised approach to modeling transit vehicles and network congestion
+        to obtain reliable ETAs
+
+    \item \textbf{test location}: Auckland, New Zealand, where Auckland Transport provides a publically 
+        accessibly vehicle locations API 
+  
+\end{itemize}
+
+\end{minipage}

@@ -1,0 +1,92 @@
+\section{Network state model}
+\label{sec:nw}
+
+<<road_state>>=
+X <- x <- 20
+P <- p <- 2
+n <- 30
+lambda <- 0
+
+KF <- function(x, P, mu, sigma, delta, lambda = 1/600,
+               keep = FALSE) {
+    if (keep) {
+        hist <- list(x = numeric(delta)+1, P = numeric(delta)+1)
+    }
+    hist$x[1] <- x
+    hist$P[1] <- P
+    for (i in 1:delta) {
+        l <- P / (P + sigma)
+        x <- x + l*lambda * (mu - x)
+        q <- (1 - (1 - l*lambda)^2) * sigma
+        P <- (1 - l*lambda)^2 * P + q
+        ##P <- P + lambda * (x / (x + mu))^2 * (sigma - P)
+        hist$x[i+1] <- x
+        hist$P[i+1] <- P
+    }
+    o <- list(x = x, P = P)
+    if (keep) o$hist <- hist
+    o
+}
+
+pmean <- 30
+pvar <- 30
+r <- KF(20, 1, pmean, pvar, 3600, lambda=1/300, keep = TRUE)
+r <- r$hist %>%
+    as.tibble %>%
+    add_column(i = 1:nrow(.)-1L, .before = 1)
+ti <- 5*60+1
+obsx <- 19
+obsv <- 1
+p0 <- ggplot(r, aes(i/60)) +
+    geom_hline(yintercept = pmean + sqrt(pvar) * c(0, -1, 1),
+               lty = c(1,2,2), lwd = c(1, 1, 1), col = "steelblue") +
+    geom_line(aes(y = pmax(0, x - sqrt(P))), lty = 2) +
+    geom_line(aes(y = pmax(0, x + sqrt(P))), lty = 2) +
+    geom_line(aes(y = x)) +
+    xlab("Time since last update (min)") + ylab("Road speed (km/h)")
+
+p1 <- p0 #+ geom_pointrange(aes(x = 5, y = obsx, ymin = obsx-obsv, ymax = obsx+obsv),
+         #           data = NULL, col = "red", fill = "white", pch = 21)
+r2 <- KF(x, p, pmean, pvar, 3600-60*5, lambda=1/300, keep = TRUE)
+r2 <- r2$hist %>%
+    as.tibble %>%
+    add_column(i = 1:nrow(.)-1L + 60*5, .before = 1)
+p3 <- ggplot(r, aes(i/60)) +
+    geom_hline(yintercept = pmean + sqrt(pvar) * c(0, -1, 1),
+               lty = c(1, 2, 2), lwd = c(1, 1, 1), col = "steelblue") +
+    geom_line(aes(y = pmax(0, x - sqrt(P))), lty = 2, data = r,
+              color = "gray") +
+    geom_line(aes(y = pmax(0, x + sqrt(P))), lty = 2, data = r,
+              color = "gray") +
+    geom_line(aes(y = x), data = r, color = "gray") +
+    geom_line(aes(y = x), data = r2) +
+    geom_line(aes(y = x - sqrt(P)), data = r2, lty = 2) +
+    geom_line(aes(y = x + sqrt(P)), data = r2, lty = 2) +
+    xlab("Time since last update (min)") + ylab("Road speed (km/h)") +
+    geom_errorbar(aes(x = 5, ymin = obsx-obsv, ymax = obsx+obsv),
+                    col = "purple") + 
+    geom_point(aes(x = 5, y = obsx), col = "red", fill = "white", pch = 21)
+@
+
+\begin{itemize}
+
+    \item estimate \textbf{real-time network state} from vehicle speeds,
+        and forecast future states for ETAs 
+
+    \item $\beta^j_r$ is average \textbf{speed of buses} along road segment $j$ at time $t_r$
+
+    \item forecasted state converges towards \textbf{\textcolor{steelblue}{historical mean}} (i.e., the prior)
+<<road_state_pred,fig.width=5,fig.height=2.3,out.width='0.4\\textwidth',results='asis',fig.align='center'>>=
+p1
+@
+
+    \item update as vehicles traverse network using extended Kalman filter algorithm
+        \begin{itemize}
+            \item observation \textcolor{red}{$\hat s_{t}$} is mean speed of particles along segment
+            \item measurement error \textcolor{purple}{$r_t^2$} is variance of particle speeds
+        \end{itemize}
+<<road_state_upd,fig.width=4,fig.height=2.3,out.width='0.4\\textwidth',results='asis',fig.align='center'>>=
+p3
+@
+
+\end{itemize}

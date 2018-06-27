@@ -1,4 +1,5 @@
 FILE=poster
+SECTIONS=$(wildcard sections/*.Rnw)
 
 target: $(FILE).pdf
 .PHONY: clean
@@ -6,7 +7,7 @@ target: $(FILE).pdf
 $(FILE).pdf: $(FILE).tex
 	@latexmk -pdf $<
 
-$(FILE).tex: $(FILE).Rnw
+$(FILE).tex: $(FILE).Rnw $(SECTIONS)
 	@R --slave -e "knitr::knit('$<')"
 
 clean:
