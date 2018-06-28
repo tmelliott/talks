@@ -13,7 +13,7 @@
 
 \begin{itemize}
 
-    \item \textbf{real time information (RTI)}:
+    \item \textbf{real-time information (RTI)}:
         estimated arrival time (ETA), delays, cancellations
 
     \item helps commuters \textbf{plan journeys} and 
@@ -32,11 +32,11 @@
     
     \vspace{1em}
     \item \textbf{proposal}: 
-        a generalised approach to modeling transit vehicles and network congestion
+        an approach to modeling transit vehicles and network congestion
         to obtain reliable ETAs
 
-    \item \textbf{test location}: Auckland, New Zealand, where Auckland Transport provides a publically 
-        accessibly vehicle locations API 
+    \item \textbf{test location}: Auckland, New Zealand, where Auckland Transport provides free, public transit API
+        \texttt{https://dev-portal.at.govt.nz/}
   
 \end{itemize}
 

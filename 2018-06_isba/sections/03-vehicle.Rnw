@@ -102,7 +102,7 @@ map <- ggmap(akl) +
 
     \item \textbf{transition function} $f$ describes behaviour of a bus: 
         acceleration/deceleration and wait times at bus stops/intersections,
-        where $Q_{k-1}$ is system noise (in vehicle speed)
+        with system noise $Q_{k-1}$ (in vehicle speed)
         \begin{equation*}
             \bX_k = f(\bX_{k-1}, w_k),\quad w_k \sim N(0, Q_{k-1})
         \end{equation*}
@@ -125,7 +125,7 @@ map <- ggmap(akl) +
         with variance \textcolor{purple}{$\sigma_y^2$}
 
         \begin{equation*}
-            \left(\delta_k^2 / \sigma_y^2\right)
+            \left(\delta_k^2 / \textcolor{purple}{\sigma_y^2}\right)
             \sim \chi^2(2) \sim \mathrm{Exp}(0.5) 
         \end{equation*}
 
@@ -141,7 +141,7 @@ map
         approximating $\bX_k$ using particles \textcolor{orangered}{$(\bX_k^{(i)})_{i=1}^N$}
 
         \vspace{0.5em}
-        \begin{minipage}{0.49\linewidth}
+        \begin{minipage}[t]{0.49\linewidth}
         \begin{enumerate}
             \item \textbf{predict new state} by transitioning particles up to time $t_k$
 
@@ -158,12 +158,12 @@ map
         \end{enumerate}
 
         \end{minipage}\hspace{0.01\linewidth}
-        \begin{minipage}{0.49\linewidth}
+        \begin{minipage}[t]{0.49\linewidth}
             
-<<vehicle_state_pred,fig.width=6,fig.height=2.8,out.width='\\linewidth',fig.align='center'>>=
+<<vehicle_state_pred,fig.width=5,fig.height=2.3,out.width='\\linewidth',fig.align='center'>>=
 ggarrange(x2, m2, widths = c(3, 1))
 @
-<<vehicle_state_update,fig.width=6,fig.height=2.8,out.width='\\linewidth',fig.align='center'>>=
+<<vehicle_state_update,fig.width=5,fig.height=2.3,out.width='\\linewidth',fig.align='center'>>=
 ggarrange(x3, m3, widths = c(3, 1))
 @
         

@@ -7,8 +7,8 @@
     \item real-time vehicle and network state models combine real-time and historical data
         to predict arrival time
 
-    \item current real-time C++ implementation takes up to 20~seconds on an 8-core Virtual Machine
-        with 5000~particles per vehicle
+    \item real-time C++ implementation takes up to 20~seconds on an 8-core Virtual Machine
+        with 4000~particles per vehicle (of which there can be 1000+ at peak times)
 
 \end{itemize}
 
@@ -16,6 +16,8 @@
 \section{Future work} 
 
 \begin{itemize}
+
+    \item tune particle filter to perform better, faster resampling, to allow increasing $N$
 
     \item improve network state model:
         \begin{itemize}

@@ -76,7 +76,7 @@ p3 <- ggplot(r, aes(i/60)) +
     \item $\beta^j_r$ is average \textbf{speed of buses} along road segment $j$ at time $t_r$
 
     \item forecasted state converges towards \textbf{\textcolor{steelblue}{historical mean}} (i.e., the prior)
-<<road_state_pred,fig.width=5,fig.height=2.3,out.width='0.4\\textwidth',results='asis',fig.align='center'>>=
+<<road_state_pred,fig.width=4.5,fig.height=2.3,out.width='0.4\\textwidth',results='asis',fig.align='center'>>=
 p1
 @
 
@@ -85,7 +85,7 @@ p1
             \item observation \textcolor{red}{$\hat s_{t}$} is mean speed of particles along segment
             \item measurement error \textcolor{purple}{$r_t^2$} is variance of particle speeds
         \end{itemize}
-<<road_state_upd,fig.width=4,fig.height=2.3,out.width='0.4\\textwidth',results='asis',fig.align='center'>>=
+<<road_state_upd,fig.width=4.5,fig.height=2.3,out.width='0.4\\textwidth',results='asis',fig.align='center'>>=
 p3
 @
 

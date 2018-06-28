@@ -46,7 +46,7 @@ gridExtra::grid.arrange(gp1, gp2, heights = c(2, 1))
 \begin{minipage}[t]{0.54\linewidth}
     \begin{itemize}
 
-        \item \textbf{simulate particle trajectories}, using forecasted segment speeds
+        \item \textbf{simulate particle trajectories} using forecasted segment speeds
 
         \item obtain \textbf{distribution of arrival times}, $(A_j^{i})_{i=1}^N$ for each stop $j$
 

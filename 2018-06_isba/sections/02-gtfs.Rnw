@@ -8,12 +8,12 @@
         500+ locations worldwide
         \begin{itemize}
             \item static: routes, \textbf{shapes}, stops, scheduled arrival/departure times
-            \item real-time: \textbf{vehicle locations}, arrival/departure delays
+            \item realtime: \textbf{vehicle locations}, arrival/departure delays
         \end{itemize}
 
     \item \textbf{transit network} consists of intersections (nodes) and connecting road segments (edges)
 
-    \item general method for constructing network from raw GTFS data 
+    \item our general method for constructing network from raw GTFS data:
 
         \begin{enumerate}
             \item Import raw GTFS shape data
