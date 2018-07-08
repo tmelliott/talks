@@ -12,8 +12,12 @@
     box-shadow: none
 
 .reveal .slides section
+    .fragment.highlight-blue.visible
+        color: #000
+        &.current-fragment
+            color: #1b91ff
     .fragment.highlight-red.visible
-        color: gray
+        color: #000
         &.highlight-once
             color: black
         &.current-fragment

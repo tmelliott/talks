@@ -1,0 +1,23 @@
+.reveal .slides section
+    .inline-slides
+        position: relative
+        overflow: hidden
+        height: 100%
+
+        > div
+            position: absolute
+            top: 0
+            left: 100%
+            height: 100%
+            width: 100%
+            transition: all 0.5s ease-in-out
+
+            // &.fragment
+            //     left: 100%
+
+            &.current-fragment, &.shown, &.gone
+                left: 0
+
+            &.gone
+                left: -100%
+        

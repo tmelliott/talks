@@ -9,7 +9,7 @@ var reload = browserSync.reload;
 var jquery = './node_modules/jquery/';
 var bootstrap = './node_modules/bootstrap-sass/';
 var fontawesome = './node_modules/font-awesome/';
-var d3 = './node_modules/d3/build/';
+var d3 = './node_modules/d3/dist/';
 
 var assets = './assets/';
 var sassdir = assets + 'css/sass/';
