@@ -4035,8 +4035,6 @@ body {
   z-index: -10;
   opacity: 0;
   transition: opacity 1s ease-in-out; }
-  #aklMap circle {
-    fill: orangered; }
   #aklMap.showme {
     opacity: 1; }
   #aklMap .maplocation {
@@ -4063,6 +4061,14 @@ body {
     fill: orangered; }
   #aklMap line {
     stroke-width: 3; }
+  #aklMap .axis {
+    font-size: 18px; }
+  #aklMap .leaflet-container {
+    background: #fff; }
+  #aklMap .leaflet-tile-pane img.leaflet-tile {
+    transition: all 1s ease-in-out; }
+    #aklMap .leaflet-tile-pane img.leaflet-tile.hideme img.leaflet-tile {
+      opacity: 0; }
 
 .etagraph svg .routeline {
   fill: none;

@@ -7,8 +7,8 @@
   right: 0
   z-index: -10
 
-  circle
-    fill: orangered
+  // circle
+  //   fill: orangered
 
   opacity: 0
   transition: opacity 1s ease-in-out
@@ -51,6 +51,17 @@
   line
     // stroke: magenta
     stroke-width: 3
+
+  .axis
+    font-size: 18px
+
+  .leaflet-container
+    background: #fff
+    
+  .leaflet-tile-pane img.leaflet-tile
+    transition: all 1s ease-in-out
+    &.hideme img.leaflet-tile
+      opacity: 0
 
   // .busIcon
   //   height: 18px

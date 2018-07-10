@@ -24,7 +24,7 @@ $(document).ready(function() {
   // aklMap();
 });
 
-var segdata, svg, ax, ay, ac, ad, at;
+var segdata, svg, ax, ay, ac, ad, at, margin = {}, height, width;
 
 // variables we'll need to use throughout the place
 // var aklmap, busdata, points_visible, aklsvg, aklbuses, pts = [], routepath, particles, realbus, segments;
@@ -107,51 +107,64 @@ function LoadSegmentData () {
     };
   }).then (function (data) {
     segdata = data;
-    initializeGraph();
+    loadMap();
   });
 }
 
 function loadMap() {
-  var Zoom = 12;
+  var Zoom = 14;
   aklmap = new L.Map("aklMap", {
     center: [-36.81755, 174.7523],
     zoom: Zoom,
     zoomControl: false,
     attributionControl: false
   });
+
   L.tileLayer('http://{s}.basemaps.cartocdn.com/light_nolabels/{z}/{x}/{y}.png', {
       attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="http://cartodb.com/attributions">CartoDB</a>',
       subdomains: 'abcd',
       maxZoom: 19
   }).addTo(aklmap);
-  aklsvg = d3.select(aklmap.getPanes().overlayPane)
-        .append("svg");
 
-  // getBusData();  
-  // setInterval(getBusData, 30000);
+  setTimeout(initializeGraph, 1000);
+}
+
+function project(x, y) {
+  var pt = aklmap.latLngToLayerPoint(new L.LatLng(y, x));
+  return pt;
+  // return [y, x];
 }
 
 function initializeGraph () {
-  loadMap();
-
-  var height = 500, width = 800;
-  svg = d3.select("#mainSVG")
-    .attr('height', height)
-    .attr('width', width);
+  height = $("#aklMap").height();
+  width = $("#aklMap").width();
+  margin = {top: 5, bottom: 50, left: 50, right: 5};
+  d3.select(aklmap.getPanes().overlayPane).append('div')
+    .attr('class', 'mapmask')
+    .attr('height', height).attr('width', width);
+  svg = d3.select(aklmap.getPanes().overlayPane)
+        .append("svg")
+        .attr("height", height)
+        .attr("width", width);
+  // svg = d3.select("#mainSVG")
+  //   .attr('height', height)
+  //   .attr('width', width);
+  ptsg = svg.append('g');
+      // .attr('transform', 'translate(' + margin.left + ',' + margin.top + ')');
 
   ax = d3.scaleLinear()
     .domain([174.7413, 174.7643])
     .range([200, width-200]);
   ay = d3.scaleLinear()
     .domain([-36.83419, -36.79885])
-    .range([height, 0]);
+    .range([height - margin.top - margin.bottom, margin.top]);
 
   ad = d3.scaleLinear()
     .domain([0, 4500])
-    .range([height, 0]);
+    .range([height - margin.top - margin.bottom, margin.top]);
   at = d3.scaleLinear()
     .domain([5, 23])
-    .range([0, width]);
+    .range([margin.left, width - margin.right - margin.left]);
 
   ac = d3.scaleLinear()
     .domain([5, 10, 15, 20])
@@ -159,13 +172,18 @@ function initializeGraph () {
 }
 
 function addPoints () {
-  pts = svg.selectAll(".obs")
+  segdata.forEach(function(d) {
+    d.pt = project(d.lng, d.lat);
+    d.ptr = project(d.lngr, d.latr);
+  });
+
+  pts = ptsg.selectAll(".obs")
     .data(segdata, function(d) { return d.id; })
     .enter()
       .append("circle")
       .attr("class", "obs")
-      .attr("cx", function(d) { return ax(d.lng); })
-      .attr("cy", function(d) { return ay(d.lat); })
+      .attr("cx", function(d) { return (d.pt.x); })
+      .attr("cy", function(d) { return (d.pt.y); })
       .attr("r", 5)
       .attr("opacity", 0)
       .attr("sroke", "black")
@@ -177,34 +195,57 @@ function addPoints () {
 }
 
 function colourPoints () {
-  svg.selectAll(".obs")
+  ptsg.selectAll(".obs")
     .transition()
       .duration(500)
+      .attr("cx", function(d) { return (d.pt.x); })
+      .attr("cy", function(d) { return (d.pt.y); })
       .attr("stroke", function(d) { return ac(d.speed); })
       .attr("fill", function(d) { return ac(d.speed); });
 }
 
 function spreadPoints () {
-  svg.selectAll(".obs")
+  ptsg.selectAll(".obs")
     .transition()
       .duration(500)
-      .attr("cx", function(d) { return ax(d.lngr); })
-      .attr("cy", function(d) { return ay(d.latr); });
+      .attr("cx", function(d) { return (d.ptr.x); })
+      .attr("cy", function(d) { return (d.ptr.y); });
 }
 
 function transformY () {
-  svg.selectAll(".obs")
+  $(".leaflet-tile-pane").addClass('hideme');
+  // add the axis first ...
+  svg.append("g")
+    .attr("transform", "translate(" + margin.left + "," + margin.top + ")")
+    .attr("class", "axis axis-y")
+    .call(d3.axisLeft(ad).ticks(5)
+        .tickFormat(function(z) { return z / 1000; }));
+
+  ptsg.selectAll(".obs")
     .transition()
-      .duration(1000)
-      .attr("cx", function() { return at(12 + Math.random()); })
+      .delay(function(d) { return 2000 + ay(d.latr)*2 + Math.random() * 400; })
+      .duration(500)
+      .attr("cx", function() { return at(5.2 + Math.random()); })
       .attr("cy", function(d) { return ad(d.dist); });
 }
 
 function transformX () {
+  // add the axis first ...
+  svg.append("g")
+    .attr("transform", "translate(" + "0" + "," + (height - margin.bottom) + ")")
+    .attr("class", "axis axis-x")
+    .call(d3.axisBottom(at).ticks(6)
+        .tickFormat(function(z) { 
+          if (z < 12) return z + "am";
+          if (z == 12) return ("12pm");
+          return (z-12) + "pm"; 
+        }));
+
   svg.selectAll(".obs")
     .transition()
       .duration(1000)
-      .attr("cx", function(d) { return at(d.time); })
+      .delay(2000)
+      .attr("cx", function(d) { return at(d.time); });
 }
 
 

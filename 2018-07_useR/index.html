@@ -11,11 +11,11 @@
   <body>
     <div id="aklMap"></div>
     <div class="reveal">
-      <div class="slides class="stretch">
+      <div class="slides">
         <section id="titlepage" class="titlepage" data-state="titlepage">
           <h3>
 
-            <span class="fragment highlight-blue" data-fragment-index="3">
+            <span class="fragment highlight-blue" data-fragment-index="4">
               Historical data based priors</span> for
             <br> 
             <span class="fragment highlight-blue" data-fragment-index="2">
@@ -55,19 +55,26 @@
 
             <div class="fragment slide1" data-fragment-index="1">
               <p class="spaced">
-                $ETA = A_{\text{schedule}} + delay$
+                \[ \hat A = A_{\text{schedule}} + \text{delay} \]
               </p>
               <p class="fragment" data-fragment-index="2">
-                $ETA = \sum_{text\{roads}} \tau_\text{road}$
+                \[ \hat A^\star = \sum_{\small r\ \in\ roads} \tau_{r}
+                  \quad+ \epsilon
+                 \]
               </p>
 
-              <p class="fragment spaced" data-fragment-index="2">
-                $\tau_{\text{road}} = $
-                <em>travel time of vehicle along road</em> 
-              </p>
+
+<!--               <p class="fragment spaced" data-fragment-index="2">
+                \[ \tau_r = \text{
+                travel time of vehicle along road} \]
+              </p> -->
 
               <p class="fragment spaced" data-fragment-index="3">
-                $\tau = \int \frac{d}{\nu}\.\textrm{d}\nu$
+                $\tau_r = \int \frac{1}{\nu_r(x)}\,\textrm{d}x$
+              </p>
+
+              <p class="fragment" data-fragment-index="4">
+                A model for $\nu_r$?
               </p>
             </div><!-- arrival time pred -->
 
