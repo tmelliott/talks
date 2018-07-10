@@ -24,7 +24,7 @@ $(document).ready(function() {
   // aklMap();
 });
 
-var segdata, svg, ax, ay, ac, ad, at, margin = {}, height, width;
+var segdata, svg, ax, ay, ac, ad, at, margin = {}, height, width, fitdata, grid;
 
 // variables we'll need to use throughout the place
 // var aklmap, busdata, points_visible, aklsvg, aklbuses, pts = [], routepath, particles, realbus, segments;
@@ -86,6 +86,9 @@ function graphFrag () {
     case 4:
       transformX();
       break;
+    case 5:
+      addGrid();
+      break;
   }
 }
 
@@ -108,6 +111,17 @@ function LoadSegmentData () {
   }).then (function (data) {
     segdata = data;
     loadMap();
+  });
+
+  d3.csv("data/fitspeed.csv", function(d) {
+    return {
+      id: +d.id,
+      time: +d.tt,
+      dist: +d.seg_dist,
+      speed: +d.speed
+    };
+  }).then (function (data) {
+    fitdata = data;
   });
 }
 
@@ -139,13 +153,14 @@ function initializeGraph () {
   height = $("#aklMap").height();
   width = $("#aklMap").width();
   margin = {top: 5, bottom: 50, left: 50, right: 5};
-  d3.select(aklmap.getPanes().overlayPane).append('div')
-    .attr('class', 'mapmask')
-    .attr('height', height).attr('width', width);
   svg = d3.select(aklmap.getPanes().overlayPane)
         .append("svg")
         .attr("height", height)
         .attr("width", width);
+  svg.append("rect")
+    .attr("class", "mapcover")
+    .attr("height", height)
+    .attr("width", width);
   // svg = d3.select("#mainSVG")
   //   .attr('height', height)
   //   .attr('width', width);
@@ -213,7 +228,7 @@ function spreadPoints () {
 }
 
 function transformY () {
-  $(".leaflet-tile-pane").addClass('hideme');
+  $(".mapcover").addClass("showme");
   // add the axis first ...
   svg.append("g")
     .attr("transform", "translate(" + margin.left + "," + margin.top + ")")
@@ -248,7 +263,30 @@ function transformX () {
       .attr("cx", function(d) { return at(d.time); });
 }
 
+function addGrid () {
+  grid = svg.append("g")
+    .attr("class", "grid")
+    .attr("transform", "translate(" + "0" + "," + margin.top + ")");
 
+  ptsg.selectAll('.obs')
+    .transition()
+      .duration(500)
+      .attr('opacity', 0);
+
+  grid.selectAll('rect')
+    .data(fitdata, function (d) { return d.id; })
+    .enter()
+      .append('rect')
+      .attr('class', 'griditem')
+      .attr('x', function (d) { return at (d.time); })
+      .attr('y', function (d) { return ad (d.dist + 221.6557); })
+      .attr('width', at(22.329167) - at(21.891667))
+      .attr('height', ad(0) - ad(221.6557))
+      .attr('fill', 'transparent')
+      .transition()
+        .duration(500)
+        .attr('fill', function (d) { return ac (d.speed); });
+}
 
 
 

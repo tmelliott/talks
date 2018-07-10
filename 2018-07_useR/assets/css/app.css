@@ -4063,12 +4063,12 @@ body {
     stroke-width: 3; }
   #aklMap .axis {
     font-size: 18px; }
-  #aklMap .leaflet-container {
-    background: #fff; }
-  #aklMap .leaflet-tile-pane img.leaflet-tile {
+  #aklMap .mapcover {
+    fill: white;
+    opacity: 0;
     transition: all 1s ease-in-out; }
-    #aklMap .leaflet-tile-pane img.leaflet-tile.hideme img.leaflet-tile {
-      opacity: 0; }
+    #aklMap .mapcover.showme {
+      opacity: 1; }
 
 .etagraph svg .routeline {
   fill: none;
@@ -4167,6 +4167,10 @@ span.emph {
 
 .reveal .smaller {
   font-size: 0.7em; }
+
+.reveal section img {
+  border: none;
+  box-shadow: none; }
 
 .cont-horiz {
   display: flex;

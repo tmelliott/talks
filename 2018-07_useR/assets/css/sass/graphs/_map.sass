@@ -55,13 +55,17 @@
   .axis
     font-size: 18px
 
-  .leaflet-container
-    background: #fff
-    
-  .leaflet-tile-pane img.leaflet-tile
+  .mapcover
+    fill: white
+    opacity: 0
     transition: all 1s ease-in-out
-    &.hideme img.leaflet-tile
-      opacity: 0
+
+    &.showme
+      opacity: 1
+
+  // rect
+    // fill: none
+    // stroke: white
 
   // .busIcon
   //   height: 18px
