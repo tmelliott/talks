@@ -4037,6 +4037,11 @@ body {
   transition: opacity 1s ease-in-out; }
   #aklMap.showme {
     opacity: 1; }
+  #aklMap .axis-label {
+    font-size: 20px; }
+  #aklMap .plottext {
+    font-size: 22px;
+    font-family: monospace; }
   #aklMap .maplocation {
     opacity: 0.5;
     stroke: orangered;
@@ -4047,6 +4052,13 @@ body {
     stroke: orangered;
     stroke-width: 5px;
     stroke-opacity: 0.5; }
+    #aklMap .line.line2 {
+      stroke: blue; }
+  #aklMap .text-label {
+    font-size: 18px;
+    stroke: orangered; }
+    #aklMap .text-label.text-label2 {
+      stroke: blue; }
   #aklMap .routeline {
     fill: none;
     stroke: black;
@@ -4068,7 +4080,7 @@ body {
     opacity: 0;
     transition: all 1s ease-in-out; }
     #aklMap .mapcover.showme {
-      opacity: 1; }
+      opacity: 0.8; }
 
 .etagraph svg .routeline {
   fill: none;

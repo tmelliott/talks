@@ -24,7 +24,7 @@ $(document).ready(function() {
   // aklMap();
 });
 
-var segdata, svg, ax, ay, ac, ad, at, margin = {}, height, width, fitdata, grid;
+var segdata, svg, ax, ay, ac, ad, at, margin = {}, height, width, fitdata, grid, preddata = [];
 
 // variables we'll need to use throughout the place
 // var aklmap, busdata, points_visible, aklsvg, aklbuses, pts = [], routepath, particles, realbus, segments;
@@ -36,6 +36,8 @@ Reveal.addEventListener('fragmenthidden', fragmentChng);
 Reveal.addEventListener('graph', function() {
   $("#aklMap").addClass("showme");
 });
+Reveal.addEventListener('pred', speedGraph);
+Reveal.addEventListener('useR', goAwayMaps);
 
 function fragmentChng () {
   var state = Reveal.getCurrentSlide().attributes["data-state"];
@@ -123,6 +125,25 @@ function LoadSegmentData () {
   }).then (function (data) {
     fitdata = data;
   });
+
+  d3.csv("data/predspeeds_10.csv", function(d) {
+    return {
+      id: +d.id,
+      dist: +d.seg_dist,
+      speed: +d.speed
+    };
+  }).then (function (data) {
+    preddata[0] = {id: 1, values: data};
+  });  
+  d3.csv("data/predspeeds_17.csv", function(d) {
+    return {
+      id: +d.id,
+      dist: +d.seg_dist,
+      speed: +d.speed
+    };
+  }).then (function (data) {
+    preddata[1] = {id: 2, values: data};
+  });
 }
 
 function loadMap() {
@@ -159,13 +180,10 @@ function initializeGraph () {
         .attr("width", width);
   svg.append("rect")
     .attr("class", "mapcover")
-    .attr("height", height)
-    .attr("width", width);
-  // svg = d3.select("#mainSVG")
-  //   .attr('height', height)
-  //   .attr('width', width);
+    .attr("transform", "translate(" + width * 0.1 + "," + height * 0.1 + ")")
+    .attr("height", height * 0.8)
+    .attr("width", width * 0.8);
   ptsg = svg.append('g');
-      // .attr('transform', 'translate(' + margin.left + ',' + margin.top + ')');
 
   ax = d3.scaleLinear()
     .domain([174.7413, 174.7643])
@@ -174,16 +192,28 @@ function initializeGraph () {
     .domain([-36.83419, -36.79885])
     .range([height - margin.top - margin.bottom, margin.top]);
 
+  // height = window height
+  // 0.8height = height of box
+  // 0.1height = margin of box
+  // 0.05height = padding of box
+  
   ad = d3.scaleLinear()
     .domain([0, 4500])
-    .range([height - margin.top - margin.bottom, margin.top]);
+    .range([0.85 * height, 0.15 * height]);
   at = d3.scaleLinear()
     .domain([5, 23])
-    .range([margin.left, width - margin.right - margin.left]);
+    .range([0.15 * width, 0.85 * width]);
 
   ac = d3.scaleLinear()
     .domain([5, 10, 15, 20])
     .range(['#440154', '#31688E', '#35B779', '#FDE725']);
+
+  as = d3.scaleLinear()
+    .domain([0, 70])
+    .range([0.82 * height, 0.15 * height]);
+  ad2 = d3.scaleLinear()
+    .domain([0, 4500])
+    .range([0.15 * width, 0.85 * width]);
 }
 
 function addPoints () {
@@ -231,10 +261,27 @@ function transformY () {
   $(".mapcover").addClass("showme");
   // add the axis first ...
   svg.append("g")
-    .attr("transform", "translate(" + margin.left + "," + margin.top + ")")
+    .attr("transform", "translate(" + (0.15 * width) + "," + 0 + ")")
     .attr("class", "axis axis-y")
     .call(d3.axisLeft(ad).ticks(5)
-        .tickFormat(function(z) { return z / 1000; }));
+        .tickFormat(function(z) { return z / 1000; }))
+    .attr("opacity", 0)
+    .transition()
+      .duration(1000)
+      .attr("opacity", 1);
+
+  svg.append('text')
+    .attr("transform", "rotate(-90)")
+    .attr("class", "axis-label")
+    .attr("x", -0.5 * height)
+    .attr("y", 0.10 * width)
+    .attr("dy", "1em")
+    .style("text-anchor", "middle")
+    .text("Distance (km)")
+    .attr("opacity", 0)
+    .transition()
+      .duration(1000)
+      .attr("opacity", 1);
 
   ptsg.selectAll(".obs")
     .transition()
@@ -247,14 +294,18 @@ function transformY () {
 function transformX () {
   // add the axis first ...
   svg.append("g")
-    .attr("transform", "translate(" + "0" + "," + (height - margin.bottom) + ")")
+    .attr("transform", "translate(" + "0" + "," + (0.86 * height) + ")")
     .attr("class", "axis axis-x")
     .call(d3.axisBottom(at).ticks(6)
         .tickFormat(function(z) { 
           if (z < 12) return z + "am";
           if (z == 12) return ("12pm");
           return (z-12) + "pm"; 
-        }));
+        }))
+    .attr("opacity", 0)
+    .transition()
+      .duration(1000)
+      .attr("opacity", 1);
 
   svg.selectAll(".obs")
     .transition()
@@ -286,9 +337,130 @@ function addGrid () {
       .transition()
         .duration(500)
         .attr('fill', function (d) { return ac (d.speed); });
+
+    svg.append('text')
+      .attr("class", "plottext")
+      .attr("x", 0.5 * width)
+      .attr("y", 0.12 * height)
+      .attr("dy", "1em")
+      .style("text-anchor", "middle")
+      .text("mgcv::gam(speed ~ s(time, distance))")
+      .attr("opacity", 0)
+      .transition()
+        .duration(1000)
+        .attr("opacity", 1);
 }
 
 
+function speedGraph () {
+  grid.selectAll('rect')
+    .transition()
+      .duration(500)
+      .attr("fill", "transparent");
+  svg.selectAll('text')
+    .transition()
+      .duration(500)
+      .attr("opacity", 0);
+  svg.selectAll('.axis')
+    .transition()
+      .duration(500)
+      .attr("opacity", 0);
+
+  svg.append("g")
+    .attr("transform", "translate(" + (0.15 * width) + "," + 0 + ")")
+    .attr("class", "axis axis-y")
+    .call(d3.axisLeft(as).ticks(5))
+    .attr("opacity", 0)
+    .transition()
+      .duration(1000)
+      .attr("opacity", 1);
+
+  svg.append("g")
+    .attr("transform", "translate(" + "0" + "," + (0.83 * height) + ")")
+    .attr("class", "axis axis-x")
+    .call(d3.axisBottom(ad2).ticks(6)
+        .tickFormat(function(z) { return z / 1000; }))
+    .attr("opacity", 0)
+    .transition()
+      .duration(1000)
+      .attr("opacity", 1);
+
+  svg.select('.axis-label')
+    .text("Speed (km/h)")
+    .transition()
+      .duration(1000)
+      .attr("opacity", 1);
+
+  svg.append('text')
+    .attr("class", "axis-label")
+    .attr("x", 0.5 * width)
+    .attr("y", 0.865 * height)
+    .attr("dy", "1em")
+    .style("text-anchor", "middle")
+    .text("Distance (km)")
+    .attr("opacity", 0)
+    .transition()
+      .duration(1000)
+      .attr("opacity", 1);
 
 
+  var line = d3.line()
+    .curve(d3.curveBasis)
+    .x(function(d) { return ad2(d.dist); })
+    .y(function(d) { return as(d.speed / 1000 * 60 * 60); });
+
+  svg.append('path')
+    .attr('class', 'line line1')
+    .attr("d", line(preddata[0].values))
+    .attr('opacity', 0)
+    .transition()
+      .delay(1000)
+      .duration(500)
+      .attr('opacity', 1);
+
+  svg.append('text')
+    .attr("class", "text-label")
+    .attr("x", ad2(3000))
+    .attr("y", as(66))
+    .attr("dy", "1em")
+    .style("text-anchor", "middle")
+    .text("10:00 am")
+    .attr("opacity", 0)
+    .transition()
+      .delay(1000)
+      .duration(500)
+      .attr("opacity", 1);
+
+  svg.append('path')
+    .attr('class', 'line line2')
+    .attr("d", line(preddata[1].values))
+    .attr('opacity', 0)
+    .transition()
+      .delay(5000)
+      .duration(500)
+      .attr('opacity', 1);
+
+  svg.append('text')
+    .attr("class", "text-label text-label2")
+    .attr("x", ad2(3000))
+    .attr("y", as(41))
+    .attr("dy", "1em")
+    .style("text-anchor", "middle")
+    .text("5:30 pm")
+    .attr("opacity", 0)
+    .transition()
+      .delay(5000)
+      .duration(500)
+      .attr("opacity", 1);
+
+
+}
+
+function goAwayMaps () {
+  $("#aklMap").removeClass("showme");
+  svg.selectAll('*')
+    .transition()
+    .duration(500)
+    .attr('opacity', 0);
+}
 

@@ -15,7 +15,7 @@
         <section id="titlepage" class="titlepage" data-state="titlepage">
           <h3>
 
-            <span class="fragment highlight-blue" data-fragment-index="4">
+            <span class="fragment highlight-blue" data-fragment-index="5">
               Historical data based priors</span> for
             <br> 
             <span class="fragment highlight-blue" data-fragment-index="2">
@@ -70,14 +70,16 @@
               </p> -->
 
               <p class="fragment spaced" data-fragment-index="3">
-                $\tau_r = \int \frac{1}{\nu_r(x)}\,\textrm{d}x$
+                <!-- $\tau_r = \int \frac{1}{\nu_r(x)}\,\textrm{d}x$ -->
+                $\tau_r = f(\nu_r)$
               </p>
 
               <p class="fragment" data-fragment-index="4">
-                A model for $\nu_r$?
+                $p(\nu_r | X) \propto $
+                <span class="fragment highlight-blue" data-fragment-index="5">$p(\nu_r)$</span>
+                $p(X | \nu_r)$
               </p>
             </div><!-- arrival time pred -->
-
           </div>
         </section><!-- .titlepage -->
 
@@ -88,15 +90,28 @@
           <span class="fragment"></span>
           <span class="fragment"></span>
           <span class="fragment"></span>
-          <span class="fragment"></span>
-          <span class="fragment"></span>
+          <p class="fragment"></p>
+          <p class="fragment">
+            <!-- <code>mgcv::gam(speed ~ s(time, distance))</code> -->
+          </p>
         </section>
 
         <section id="pred" data-state="pred">
-          <p class="stretch">Predicting the future ...</p>
+          <!-- <p class="stretch">Predicting the future ...</p>
           <p>
             <img src="assets/img/pred.png" width="800">
+          </p> -->
+        </section>
+
+        <section id="useR" data-state="useR">
+          <p>
+            End.
+            <!-- <img src="assets/img/user_au_logo.png" alt="" class="bare"
+                  height="150"> -->
           </p>
+          <!-- <p class="fragment">
+            <code>gtfsnetwork</code> in progress
+          </p> -->
         </section>
 
       </div>
