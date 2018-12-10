@@ -75,11 +75,10 @@ m3 <- map +
     theme(legend.position = "none")
 
 oi = 1
-xr = extendrange(dx2$lng[oi]+c(-0.005, 0.005))
-yr = extendrange(dx2$lat[oi]+c(-0.0001,0.0001))
+xr = extendrange(dx2$lng[oi]+c(-0.0007, 0.0007))
+yr = extendrange(dx2$lat[oi]+c(-0.0005, 0.0005))
 bbox = c(xr[1], yr[1], xr[2], yr[2])
-akl = get_googlemap(dx2[oi,c('lng', 'lat')] %>% as.numeric, zoom = 20,
-    maptype="roadmap")
+akl = get_stamenmap(bbox, zoom = 16, maptype="terrain")
 map <- ggmap(akl) +
     geom_rect(aes(xmin = -Inf, xmax = Inf, ymin = -Inf, ymax = Inf),
             fill = "white", alpha = 0.1) +

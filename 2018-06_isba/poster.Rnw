@@ -55,19 +55,28 @@ suppressPackageStartupMessages({
     library(RSQLite)
     library(ggmap)
     library(egg)
+    library(geosphere)
 })
+@
 
 <<r_setup,cache=TRUE>>=
-gtfs.db <- "../../TransitNetworkModel/gtfs.db"
+gtfs.db <- "../../transitr/fulldata.db"
 gtfs <- dbConnect(SQLite(), gtfs.db)
 
-shapeid <- gtfs %>% tbl("routes") %>% select(shape_id, route_id) %>%
-    filter(route_id %like% "27401%") %>%
+routeid <- gtfs %>% tbl("routes") %>% select(route_id, route_short_name) %>%
+    filter(route_short_name == "27W") %>% head(1) %>% collect %>% pluck('route_id')
+shapeid <- gtfs %>% tbl("trips") %>% select(shape_id, route_id) %>%
+    filter(route_id == routeid) %>%
     head(1) %>% collect %>% pluck('shape_id')
 shape <- gtfs %>% tbl("shapes") %>%
-    filter(shape_id == shapeid) %>% arrange(seq) %>% collect
+    mutate(lat = shape_pt_lat, lng = shape_pt_lon, seq = shape_pt_sequence) %>%
+    filter(shape_id == shapeid) %>% arrange(seq) %>% collect 
 
 dbDisconnect(gtfs)
+
+shape <- shape %>% mutate(
+    dist_traveled =  c(0, shape %>% select(lng, lat) %>% as.matrix %>% distGeo %>% cumsum)
+)
 
 shp <- shape %>% filter(between(dist_traveled, 2700, 3800))
 xr = extendrange(shp$lng, f = 2) 
