@@ -1,0 +1,20 @@
+---
+title: Abstract (PhD Talks Day)
+author: Tom Elliott
+output: pdf_document
+---
+
+One of the leading causes of delays in public transport systems is congestion,
+which can make traffic flows volatile and difficult to predict.
+In this talk, 
+I will briefly explain how real-time transit vehicle observations are used 
+to estimate current travel times along roads in the network,
+and go on to discuss how we use this _real-time network state_
+to obtain distributions for the arrival times of buses at stops
+which account for uncertainties in bus location, 
+traffic flows, and other sources.
+Lastly, it is important to realise that the intended audience
+have limited understanding of probability,
+so we need to summarise the distribution in a way that is
+both informative and reliable to the general public.
+
