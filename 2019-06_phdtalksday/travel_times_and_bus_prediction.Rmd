@@ -1,0 +1,147 @@
+---
+title: Travel times<br>&amp;</br>bus prediction
+author: "<img src='double-decker-2016.jpg' width=450><br>
+<small>Tom Elliott &amp; Thomas Lumley</small>"
+date: "<small>PhD Talks Day 2019</small>"
+output: 
+    revealjs::revealjs_presentation:
+        theme: sky
+        center: true
+        slide_level: 1
+        mathjax: default
+        reveal_options:
+            controls: false
+            hash: true
+        transition: none
+---
+
+
+# Overview
+
+GPS positions
+
+$\downarrow$
+
+Travel times
+
+$\downarrow$
+
+Network state
+
+$\downarrow$
+
+Arrival time distributions
+
+$\downarrow$
+
+ETAs
+
+
+# <small>Part One</small><br>GPS positions<br>$\downarrow$<br>travel times 
+
+----
+
+<h2>Real-time vehicle locations</h2>
+
+- Auckland Transport provides API for real-time data 
+- __Vehicle locations__: GPS coordinates of buses/trains
+- __Trip updates__: arrival/departure times at bus stops
+
+
+----
+<h2>Vehicle state</h2>
+
+- Unknown vehicle state $X_k = [x_k, \dot x_k]^\top$, at time $t_k$
+    - $x_k$: distance travelled along route, meters
+    - $\dot x_k$: speed, meters per second
+- Observable state $Y_k = h(X_k) + \epsilon_k$
+
+----
+
+[X] ->
+[h(X)] -> 
+[Y = h(X) + e]
+
+
+----
+<h2>Particle filter</h2>
+
+- Approximate vehicle state using sample of $N$ particles
+\[
+p(X_{k-1} | Y_{1:k-1}) \approx
+\sum_{i=1}^N W_{k-1}^{(i)} \delta(X_{k-1} - X_{k-1}^{(i)})
+\]
+- $X_{k-1}^{(i)}$: state (distance and velocity) of particle $i$
+- $W_{k-1}^{(i)}$: weight of particle $i$
+- $\delta()$: Dirac delta function
+
+
+----
+<h2>Particle filter ii</h2>
+
+- Predict new state using __vehicle transition function__, $f$
+
+\[
+X_k^{(i)} = f(X_{k-1}^{(i)}, \sigma_x^2, ...)
+\]
+
+\[
+p(X_{k} | X_{k-1}) \approx
+\sum_{i=1}^N W_{k-1}^{(i)} \delta(X_{k} - X_k^{(i)})
+\]
+
+----
+<h2>Particle filter iii</h2>
+
+- Vehicle likelihood function based on squared distance between particle and observation,
+and GPS error $\epsilon^2$ <div style='margin-bottom: 0.5em'></div>
+\[
+d(Y_k, h(X_k^{(i)}))^2 \sim Exp\left(\frac{1}{2\epsilon^2}\right)
+\]
+
+- Update vehicle state by reweighting particles
+
+\[
+W_k^{(i)} = \frac{W_k^{(i)} p(Y_k | X_k^{(i)})}{\sum_{j=1}^N W_k^{(j)} p(Y_k | X_k^{(j)})}
+\]
+
+\[
+p(X_k | Y_k) \approx
+\sum_{i=1}^N W_{k}^{(i)} \delta(X_{k} - X_k^{(i)})
+\]
+
+
+----
+
+[Y and h(X) on a map]
+
+->
+
+[Y and h(X) projected to flat surface]
+
+->
+
+[squared distance is sum of two squared iid standard normal rvs]
+
+-> which is exp()
+
+
+----
+<h2>Estimating travel times</h2>
+
+- For road segment $j$ completed at time $t_k$, 
+each particle has a known travel time $T_j$
+- Posterior estimate of travel time easily computed
+\[
+p(T_j | Y_{1:k}) \approx
+\sum_{i=1}^N W_{k}^{(i)} \delta(T_{j} - T_j^{(i)})
+\]
+
+
+# <small>Part Two</small><br>Travel times<br>$\downarrow$<br>Network state
+
+
+# <small>Part Three</small><br>Network state<br>$\downarrow$<br>Arrival time distrutions
+
+
+# <small>Part Four</small><br>Arrival time distrutions<br>$\downarrow$<br>ETAs
