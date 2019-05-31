@@ -1,4 +1,4 @@
-FILE = travel_times_and_bus_prediction
+FILE = index
 
 default: $(FILE).html
 
