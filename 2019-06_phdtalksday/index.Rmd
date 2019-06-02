@@ -228,6 +228,47 @@ p_{c|c} &= p_{c|c-1} + \sum_\ell i_{c\ell}
 this is all wrong ...
 
 
+----
+<h4>Aside: inverse</h4>
+
+```r
+do_solve <- function(M) {
+    I <- diag(M)
+    R <- I * 3^2
+    Q <- I * 0.5^2
+
+    Xi <- matrix(rnorm(M * M), nrow = M)
+    theta <- rnorm(M, 30, 5)
+    T <- rnorm(M, theta, 2)
+
+    P <- qr.solve(Xi)
+    p <- P %*% theta
+    I <- qr.solve(R)
+    i <- I %*% T
+    P <- P + I
+    p <- p + i
+
+    Xi <- qr.solve(P)
+    theta <- Xi %*% p
+
+    NULL
+}
+
+# x <- list(
+#     `10` = system.time(do_solve(10)),
+#     `500` = system.time(do_solve(500)),
+#     `1000` = system.time(do_solve(1000)),
+#     `1500` = system.time(do_solve(1500)),
+#     `2000` = system.time(do_solve(2000))
+# )
+
+# plot(names(x), sapply(x, function(z) z[3]),
+#     xlab = "M", ylab = "Time (seconds)", type = "b")
+
+
+```
+
+
 # <small>Part Three</small><br>Network state<span style="margin:0.5em;display:block">$\downarrow$</span>Arrival time distrutions
 
 
