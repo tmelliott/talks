@@ -1,5 +1,5 @@
 ---
-title: Travel times<br>&amp;</br>bus prediction
+title: Traffic flows<br>&amp;</br>bus prediction
 author: "<img src='double-decker-2016.jpg' width=450><br>
 <small>Tom Elliott</small>"
 date: "<small>PhD Talks Day 2019</small>"
@@ -46,6 +46,9 @@ ETAs
 - Auckland Transport provides API for real-time data 
 - __Vehicle locations__: GPS coordinates of buses/trains
 - __Trip updates__: arrival/departure times at bus stops
+<div style="margin-bottom:1em"></div>
+- Over 1000 buses operating at peak
+- Target: ETAs updated every 30 seconds
 
 
 ----
@@ -58,9 +61,41 @@ ETAs
 
 ----
 
-[X] ->
-[h(X)] -> 
-[Y = h(X) + e]
+```{r,echo=F,fig.height=5,fig.width=7,out.width="100%"}
+par(mar = c(4.1, 4.1, 2.1, 2.1))
+layout(rbind(c(0, 1, 1, 1, 1, 0), c(2, 2, 2, 3, 3, 3)))
+dist <- 5*c(0, 100, 400, 580, 650, 900, 1100, 1250, 1300, 1380, 1500)
+plot(spline(0:10, dist/1e3, n = 1001, method = "hyman"), type = "l",
+    xlab = "Time (min)", ylab = "Distance (km)",
+    lty = 2, lwd = 2,
+    main = "Vehicle state, X")
+tk <- 5
+X <- dist[6]
+points(tk, X/1e3, col = "orangered", pch = 19, cex=1.5)
+
+shape <- read.csv('shape.csv')
+shape <- shape[nrow(shape):1,]
+shape$dist <- cumsum(c(0, geosphere::distGeo(shape)[-nrow(shape)]))
+shape <- shape[shape$dist <= max(dist),]
+plot(shape$lon, shape$lat, type = 'l', col='steelblue', lwd=2,
+    asp = cos(mean(shape$lat * pi / 180)),
+    xlab = "Longitude (deg)", ylab = "Latitude (deg)",
+    main = "Transformed vehicle state, h(X)")
+Z <- shape[shape$dist > X, ][1,c("lon", "lat")]
+points(Z, col = "orangered", pch = 19, cex=1.5)
+
+shape <- shape[shape$dist > 3500 & shape$dist < 5500,]
+plot(shape$lon, shape$lat, type = 'l', col='steelblue', lwd=2,
+    asp = cos(mean(shape$lat * pi / 180)),
+    xlab = "Longitude (deg)", ylab = "Latitude (deg)",
+    main = "Vehicle observation, Y = h(X) + e")
+points(Z, col = "orangered", pch = 19, cex=1.5)
+set.seed(50)
+Y <- Z + rnorm(2, 0, c(0.001, 0.001))
+points(Y, pch = 19, cex=1.5)
+```
+
+
 
 
 ----
@@ -69,11 +104,12 @@ ETAs
 - Approximate vehicle state using sample of $N$ particles
 \[
 p(X_{k-1} | Y_{1:k-1}) \approx
-\sum_{i=1}^N W_{k-1}^{(i)} \delta(X_{k-1} - X_{k-1}^{(i)})
+\sum_{i=1}^N W_{k-1}^{(i)} \delta_{X_{k-1}^{(i)}}(X_{k-1})
 \]
 - $X_{k-1}^{(i)}$: state (distance and velocity) of particle $i$
 - $W_{k-1}^{(i)}$: weight of particle $i$
-- $\delta()$: Dirac delta function
+- $\delta_{x^{i}}(x)$: Dirac measure 
+($\approx$ continuous version of $I_{x^i}(x)$)
 
 
 ----
@@ -87,7 +123,7 @@ X_k^{(i)} = f(X_{k-1}^{(i)}, \sigma_x^2, ...)
 
 \[
 p(X_{k} | X_{k-1}) \approx
-\sum_{i=1}^N W_{k-1}^{(i)} \delta(X_{k} - X_k^{(i)})
+\sum_{i=1}^N W_{k-1}^{(i)} \delta_{X_k^{(i)}}(X_{k})
 \]
 
 ----
@@ -107,23 +143,9 @@ W_k^{(i)} = \frac{W_{k-1}^{(i)} p(Y_k | X_k^{(i)})}{\sum_{j=1}^N W_{k-1}^{(j)} p
 
 \[
 p(X_k | Y_{1:k}) \approx
-\sum_{i=1}^N W_{k}^{(i)} \delta(X_{k} - X_k^{(i)})
+\sum_{i=1}^N W_{k}^{(i)} \delta_{X_k^{(i)}}(X_{k})
 \]
 
-
-----
-
-[Y and h(X) on a map]
-
-->
-
-[Y and h(X) projected to flat surface]
-
-->
-
-[squared distance is sum of two squared iid standard normal rvs]
-
--> which is exp()
 
 
 ----
@@ -134,7 +156,7 @@ each particle has a known travel time $T_j$
 - Posterior estimate of travel time easily computed
 \[
 p(T_j | Y_{1:k}) \approx
-\sum_{i=1}^N W_{k}^{(i)} \delta(T_{j} - T_j^{(i)})
+\sum_{i=1}^N W_{k}^{(i)} \delta_{T_j^{(i)}}(T_{j})
 \]
 
 
@@ -244,7 +266,7 @@ p_{c|c} &= p_{c|c-1} + \sum_\ell i_{c\ell}
 
 \[
 p(A_m | X_k, \Theta_c) \approx
-\sum_{i=1}^N W_{k}^{(i)} \delta(A_m - A_{m}^{(i)})
+\sum_{i=1}^N W_{k}^{(i)} \delta_{A_{m}^{(i)}}(A_m)
 \]
 
 - for each particle, simply run transition function $f$ 
