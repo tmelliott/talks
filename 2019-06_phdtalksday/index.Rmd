@@ -1,5 +1,5 @@
 ---
-title: Traffic flows<br>&amp;</br>bus prediction
+title: Traffic flows<br>&amp;</br> bus prediction
 author: "<img src='double-decker-2016.jpg' width=450><br>
 <small>Tom Elliott</small>"
 date: "<small>PhD Talks Day 2019</small>"
