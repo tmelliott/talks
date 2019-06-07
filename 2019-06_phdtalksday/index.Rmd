@@ -102,11 +102,11 @@ d(Y_k, h(X_k^{(i)}))^2 \sim Exp\left(\frac{1}{2\epsilon^2}\right)
 - Update vehicle state by reweighting particles
 
 \[
-W_k^{(i)} = \frac{W_k^{(i)} p(Y_k | X_k^{(i)})}{\sum_{j=1}^N W_k^{(j)} p(Y_k | X_k^{(j)})}
+W_k^{(i)} = \frac{W_{k-1}^{(i)} p(Y_k | X_k^{(i)})}{\sum_{j=1}^N W_{k-1}^{(j)} p(Y_k | X_k^{(j)})}
 \]
 
 \[
-p(X_k | Y_k) \approx
+p(X_k | Y_{1:k}) \approx
 \sum_{i=1}^N W_{k}^{(i)} \delta(X_{k} - X_k^{(i)})
 \]
 
@@ -266,6 +266,36 @@ p(A_m | X_k, \Theta_c) \approx
 - allow uncertainty to converge to prior (historical data)
 
 
+----
+<h2></h2>
+
+```{r,echo=F}
+set.seed(99)
+N <- 1e5
+X <- 0
+theta <- c(60, 45, 120, 80)
+xi <- c(15, 10, 20, 20)
+T <- mvtnorm::rmvnorm(N, theta, diag(xi))
+D1 <- rbinom(N, 1, 0.7) * (6 + pmax(0, rnorm(N, 30, 5)))
+D2 <- rbinom(N, 1, 0.8) * (6 + pmax(0, rnorm(N, 25, 10)))
+D3 <- rbinom(N, 1, 0.3) * (6 + pmax(0, rnorm(N, 15, 3)))
+D4 <- rbinom(N, 1, 0.5) * (6 + pmax(0, rnorm(N, 20, 5)))
+A1 <- D1 + T[,1]
+A2 <- A1 + D2 + T[,2]
+A3 <- A2 + D3 + T[,3]
+A4 <- A3 + D4 + T[,4]
+
+par(mfrow = c(4, 1), mar = c(4.1, 4.1, 2.1, 2.1))
+hist(A1/60, 40, xlim = range(0, A1, A2, A3, A4) / 60, main = "", 
+     prob = TRUE, xlab = "Stop 1 ETA (min)")
+hist(A2/60, 40, xlim = range(0, A1, A2, A3, A4) / 60, main = "", 
+     prob = TRUE, xlab = "Stop 2 ETA (min)")
+hist(A3/60, 40, xlim = range(0, A1, A2, A3, A4) / 60, main = "", 
+     prob = TRUE, xlab = "Stop 3 ETA (min)")
+hist(A4/60, 50, xlim = range(0, A1, A2, A3, A4) / 60, main = "", 
+     prob = TRUE, xlab = "Stop 4 ETA (min)")
+```
+
 
 # <small>Part Four</small><br>Arrival time distrutions<span style="margin:0.5em;display:block">$\downarrow$</span>ETAs
 
@@ -283,38 +313,58 @@ p(A_j | X_k, \Theta_c)
 ----
 <h2>Point estimates</h2>
 
-- what people expect
-- many apps/displays only show a single number
-- how to decide on the best single number?
-- underestimate
-    - frustration: ETA 5 min turns into 10 min wait
-    - harder to plan journey
-- overestimate
-    - shorter wait than expected = happy
-    - __miss bus entirely__ 
-- loss function
-    - should penalise bus arriving too early heavily, particularly for more far out predictions
+- expected
+- easy to communicate 
+- infrastrature exists (real-time boards, etc)
+
+
+----
+<h2>Point estimates ii</h2>
+
+- assumes ETA is exact (it's not)
+- underestimate = frustration, hard to plan journey
+- overestimate = shorter wait OR miss bus entirely
+
+```{r,fig.height=2.5,echo=F}
+par(mar = c(4.1, 4.1, 1.1, 2.1))
+hist(A3/60, 40, main = "", xlim = c(3, 6), xaxp = c(3, 6, 3),
+     prob = TRUE, xlab = "Stop 3 ETA (min)")
+```
+
+- mean? median? some quantile?
+- minimise $p(A_j \notin [\hat A_j, \hat A_j+1)), A_j \in 0, 1, 2, \ldots$
+- ... stronger penalty on overestimation?
+
+----
+<h3>Point estimates iii</h3>
+
+- desirable that $A_j$ decreases with time
+- Kalman filter on arrival times? at least for > 10 mins
+
 
 ----
 <h3>Prediction intervals</h3>
 
 - unfamiliar to the general public
 - allows uncertainty to be expressed
-    - at least $A_l$ mins away, could be up to $A_u$ mins
-- quantiles of predictive distribution
+    - at least $\ell_j$ mins away, could be up to $u_j$ mins
+- what values?
+    - quantiles of predictive distribution?
+    - min $p(A_j \notin [\ell_j, u_j])$ constrained by $(u_j - \ell_j)^2$
 
 
 ----
 
 ```{r,echo=F,fig.height=5}
-set.seed(99)
 N <- 1e5
 A <- rlnorm(N, 6.5, 0.1)
 par(mfcol = 2:1, mar = c(4.1, 4.1, 2.1, 2.1))
 eta <- table(floor(A/60))
-hist(A/60, 40, main = "", prob = T, xlab = "ETA (min)", xlim = range(A/60))
+hist(A/60, 40, main = "", freq = F, xlab = "ETA (min)", 
+    xlim = range(A/60), xaxp = c(8, 16, 8))
 plot(names(eta), cumsum(eta / N), 
      type = "s", xlab="ETA (min)", ylab="P(A < ETA)",
+     xaxp = c(8, 16, 8),
      xlim = range(A/60), ylim = 0:1, yaxs = "i")
 
 etapr <- cumsum(eta / sum(eta)) * 100
@@ -332,9 +382,15 @@ knitr::kable(
 A <- rlnorm(N, 8, 0.15)
 par(mfcol = 2:1, mar = c(4.1, 4.1, 2.1, 2.1))
 eta <- table(round(A/60))
-hist(A/60, 60, main = "", prob = T, xlab = "ETA (min)", xlim = range(A/60))
+hist(A/60, 60, main = "", freq = F, xlab = "ETA (min)", 
+     xlim = range(A/60), xaxp = c(30, 90, 6))
 plot(names(eta), cumsum(eta / N), 
      type = "s", xlab="ETA (min)", ylab="P(A < ETA)",
-     xlim = range(A/60), ylim = 0:1, yaxs = "i")
+     xlim = range(A/60), ylim = 0:1, yaxs = "i",
+     xaxp = c(30, 90, 6))
 ```
 
+
+
+
+# fin.
