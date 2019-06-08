@@ -241,7 +241,7 @@ p_{c|c} &= p_{c|c-1} + \sum_\ell i_{c\ell}
 <h2>Information filter iv</h2>
 
 - $M$ is big
-- model segments independently to avoid inversing large state matrix
+- model segments independently to avoid inverting large state matrix
 - include correlations between adjacent segments only in prediction using historical data
 - real-time computation is now trivial scalar operations
 
