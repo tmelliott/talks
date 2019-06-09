@@ -3,7 +3,7 @@ title: Traffic flows<br>&amp;</br> bus prediction
 author: "<img src='double-decker-2016.jpg' width=450><br>
 <small>Tom Elliott</small>"
 date: "<small>PhD Talks Day 2019</small>"
-output: 
+output:
     revealjs::revealjs_presentation:
         theme: sky
         center: true
@@ -43,7 +43,7 @@ ETAs
 
 <h2>Real-time vehicle locations</h2>
 
-- Auckland Transport provides API for real-time data 
+- Auckland Transport provides API for real-time data
 - __Vehicle locations__: GPS coordinates of buses/trains
 - __Trip updates__: arrival/departure times at bus stops
 <div style="margin-bottom:1em"></div>
@@ -110,7 +110,7 @@ p(\boldsymbol{x}_{k-1} | \boldsymbol{y}_{1:k-1}) \approx
 <div style='margin-bottom: 1em'></div>
     - $\boldsymbol{x}_{k-1}^{(i)}$: state (distance, velocity) of particle $i$
     - $\boldsymbol{w}_{k-1}^{(i)}$: weight of particle $i$
-    - $\delta_{x^{(i)}}(x)$: Dirac measure 
+    - $\delta_{x^{(i)}}(x)$: Dirac measure
 
 
 ----
@@ -189,7 +189,7 @@ p(T_j | \boldsymbol{y}_{1:k}) \approx
 - travel time (seconds) of buses along roads at time $t_c$
 <div style="margin-bottom:0.5em"></div>
 \[
-\Theta_c = 
+\Theta_c =
 [
 \theta_{1c}, \theta_{2c}, \cdots, \theta_{Mc}
 ]^\top
@@ -209,10 +209,10 @@ p(T_j | \boldsymbol{y}_{1:k}) \approx
 <h2>Information filter</h2>
 
 - alternate form of Kalman filter
-- replace mean and variance by 
-    - __information matrix__ 
+- replace mean and variance by
+    - __information matrix__
 \[ \mathbf{P}_{c-1|c-1} = \Sigma_{c-1|c-1}^{-1} \]
-    - __information vector__ 
+    - __information vector__
 \[ \boldsymbol{p}_{c-1|c-1} = \Sigma_{c-1|c-1}^{-1}\hat\Theta_{c-1|c-1} \]
 <div style="margin-bottom:0.5em"></div>
 - __easy handling of multiple observations__
@@ -247,7 +247,7 @@ p(T_j | \boldsymbol{y}_{1:k}) \approx
 \[
 \begin{split}
 z_c^{j\ell} &= \mathrm{E}(T_j^\ell | \boldsymbol{y}_{1:k}^\ell) \\
-R_c^{j\ell} &= \min\{\mathrm{Var}(T_j^\ell | \boldsymbol{y}_{1:k}^\ell), R_\text{min}\}
+R_c^{j\ell} &= \max\{\mathrm{Var}(T_j^\ell | \boldsymbol{y}_{1:k}^\ell), R_\text{min}\}
 \end{split}
 \]
 <div style="margin-bottom:0.5em"></div>
@@ -267,9 +267,9 @@ R_c^{j\ell} &= \min\{\mathrm{Var}(T_j^\ell | \boldsymbol{y}_{1:k}^\ell), R_\text
 <div style="margin-bottom:0.5em"></div>
 \[
 \begin{split}
-(\mathbf{P}_{c|c})_{jj} 
+(\mathbf{P}_{c|c})_{jj}
     &= (\mathbf{P}_{c|c-1})_{jj} + \sum_\ell {I}_{c}^{j\ell} \\
-(\boldsymbol{p}_{c|c})_j &= (\boldsymbol{p}_{c|c-1})_j + \sum_\ell {i}_{c\ell}
+(\boldsymbol{p}_{c|c})_j &= (\boldsymbol{p}_{c|c-1})_j + \sum_\ell {i}_{c}^{j\ell}
 \end{split}
 \]
 - back transform for state parameters
@@ -279,7 +279,7 @@ R_c^{j\ell} &= \min\{\mathrm{Var}(T_j^\ell | \boldsymbol{y}_{1:k}^\ell), R_\text
 <h2>Network state prediction</h2>
 
 - use historical data to forecast (e.g., 10 mins ahead)
-- include correlations between adjacent segments 
+- include correlations between adjacent segments
 
 
 # <small>Part Three</small><br>Network state<span style="margin:0.5em;display:block">$\downarrow$</span>Arrival time distrutions
@@ -301,7 +301,7 @@ R_c^{j\ell} &= \min\{\mathrm{Var}(T_j^\ell | \boldsymbol{y}_{1:k}^\ell), R_\text
 ----
 <h2>Reprise the particle filter</h2>
 
-- for each particle, run transition function $f'$ 
+- for each particle, run transition function $f'$
     - sample travel times from $\Theta_c$
     - continue to end of route
     - $A_m^{(i)}$: particle arrival time at stop $m$
@@ -316,7 +316,7 @@ p(A_m | \boldsymbol{x}_k, \Theta_c) \approx
 
 - requires simulating $N \times M_\text{remaining}$ arrival times
 - for upwards of 1000 buses at peak times
-- every 30 seconds ... 
+- every 30 seconds ...
 
 ----
 <h2>(Work in progress)</h2>
@@ -346,13 +346,13 @@ A3 <- A2 + D3 + T[,3]
 A4 <- A3 + D4 + T[,4]
 
 par(mfrow = c(4, 1), mar = c(4.1, 4.1, 2.1, 2.1))
-hist(A1/60, 40, xlim = range(0, A1, A2, A3, A4) / 60, main = "", 
+hist(A1/60, 40, xlim = range(0, A1, A2, A3, A4) / 60, main = "",
      prob = TRUE, xlab = "Stop 1 ETA (min)")
-hist(A2/60, 40, xlim = range(0, A1, A2, A3, A4) / 60, main = "", 
+hist(A2/60, 40, xlim = range(0, A1, A2, A3, A4) / 60, main = "",
      prob = TRUE, xlab = "Stop 2 ETA (min)")
-hist(A3/60, 40, xlim = range(0, A1, A2, A3, A4) / 60, main = "", 
+hist(A3/60, 40, xlim = range(0, A1, A2, A3, A4) / 60, main = "",
      prob = TRUE, xlab = "Stop 3 ETA (min)")
-hist(A4/60, 50, xlim = range(0, A1, A2, A3, A4) / 60, main = "", 
+hist(A4/60, 50, xlim = range(0, A1, A2, A3, A4) / 60, main = "",
      prob = TRUE, xlab = "Stop 4 ETA (min)")
 ```
 
@@ -374,7 +374,7 @@ p(A_j | \boldsymbol{x}_k, \Theta_c)
 <h2>Point estimates</h2>
 
 - expected
-- easy to communicate 
+- easy to communicate
 - infrastrature exists (real-time boards, etc)
 
 
@@ -420,9 +420,9 @@ N <- 1e5
 A <- rlnorm(N, 6.5, 0.1)
 par(mfcol = 2:1, mar = c(4.1, 4.1, 2.1, 2.1))
 eta <- table(floor(A/60))
-hist(A/60, 40, main = "", freq = F, xlab = "ETA (min)", 
+hist(A/60, 40, main = "", freq = F, xlab = "ETA (min)",
     xlim = range(A/60), xaxp = c(8, 16, 8))
-plot(names(eta), cumsum(eta / N), 
+plot(names(eta), cumsum(eta / N),
      type = "s", xlab="ETA (min)", ylab="P(A < ETA)",
      xaxp = c(8, 16, 8),
      xlim = range(A/60), ylim = 0:1, yaxs = "i")
@@ -442,9 +442,9 @@ knitr::kable(
 A <- rlnorm(N, 8, 0.15)
 par(mfcol = 2:1, mar = c(4.1, 4.1, 2.1, 2.1))
 eta <- table(round(A/60))
-hist(A/60, 60, main = "", freq = F, xlab = "ETA (min)", 
+hist(A/60, 60, main = "", freq = F, xlab = "ETA (min)",
      xlim = range(A/60), xaxp = c(30, 90, 6))
-plot(names(eta), cumsum(eta / N), 
+plot(names(eta), cumsum(eta / N),
      type = "s", xlab="ETA (min)", ylab="P(A < ETA)",
      xlim = range(A/60), ylim = 0:1, yaxs = "i",
      xaxp = c(30, 90, 6))
