@@ -54,10 +54,10 @@ ETAs
 ----
 <h2>Vehicle state</h2>
 
-- Unknown vehicle state $X_k = [x_k, \dot x_k]^\top$, at time $t_k$
+- Unknown vehicle state $\boldsymbol{x}_k = [x_k, \dot x_k]^\top$, at time $t_k$
     - $x_k$: distance travelled along route, meters
     - $\dot x_k$: speed, meters per second
-- Observable state $Y_k = h(X_k) + \epsilon_k$
+- Observable state $\boldsymbol{y}_k = h(\boldsymbol{x}_k) + \boldsymbol{\epsilon}_k$
 
 ----
 
@@ -68,7 +68,7 @@ dist <- 5*c(0, 100, 400, 580, 650, 900, 1100, 1250, 1300, 1380, 1500)
 plot(spline(0:10, dist/1e3, n = 1001, method = "hyman"), type = "l",
     xlab = "Time (min)", ylab = "Distance (km)",
     lty = 2, lwd = 2,
-    main = "Vehicle state, X")
+    main = "Vehicle state, x")
 tk <- 5
 X <- dist[6]
 points(tk, X/1e3, col = "orangered", pch = 19, cex=1.5)
@@ -80,7 +80,7 @@ shape <- shape[shape$dist <= max(dist),]
 plot(shape$lon, shape$lat, type = 'l', col='steelblue', lwd=2,
     asp = cos(mean(shape$lat * pi / 180)),
     xlab = "Longitude (deg)", ylab = "Latitude (deg)",
-    main = "Transformed vehicle state, h(X)")
+    main = "Transformed vehicle state, h(x)")
 Z <- shape[shape$dist > X, ][1,c("lon", "lat")]
 points(Z, col = "orangered", pch = 19, cex=1.5)
 
@@ -88,7 +88,7 @@ shape <- shape[shape$dist > 3500 & shape$dist < 5500,]
 plot(shape$lon, shape$lat, type = 'l', col='steelblue', lwd=2,
     asp = cos(mean(shape$lat * pi / 180)),
     xlab = "Longitude (deg)", ylab = "Latitude (deg)",
-    main = "Vehicle observation, Y = h(X) + e")
+    main = "Vehicle observation, y = h(x) + e")
 points(Z, col = "orangered", pch = 19, cex=1.5)
 set.seed(50)
 Y <- Z + rnorm(2, 0, c(0.001, 0.001))
@@ -102,48 +102,59 @@ points(Y, pch = 19, cex=1.5)
 <h2>Particle filter</h2>
 
 - Approximate vehicle state using sample of $N$ particles
+<div style='margin-bottom: 1em'></div>
 \[
-p(X_{k-1} | Y_{1:k-1}) \approx
-\sum_{i=1}^N W_{k-1}^{(i)} \delta_{X_{k-1}^{(i)}}(X_{k-1})
+p(\boldsymbol{x}_{k-1} | \boldsymbol{y}_{1:k-1}) \approx
+\sum_{i=1}^N \boldsymbol{w}_{k-1}^{(i)} \delta_{\boldsymbol{x}_{k-1}^{(i)}}(\boldsymbol{x}_{k-1})
 \]
-- $X_{k-1}^{(i)}$: state (distance and velocity) of particle $i$
-- $W_{k-1}^{(i)}$: weight of particle $i$
-- $\delta_{x^{i}}(x)$: Dirac measure 
-($\approx$ continuous version of $I_{x^i}(x)$)
+<div style='margin-bottom: 1em'></div>
+    - $\boldsymbol{x}_{k-1}^{(i)}$: state (distance, velocity) of particle $i$
+    - $\boldsymbol{w}_{k-1}^{(i)}$: weight of particle $i$
+    - $\delta_{x^{(i)}}(x)$: Dirac measure 
 
 
 ----
 <h2>Particle filter ii</h2>
 
-- Predict new state using __vehicle transition function__, $f$
-
+- __Vehicle transition function__, $f$
+    - Acceleration/deceleration
+    - Bus stop behaviour
+    - Traffic lights, etc.
+<div style='margin-bottom: 1em'></div>
 \[
-X_k^{(i)} = f(X_{k-1}^{(i)}, \sigma_x^2, ...)
+\boldsymbol{x}_k^{(i)} = f(\boldsymbol{x}_{k-1}^{(i)}, \sigma_x^2, ...)
 \]
-
+<div style='margin-bottom: 1em'></div>
+- Predicts new state _before_ observing latest position
+<div style='margin-bottom: 1em'></div>
 \[
-p(X_{k} | X_{k-1}) \approx
-\sum_{i=1}^N W_{k-1}^{(i)} \delta_{X_k^{(i)}}(X_{k})
+p(\boldsymbol{x}_{k} | \boldsymbol{x}_{k-1}) \approx
+\sum_{i=1}^N \boldsymbol{w}_{k-1}^{(i)} \delta_{\boldsymbol{x}_k^{(i)}}(\boldsymbol{x}_{k})
 \]
 
 ----
 <h2>Particle filter iii</h2>
 
-- Vehicle likelihood function based on squared distance between particle and observation,
-and GPS error $\epsilon^2$ <div style='margin-bottom: 0.5em'></div>
+- Update using likelihood function
+- Distance (squared) between particle and observation
+- Measurement error $\epsilon^2$ = GPS error (meters)
+ <div style='margin-bottom: 1em'></div>
 \[
-d(Y_k, h(X_k^{(i)}))^2 \sim Exp\left(\frac{1}{2\epsilon^2}\right)
+d\left(\boldsymbol{y}_k, h(\boldsymbol{x}_k^{(i)})\right)^2 \sim Exp\left(\frac{1}{2\epsilon^2}\right)
 \]
+
+----
+<h2>Particle filter iv</h2>
 
 - Update vehicle state by reweighting particles
 
 \[
-W_k^{(i)} = \frac{W_{k-1}^{(i)} p(Y_k | X_k^{(i)})}{\sum_{j=1}^N W_{k-1}^{(j)} p(Y_k | X_k^{(j)})}
+\boldsymbol{w}_k^{(i)} = \frac{\boldsymbol{w}_{k-1}^{(i)} p(\boldsymbol{y}_k | \boldsymbol{x}_k^{(i)})}{\sum_{j=1}^N \boldsymbol{w}_{k-1}^{(j)} p(\boldsymbol{y}_k | \boldsymbol{x}_k^{(j)})}
 \]
 
 \[
-p(X_k | Y_{1:k}) \approx
-\sum_{i=1}^N W_{k}^{(i)} \delta_{X_k^{(i)}}(X_{k})
+p(\boldsymbol{x}_k | \boldsymbol{y}_{1:k}) \approx
+\sum_{i=1}^N \boldsymbol{w}_{k}^{(i)} \delta_{\boldsymbol{x}_k^{(i)}}(\boldsymbol{x}_{k})
 \]
 
 
@@ -151,12 +162,15 @@ p(X_k | Y_{1:k}) \approx
 ----
 <h2>Estimating travel times</h2>
 
-- For road segment $j$ completed at time $t_k$, 
-each particle has a known travel time $T_j$
-- Posterior estimate of travel time easily computed
+- Estimated once vehicle has completed each segment
+    - $T_j^{(i)}$: travel time particle $i$, segment $j$
+    - Computed in transition function
+<div style="margin-bottom:1em"></div>
+- Posterior estimate of travel time
+<div style="margin-bottom:0.5em"></div>
 \[
-p(T_j | Y_{1:k}) \approx
-\sum_{i=1}^N W_{k}^{(i)} \delta_{T_j^{(i)}}(T_{j})
+p(T_j | \boldsymbol{y}_{1:k}) \approx
+\sum_{i=1}^N \boldsymbol{w}_{k}^{(i)} \delta_{T_j^{(i)}}(T_{j})
 \]
 
 
@@ -166,30 +180,28 @@ p(T_j | Y_{1:k}) \approx
 <h2>Transit road network</h2>
 
 - __road network__ consists of all $M$ __road segments__
-- each road segment
-    - connects two intersections
-    - is used by at least one (bus) route
-    - doesn't overlap another road segment
-
+- estimate of traffic flows (as travel times)
+- __combines data from different routes__
 
 ----
 <h2>Network state</h2>
 
-- travel time (s) of buses along segments at time $t_c$
+- travel time (seconds) of buses along roads at time $t_c$
+<div style="margin-bottom:0.5em"></div>
 \[
 \Theta_c = 
 [
 \theta_{1c}, \theta_{2c}, \cdots, \theta_{Mc}
 ]^\top
 \]
-- travel times observed as buses traverse the network
-    - multiple buses may traverse a segment at a time
-
-- assume state is multivariate normal
+<div style="margin-bottom:1em"></div>
+- summarize by mean and variance
+<div style="margin-bottom:0.5em"></div>
 \[
 \hat\Theta_{c|c} = \mathrm{E}(\Theta_c | T_{1:c})
-\quad\text{and}\quad
-\Xi_{c|c} = \mathrm{Var}(\Theta_c | T_{1:c})
+\]
+\[
+\Sigma_{c|c} = \mathrm{Var}(\Theta_c | T_{1:c})
 \]
 
 
@@ -197,53 +209,77 @@ p(T_j | Y_{1:k}) \approx
 <h2>Information filter</h2>
 
 - alternate form of Kalman filter
-- represent mean and variance as __information matrix__ and __information vector__
-\[
-P_{c-1|c-1} = \Xi_{c-1|c-1}^{-1}
-\quad\text{and}\quad
-p_{c-1|c-1} = \Xi_{c-1|c-1}^{-1}\hat\Theta_{c-1|c-1}
-\]
-- allows summing of observation information over multiple observations
+- replace mean and variance by 
+    - __information matrix__ 
+\[ \mathbf{P}_{c-1|c-1} = \Sigma_{c-1|c-1}^{-1} \]
+    - __information vector__ 
+\[ \boldsymbol{p}_{c-1|c-1} = \Sigma_{c-1|c-1}^{-1}\hat\Theta_{c-1|c-1} \]
+<div style="margin-bottom:0.5em"></div>
+- __easy handling of multiple observations__
+    - buses tend to clump together
 
 
 ----
 <h2>Information filter ii</h2>
 
 - predict next state
-    - assume travel times constant over short periods
-    - system noise is $\rho^2$ (s/s)
-- standard Kalman filter predict equations
+    - travel times constant over short (30 sec) intervals
+    - system noise $\rho^2$ (s/s)
+<div style="margin-bottom:1em"></div>
 \[
 \begin{split}
 \hat\Theta_{c|c-1} &= \hat\Theta_{c-1|c-1} \\
-\Xi_{c|c-1} &= \Xi_{c-1|c-1} + I \rho^2
+\Sigma_{c|c-1} &= \Sigma_{c-1|c-1} + \mathbf{I} \rho^2
 \end{split}
 \]
+<div style="margin-bottom:1em"></div>
+- update road segments independently
+    - avoid inverting large matrices
+    - not observing correlations
 
 
 ----
 <h2>Information filter iii</h2>
 
-- transform travel time observations for each bus $\ell$ with measurement uncertainty $R_c$
-    - $I_{c\ell} = R_c^{-1}$
-    - $i_{c\ell} = R_c^{-1} T_{j\ell}$
-- update state by adding information
+- $L_c^j$ buses completing segment $j$ at time $t_c$
+- observation and measurement error for each
+<div style="margin-bottom:0.5em"></div>
 \[
 \begin{split}
-P_{c|c} &= P_{c|c-1} + \sum_\ell I_{c\ell} \\
-p_{c|c} &= p_{c|c-1} + \sum_\ell i_{c\ell}
+z_c^{j\ell} &= \mathrm{E}(T_j^\ell | \boldsymbol{y}_{1:k}^\ell) \\
+R_c^{j\ell} &= \min\{\mathrm{Var}(T_j^\ell | \boldsymbol{y}_{1:k}^\ell), R_\text{min}\}
+\end{split}
+\]
+<div style="margin-bottom:0.5em"></div>
+- transform to information space
+<div style="margin-bottom:0.5em"></div>
+\[
+\begin{split}
+{I}_c^{j\ell} &= ({R}_c^{j\ell})^{-1} \\
+{i}_c^{j\ell} &= ({R}_c^{j\ell})^{-1} {z}_c^{j\ell}
+\end{split}
+\]
+
+----
+<h2>Information filter iv</h2>
+
+- update state by adding information
+<div style="margin-bottom:0.5em"></div>
+\[
+\begin{split}
+(\mathbf{P}_{c|c})_{jj} 
+    &= (\mathbf{P}_{c|c-1})_{jj} + \sum_\ell {I}_{c}^{j\ell} \\
+(\boldsymbol{p}_{c|c})_j &= (\boldsymbol{p}_{c|c-1})_j + \sum_\ell {i}_{c\ell}
 \end{split}
 \]
 - back transform for state parameters
 
 
 ----
-<h2>Information filter iv</h2>
+<h2>Network state prediction</h2>
 
-- $M$ is big
-- model segments independently to avoid inverting large state matrix
-- include correlations between adjacent segments only in prediction using historical data
-- real-time computation is now trivial scalar operations
+- use historical data to forecast (e.g., 10 mins ahead)
+- include correlations between adjacent segments 
 
 
 # <small>Part Three</small><br>Network state<span style="margin:0.5em;display:block">$\downarrow$</span>Arrival time distrutions
@@ -254,6 +290,7 @@ p_{c|c} &= p_{c|c-1} + \sum_\ell i_{c\ell}
 - when will the bus arrive at stop $m$ given
     - latest estimate of position/speed
     - current network state (traffic conditions)
+<div style="margin-bottom:1em"></div>
 - uncertainty from
     - position/speed estimate
     - traffic conditions now _and in the near future_
@@ -264,14 +301,15 @@ p_{c|c} &= p_{c|c-1} + \sum_\ell i_{c\ell}
 ----
 <h2>Reprise the particle filter</h2>
 
-\[
-p(A_m | X_k, \Theta_c) \approx
-\sum_{i=1}^N W_{k}^{(i)} \delta_{A_{m}^{(i)}}(A_m)
-\]
+- for each particle, run transition function $f'$ 
+    - sample travel times from $\Theta_c$
+    - continue to end of route
+    - $A_m^{(i)}$: particle arrival time at stop $m$
 
-- for each particle, simply run transition function $f$ 
-- continue to end of route, recording stop arrival times
-- simulate travel times from network state estimate
+\[
+p(A_m | \boldsymbol{x}_k, \Theta_c) \approx
+\sum_{i=1}^N \boldsymbol{w}_{k}^{(i)} \delta_{A_{m}^{(i)}}(A_m)
+\]
 
 ----
 <h2>Maybe not ...</h2>
@@ -326,7 +364,7 @@ hist(A4/60, 50, xlim = range(0, A1, A2, A3, A4) / 60, main = "",
 
 - we have a distribution <div style='margin-bottom: 0.5em'></div>
 \[
-p(A_j | X_k, \Theta_c)
+p(A_j | \boldsymbol{x}_k, \Theta_c)
 \]
 <div style='margin-bottom: 0.5em'></div>
 - need to summarize it for the general public
@@ -415,4 +453,4 @@ plot(names(eta), cumsum(eta / N),
 
 
 
-# fin.
+# end.
