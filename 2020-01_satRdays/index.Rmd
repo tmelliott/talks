@@ -1,0 +1,45 @@
+---
+title: "<img src='assets/images/inzight_logo.png' alt='iNZight' class='logo'><br>
+    <em>Behind the Scenes</em>"
+author: Tom Elliott
+date: "<small>satRdays Auckland 2020</small>"
+output:
+    revealjs::revealjs_presentation:
+        theme: night
+        center: true
+        slide_level: 1
+        mathjax: default
+        reveal_options:
+            controls: false
+            hash: true
+        transition: none
+---
+
+
+# Part I
+```{css,echo=FALSE}
+.reveal section img.logo {
+    border: none;
+    background: transparent;
+}
+
+.reveal pre {
+    margin-top: 5px;
+    margin-bottom: 5px;
+}
+```
+
+## What is iNZight?
+
+
+---
+
+```{r,eval=FALSE}
+library(iNZight)
+iNZight()
+```
+
+<img src="assets/images/inzight_main_window.png"
+    alt="iNZight main window"
+    width="80%"
+    >
