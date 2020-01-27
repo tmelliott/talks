@@ -364,24 +364,7 @@ LoadDataWindow <- setRefClass("LoadDataWindow",
         filename = "character"
     ),
     methods = list(
-        initialize = function(...) {
-            w <- gwindow("Load data")
-            g <- ggroup(horizontal = FALSE, container = w)
-
-            # Get filename from user
-            fileedit <- gedit(container = g)
-
-            # Load data
-            loadbtn <- gbutton("Load", container = g)
-
-            addHandlerKeystroke(fileedit,
-                handler = function(h, ...) {
-                    filename <<- svalue(h$obj)
-                }
-            )
-
-            addHandlerClicked(loadbtn, function(h, ...) loadData())
-        },
+        initialize = function() { ... },
         loadData = function() {
             data <- read.csv(filename)
         }
@@ -392,53 +375,46 @@ LoadDataWindow <- setRefClass("LoadDataWindow",
 ---
 
 ```r
-fields = list(
-    filename = "character",
-    filetype = "character",
-    delimiter = "character", # csv can use , or ;
-    ...
-)
-
-methods = list(
-    initialize(
+LoadDataWindow <- setRefClass("LoadDataWindow",
+    fields = list(
+        filename = "character",
+        filetype = "character",
+        delimiter = "character", # csv can use , or ;
         ...
     ),
-    loadData = function() {
-        if (filetype == "csv") {
-            data <- read.csv(filename, delimiter = delimiter, ...)
-        } else if (filetype == "excel") {
-            data <- readxl::read_xls(filename, ...)
-        } else ...
-    }
+    methods = list(
+        initialize = function(...),
+        loadData = function() {
+            if (filetype == "csv") {
+                data <- read.csv(filename, delimiter = delimiter, ...)
+            } else if (filetype == "excel") {
+                data <- readxl::read_xls(filename, ...)
+            } else ...
+        }
+    )
 )
 ```
 
 ---
 
 ```r
-fields = list(
-    filename = "character",
-    filetype = "character",
-    delimiter = "character", # csv can use , or ;
-    ...
-)
-
-methods = list(
-    initialize(
+LoadDataWindow <- setRefClass("LoadDataWindow",
+    fields = list(
+        filename = "character",
+        filetype = "character",
+        delimiter = "character", # csv can use , or ;
         ...
     ),
-    loadData = function() {
-        # Sanitization
-        if (!file.exists(filename)) gmessage("Invalid file")
-        ...
-
-        # Call a single function with all arguments
-        data <- iNZightTools::smart_read(filename,
-            filetype = filetype,
-            delim = delimiter,
-            ...
-        )
-    }
+    methods = list(
+        initialize(...),
+        loadData = function() {
+            data <- iNZightTools::smart_read(filename,
+                filetype = filetype,
+                delim = delimiter,
+                ...
+            )
+        }
+    )
 )
 ```
 
