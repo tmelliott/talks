@@ -1,23 +1,22 @@
 ---
-title: "<img src='assets/images/inzight_logo.png' alt='iNZight' class='logo'><br>
+title: "<img src='assets/images/inzight_logo.png' alt='iNZight' class='logo biglogo'><br>
     <em>Behind the Scenes</em>"
 author: Tom Elliott
 date: "<small>satRdays Auckland 2020</small>
-<div class='social-links'>
+    <div class='social-links'>
     <div class='left'>
-        <p><strong>tmelliott</strong></p>
-        <p><strong>@tomelliottnz</strong></p>
+    <p><strong>tmelliott</strong></p>
+    <p><strong>@tomelliottnz</strong></p>
     </div>
     <div class='middle'>
-        <p><i class='fab fa-github'></i></p>
-        <p><i class='fab fa-twitter'></i></p>
+    <p><i class='fab fa-github'></i></p>
+    <p><i class='fab fa-twitter'></i></p>
     </div>
     <div class='right'>
-        <p><strong>iNZightVIT</strong></p>
-        <p><strong>@iNZightUoA</strong></p>
+    <p><strong>iNZightVIT</strong></p>
+    <p><strong>@iNZightUoA</strong></p>
     </div>
-</div>
-"
+    </div>"
 output:
     revealjs::revealjs_presentation:
         theme: night
@@ -51,6 +50,8 @@ $col2: #094b85
             padding: 0
             margin: 0
             height: 1em
+            &.biglogo
+                height: 2em
 
         .social-links
             margin-top: 10vh
@@ -103,19 +104,19 @@ iNZight()
 
 <ul class="fa-ul">
 <li>
-    <span class="fa-li"><i class="fas fa-circle-check"></i></span>
+    <span class="fa-li"><i class="fas fa-check-circle"></i></span>
     `r ricon` package!
 </li>
 <li class="fragment">
-    <span class="fa-li"><i class="fas fa-circle-check"></i></span>
+    <span class="fa-li"><i class="fas fa-check-circle"></i></span>
     GUI for __visually exploring__ data
 </li>
 <li class="fragment">
-    <span class="fa-li"><i class="fas fa-circle-check"></i></span>
+    <span class="fa-li"><i class="fas fa-check-circle"></i></span>
     __easy-to-learn__ tool for students/beginners ...
 </li>
 <li class="fragment">
-    <span class="fa-li"><i class="fas fa-circle-check"></i></span>
+    <span class="fa-li"><i class="fas fa-check-circle"></i></span>
     ... but also non-beginners!
 </li>
 </ul>
@@ -133,23 +134,23 @@ iNZight()
 
 <ul class="fa-ul">
 <li>
-    <span class="fa-li"><i class="fas fa-circle-check"></i></span>
+    <span class="fa-li"><i class="fas fa-check-circle"></i></span>
     `r ricon` package!
 </li>
 <li>
-    <span class="fa-li"><i class="fas fa-circle-check"></i></span>
+    <span class="fa-li"><i class="fas fa-check-circle"></i></span>
     GUI for __visually exploring__ data
 </li>
 <li>
-    <span class="fa-li"><i class="fas fa-circle-check"></i></span>
+    <span class="fa-li"><i class="fas fa-check-circle"></i></span>
     __easy-to-learn__ tool for students/beginners ...
 </li>
 <li>
-    <span class="fa-li"><i class="fas fa-circle-check"></i></span>
+    <span class="fa-li"><i class="fas fa-check-circle"></i></span>
     ... but also non-beginners!
 </li>
 <li>
-    <span class="fa-li"><i class="fas fa-circle-check"></i></span>
+    <span class="fa-li"><i class="fas fa-check-circle"></i></span>
     bridge between __GUI__ and __coding__
 </li>
 </ul>
