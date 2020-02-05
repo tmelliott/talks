@@ -620,4 +620,5 @@ DemoModule <- setRefClass(
 </div>
 </div>
 
-Slides: __bit.ly/iNZightSatRday__
+<div style="margin-bottom:3em"></div>
+### Slides: __bit.ly/iNZightSatRday__
