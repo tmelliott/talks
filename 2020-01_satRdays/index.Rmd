@@ -103,19 +103,19 @@ iNZight()
 
 <ul class="fa-ul">
 <li>
-    <span class="fa-li"><i class="fas fa-plus-circle"></i></span>
+    <span class="fa-li"><i class="fas fa-circle-check"></i></span>
     `r ricon` package!
 </li>
 <li class="fragment">
-    <span class="fa-li"><i class="fas fa-plus-circle"></i></span>
+    <span class="fa-li"><i class="fas fa-circle-check"></i></span>
     GUI for __visually exploring__ data
 </li>
 <li class="fragment">
-    <span class="fa-li"><i class="fas fa-plus-circle"></i></span>
+    <span class="fa-li"><i class="fas fa-circle-check"></i></span>
     __easy-to-learn__ tool for students/beginners ...
 </li>
 <li class="fragment">
-    <span class="fa-li"><i class="fas fa-plus-circle"></i></span>
+    <span class="fa-li"><i class="fas fa-circle-check"></i></span>
     ... but also non-beginners!
 </li>
 </ul>
@@ -133,23 +133,23 @@ iNZight()
 
 <ul class="fa-ul">
 <li>
-    <span class="fa-li"><i class="fas fa-plus-circle"></i></span>
+    <span class="fa-li"><i class="fas fa-circle-check"></i></span>
     `r ricon` package!
 </li>
 <li>
-    <span class="fa-li"><i class="fas fa-plus-circle"></i></span>
+    <span class="fa-li"><i class="fas fa-circle-check"></i></span>
     GUI for __visually exploring__ data
 </li>
 <li>
-    <span class="fa-li"><i class="fas fa-plus-circle"></i></span>
+    <span class="fa-li"><i class="fas fa-circle-check"></i></span>
     __easy-to-learn__ tool for students/beginners ...
 </li>
 <li>
-    <span class="fa-li"><i class="fas fa-plus-circle"></i></span>
+    <span class="fa-li"><i class="fas fa-circle-check"></i></span>
     ... but also non-beginners!
 </li>
 <li>
-    <span class="fa-li"><i class="fas fa-plus-circle"></i></span>
+    <span class="fa-li"><i class="fas fa-circle-check"></i></span>
     bridge between __GUI__ and __coding__
 </li>
 </ul>
