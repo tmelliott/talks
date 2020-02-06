@@ -76,8 +76,7 @@ $col2: #094b85
 
         ul>li>span
             color: $col1
-
-
+/***/
 ```
 
 ```{r,echo=FALSE}
@@ -104,20 +103,20 @@ iNZight()
 
 <ul class="fa-ul">
 <li>
-    <span class="fa-li"><i class="fas fa-check-circle"></i></span>
-    `r ricon` package!
+<span class="fa-li"><i class="fas fa-check-circle"></i></span>
+`r ricon` package!
 </li>
 <li class="fragment">
-    <span class="fa-li"><i class="fas fa-check-circle"></i></span>
-    GUI for __visually exploring__ data
+<span class="fa-li"><i class="fas fa-check-circle"></i></span>
+GUI for __visually exploring__ data
 </li>
 <li class="fragment">
-    <span class="fa-li"><i class="fas fa-check-circle"></i></span>
-    __easy-to-learn__ tool for students/beginners ...
+<span class="fa-li"><i class="fas fa-check-circle"></i></span>
+__easy-to-learn__ tool for students/beginners ...
 </li>
 <li class="fragment">
-    <span class="fa-li"><i class="fas fa-check-circle"></i></span>
-    ... but also non-beginners!
+<span class="fa-li"><i class="fas fa-check-circle"></i></span>
+... but also non-beginners!
 </li>
 </ul>
 
@@ -134,24 +133,24 @@ iNZight()
 
 <ul class="fa-ul">
 <li>
-    <span class="fa-li"><i class="fas fa-check-circle"></i></span>
-    `r ricon` package!
+<span class="fa-li"><i class="fas fa-check-circle"></i></span>
+`r ricon` package!
 </li>
 <li>
-    <span class="fa-li"><i class="fas fa-check-circle"></i></span>
-    GUI for __visually exploring__ data
+<span class="fa-li"><i class="fas fa-check-circle"></i></span>
+GUI for __visually exploring__ data
 </li>
 <li>
-    <span class="fa-li"><i class="fas fa-check-circle"></i></span>
-    __easy-to-learn__ tool for students/beginners ...
+<span class="fa-li"><i class="fas fa-check-circle"></i></span>
+__easy-to-learn__ tool for students/beginners ...
 </li>
 <li>
-    <span class="fa-li"><i class="fas fa-check-circle"></i></span>
-    ... but also non-beginners!
+<span class="fa-li"><i class="fas fa-check-circle"></i></span>
+... but also non-beginners!
 </li>
 <li>
-    <span class="fa-li"><i class="fas fa-check-circle"></i></span>
-    bridge between __GUI__ and __coding__
+<span class="fa-li"><i class="fas fa-check-circle"></i></span>
+bridge between __GUI__ and __coding__
 </li>
 </ul>
 
@@ -176,7 +175,7 @@ iNZight()
             left: 0
             width: 500px
             transform: translateY(-50%)
-
+/***/
 ```
 
 <div class="dual-panel">
@@ -244,12 +243,12 @@ Another child of the __University of Auckland__
 <div class="left-panel">
 <ul class="fa-ul">
 <li class="user fragment" data-fragment-index="1">
-    <span class="fa-li"><i class="fas fa-brain"></i></span>
-    Chris Wild
+<span class="fa-li"><i class="fas fa-brain"></i></span>
+Chris Wild
 </li>
 <li class="user fragment" data-fragment-index="2">
-    <span class="fa-li"><i class="fas fa-users"></i></span>
-    Statistics __students__
+<span class="fa-li"><i class="fas fa-users"></i></span>
+Statistics __students__
 </li>
 </ul>
 </div>
@@ -288,12 +287,12 @@ Another child of the __University of Auckland__
 
 <ul class="fa-ul">
 <li class="fragment">
-    <span class="fa-li"><i class="fas fa-plus-circle"></i></span>
-    a __feature__ here ...
+<span class="fa-li"><i class="fas fa-plus-circle"></i></span>
+a __feature__ here ...
 </li>
 <li class="fragment">
-    <span class="fa-li"><i class="fas fa-plus-circle"></i></span>
-    a __module__ there ...
+<span class="fa-li"><i class="fas fa-plus-circle"></i></span>
+a __module__ there ...
 </li>
 </ul>
 
@@ -306,25 +305,24 @@ Another child of the __University of Auckland__
     text-align: left
     width: 100%
     margin-top: 50px
-
 ```
 
 <ul class="list2 fa-ul">
 <li class="fragment">
-    <span class="fa-li"><i class="fas fa-terminal"></i></span>
-    Object Oriented Programming (OOP)
+<span class="fa-li"><i class="fas fa-terminal"></i></span>
+Object Oriented Programming (OOP)
 </li>
 <li class="fragment">
-    <span class="fa-li"><i class="fas fa-terminal"></i></span>
-    Separability
+<span class="fa-li"><i class="fas fa-terminal"></i></span>
+Separability
 </li>
 <li class="fragment">
-    <span class="fa-li"><i class="fas fa-terminal"></i></span>
-    Reactivity
+<span class="fa-li"><i class="fas fa-terminal"></i></span>
+Reactivity
 </li>
 <li class="fragment">
-    <span class="fa-li"><i class="fas fa-terminal"></i></span>
-    Extensibility
+<span class="fa-li"><i class="fas fa-terminal"></i></span>
+Extensibility
 </li>
 </ul>
 
@@ -333,16 +331,16 @@ Another child of the __University of Auckland__
 
 <ul class="fa-ul">
 <li class="fragment code">
-    <span class="fa-li"><i class="fas fa-code"></i></span>
-    reference classes
+<span class="fa-li"><i class="fas fa-code"></i></span>
+reference classes
 </li>
 <li class="fragment code">
-    <span class="fa-li"><i class="fas fa-code"></i></span>
-    each __component__ of the UI is represented by a __class__
+<span class="fa-li"><i class="fas fa-code"></i></span>
+each __component__ of the UI is represented by a __class__
 </li>
 <li class="fragment code">
-    <span class="fa-li"><i class="fas fa-code"></i></span>
-    classes have __properties__ ("fields") and __methods__
+<span class="fa-li"><i class="fas fa-code"></i></span>
+classes have __properties__ ("fields") and __methods__
 </li>
 </ul>
 
@@ -414,16 +412,16 @@ LoadDataWindow <- setRefClass("LoadDataWindow",
 
 <ul class="fa-ul">
 <li class="fragment">
-    <span class="fa-li"><i class="fas fa-code"></i></span>
-    keep UI and data logic separate
+<span class="fa-li"><i class="fas fa-code"></i></span>
+keep UI and data logic separate
 </li>
 <li class="fragment">
-    <span class="fa-li"><i class="fas fa-code"></i></span>
-    UI inputs control arguments to a __single function__
+<span class="fa-li"><i class="fas fa-code"></i></span>
+UI inputs control arguments to a __single function__
 </li>
 <li class="fragment">
-    <span class="fa-li"><i class="fas fa-code"></i></span>
-    existing or new __wrapper__ for another __package__
+<span class="fa-li"><i class="fas fa-code"></i></span>
+existing or new __wrapper__ for another __package__
 </li>
 </ul>
 
@@ -493,16 +491,16 @@ LoadDataWindow <- setRefClass("LoadDataWindow",
 
 <ul class="fa-ul">
 <li class="fragment">
-    <span class="fa-li"><i class="fas fa-code"></i></span>
-    <strong>Instant</strong> feedback
+<span class="fa-li"><i class="fas fa-code"></i></span>
+<strong>Instant</strong> feedback
 </li>
 <li class="fragment">
-    <span class="fa-li"><i class="fas fa-code"></i></span>
-    Makes <strong>exploring</strong> data <strong>faster and easier</strong>
+<span class="fa-li"><i class="fas fa-code"></i></span>
+Makes <strong>exploring</strong> data <strong>faster and easier</strong>
 </li>
 <li class="fragment">
-    <span class="fa-li"><i class="fas fa-code"></i></span>
-    Widget <strong>handlers</strong> and <strong>separability</strong>
+<span class="fa-li"><i class="fas fa-code"></i></span>
+Widget <strong>handlers</strong> and <strong>separability</strong>
 </li>
 </ul>
 
@@ -551,29 +549,29 @@ Demo <- setRefClass("Demo",
 
 <ul class="fa-ul">
 <li class="fragment">
-    <span class="fa-li"><i class="fas fa-code"></i></span>
-    <strong>Foresight</strong> and <strong>planning</strong>
+<span class="fa-li"><i class="fas fa-code"></i></span>
+<strong>Foresight</strong> and <strong>planning</strong>
 </li>
 <li class="fragment">
-    <span class="fa-li"><i class="fas fa-code"></i></span>
-    Add <strong>new</strong> or change <strong>existing</strong> features ...
+<span class="fa-li"><i class="fas fa-code"></i></span>
+Add <strong>new</strong> or change <strong>existing</strong> features ...
 </li>
 <li class="fragment separate">
-    <span class="fa-li"><i class=""></i></span>
-    ... without rewriting everything!
+<span class="fa-li"><i class=""></i></span>
+... without rewriting everything!
 </li>
 <li class="fragment">
-    <span class="fa-li"><i class="fas fa-code"></i></span>
-    <strong>OOP:</strong> add new classes, inheritance, ...
+<span class="fa-li"><i class="fas fa-code"></i></span>
+<strong>OOP:</strong> add new classes, inheritance, ...
 </li>
 <li class="fragment separate">
-    <span class="fa-li"><i class="fas fa-code"></i></span>
-    <strong>Separability:</strong> new field = new argument<br>everything else unchanged
+<span class="fa-li"><i class="fas fa-code"></i></span>
+<strong>Separability:</strong> new field = new argument<br>everything else unchanged
 </li>
 
 <li class="fragment">
-    <span class="fa-li"><i class="fas fa-code"></i></span>
-    A system for adding __completely new__ modules
+<span class="fa-li"><i class="fas fa-code"></i></span>
+A system for adding __completely new__ modules
 </li>
 </ul>
 
