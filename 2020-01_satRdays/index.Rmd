@@ -354,7 +354,6 @@ Another child of the __University of Auckland__
 }
 ```
 
-<div style="float:left">
 ```r
 LoadDataWindow <- setRefClass("LoadDataWindow",
     fields = list(
@@ -385,7 +384,6 @@ LoadDataWindow <- setRefClass("LoadDataWindow",
     )
 )
 ```
-</div>
 
 ```{sass,echo=FALSE}
 .reveal section .loadwindow
