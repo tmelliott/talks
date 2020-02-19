@@ -86,6 +86,7 @@ ricon <- "<img src=\"assets/images/Rlogo.svg\" class=\"logo\" >"
 
 ## __What__ is iNZight, and __who__ uses it?
 
+<p class="fragment">(Briefly, for those who missed Chris' talk ...)</p>
 
 #
 
@@ -160,6 +161,8 @@ bridge between __GUI__ and __coding__
 .reveal section .dual-panel
     display: flex
     align-items: center
+    &.dual-top
+        align-items: flex-start
 
     .left-panel
         flex: 1
@@ -229,35 +232,22 @@ Save `r ricon` script
 
 #
 
-Another child of the __University of Auckland__
 
-
-
-<div class="dual-panel">
-<div class="right-panel"><img src="assets/images/inzight_team.png"
-    class="fragment"
-    data-fragment-index="2"
-    >
+<div class="dual-panel dual-top">
+<div class="left-panel">
+<i class="fas fa-brain"></i> Chris Wild
+<img src="assets/images/chris_wild.png">
 </div>
 
-<div class="left-panel">
-<ul class="fa-ul">
-<li class="user fragment" data-fragment-index="1">
-<span class="fa-li"><i class="fas fa-brain"></i></span>
-Chris Wild
-</li>
-<li class="user fragment" data-fragment-index="2">
-<span class="fa-li"><i class="fas fa-users"></i></span>
-Statistics __students__
-</li>
-</ul>
+<div class="left-panel fragment">
+<i class="fas fa-university"></i> UoA statistics students
+<img src="assets/images/inzight_team.png">
 </div>
 </div>
 
 
 #
 
-## How does it __work__?
 
 ```{css,echo=FALSE}
 .space {
@@ -307,6 +297,10 @@ a __module__ there ...
     margin-top: 50px
 ```
 
+#
+
+## What makes Version 2+ __better__?
+
 <ul class="list2 fa-ul">
 <li class="fragment">
 <span class="fa-li"><i class="fas fa-terminal"></i></span>
@@ -332,17 +326,42 @@ Extensibility
 <ul class="fa-ul">
 <li class="fragment code">
 <span class="fa-li"><i class="fas fa-code"></i></span>
-reference classes
+each __component__ of the UI is represented by a __class__
 </li>
-<li class="fragment code">
+</ul>
+
+#
+
+<img src="assets/images/inzight_main_window.png"
+    alt="iNZight main window"
+    width="80%"
+    >
+
+#
+
+<img src="assets/images/inzight_main_window_widgets.png"
+    alt="iNZight main window"
+    width="80%"
+    >
+
+# Object Oriented Programming
+
+<ul class="fa-ul">
+<li class=" code">
 <span class="fa-li"><i class="fas fa-code"></i></span>
 each __component__ of the UI is represented by a __class__
 </li>
-<li class="fragment code">
+<li class="fragment code separate">
 <span class="fa-li"><i class="fas fa-code"></i></span>
 classes have __properties__ ("fields") and __methods__
 </li>
+
+<li class="fragment">
+<span class="fa-li"><i class="fab fa-r-project"></i></span>
+Reference Classes (RC) and R6
+</li>
 </ul>
+
 
 #
 
@@ -398,13 +417,6 @@ LoadDataWindow <- setRefClass("LoadDataWindow",
     alt="Demo Load Window"
     width="40%"
     class="loadwindow fragment"
-    >
-
-#
-
-<img src="assets/images/inzight_main_window.png"
-    alt="iNZight main window"
-    width="80%"
     >
 
 
@@ -475,7 +487,7 @@ LoadDataWindow <- setRefClass("LoadDataWindow",
         ...
     ),
     methods = list(
-        initialize(...),
+        initialize = function(...),
         loadData = function() {
             data <- iNZightTools::smart_read(filename,
                 filetype = filetype,
@@ -485,6 +497,64 @@ LoadDataWindow <- setRefClass("LoadDataWindow",
         }
     )
 )
+```
+
+#
+
+```r
+LoadDataWindow <- setRefClass("LoadDataWindow",
+    fields = list(
+        filename = "character",
+        filetype = "character",
+        delimiter = "character", # csv can use , or ;
+        ...
+    ),
+    methods = list(
+        initialize(...),
+        loadData = function() {
+            data <- iNZightTools::smart_read(filename,
+                filetype = filetype,
+                delim = delimiter,
+                ...
+            )
+            cat(iNZightTools::code(data), file = "script.R")
+        }
+    )
+)
+```
+
+```{r,eval=FALSE}
+# script.R
+data <- readr::read_csv("data.csv", delim = ";", comment = "#")
+```
+
+#
+
+```r
+LoadDataWindow <- setRefClass("LoadDataWindow",
+    fields = list(
+        filename = "character",
+        filetype = "character",
+        delimiter = "character", # csv can use , or ;
+        ...
+    ),
+    methods = list(
+        initialize(...),
+        loadData = function() {
+            data <- iNZightTools::smart_read(filename,
+                filetype = filetype,
+                delim = delimiter,
+                ...
+            )
+            cat(iNZightTools::code(data), file = "script.R")
+        }
+    )
+)
+```
+
+```{r,eval=FALSE}
+# script.R
+data <- readxl::read_excel("data.xlsx")
 ```
 
 # Reactivity
@@ -571,7 +641,7 @@ Add <strong>new</strong> or change <strong>existing</strong> features ...
 
 <li class="fragment">
 <span class="fa-li"><i class="fas fa-code"></i></span>
-A system for adding __completely new__ modules
+In progress: a system for adding __completely new__ modules
 </li>
 </ul>
 
