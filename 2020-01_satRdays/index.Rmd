@@ -126,9 +126,6 @@ __easy-to-learn__ tool for students/beginners ...
 <img src="assets/images/alberto1.png" width="60%">
 <img src="assets/images/alberto2.png" width="60%">
 
-#
-
-<img src="assets/images/alberto3.png" width="60%">
 
 #
 
@@ -429,6 +426,10 @@ keep UI and data logic separate
 </li>
 <li class="fragment">
 <span class="fa-li"><i class="fas fa-code"></i></span>
+Desktop and Shiny versions use the same data logic
+</li>
+<li class="fragment">
+<span class="fa-li"><i class="fas fa-code"></i></span>
 UI inputs control arguments to a __single function__
 </li>
 <li class="fragment">
@@ -570,7 +571,8 @@ Makes <strong>exploring</strong> data <strong>faster and easier</strong>
 </li>
 <li class="fragment">
 <span class="fa-li"><i class="fas fa-code"></i></span>
-Widget <strong>handlers</strong> and <strong>separability</strong>
+Widget <strong>handlers</strong><br>
+_Change, keystroke, click, mouseover, focus, ..._
 </li>
 </ul>
 
