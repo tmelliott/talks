@@ -650,6 +650,7 @@ In progress: a system for adding __completely new__ modules
 #
 
 ```r
+# DemoModule.R
 DemoModule <- setRefClass(
     "Demo Module",
     contains = "CustomModule",
@@ -669,6 +670,44 @@ DemoModule <- setRefClass(
     )
 )
 ```
+
+#
+
+<div style="text-align:left;">
+`path/to/iNZightVIT/modules`
+
+<ul class="fa-ul">
+<li>
+<span class="fa-li"><i class="fas fa-plus-circle"></i></span>
+`DemoModule.R`
+</li>
+</ul>
+</div>
+
+<img src="assets/images/inzight_demo_menu.png"
+    alt="iNZight main window"
+    width="80%"
+    >
+
+#
+
+
+<div style="text-align:left;">
+`path/to/iNZightVIT/modules`
+
+<ul class="fa-ul">
+<li>
+<span class="fa-li"><i class="fas fa-plus-circle"></i></span>
+`DemoModule.R`
+</li>
+</ul>
+</div>
+
+<img src="assets/images/inzight_demo_module.png"
+    alt="iNZight main window"
+    width="80%"
+    >
+
 
 # Thank you
 
