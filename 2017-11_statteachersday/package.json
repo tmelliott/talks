@@ -31,7 +31,7 @@
     "gulp-reveal": "^1.0.0",
     "gulp-ruby-sass": "^2.1.1",
     "gulp-uglify": "^3.0.0",
-    "jquery": "^3.2.1"
+    "jquery": "^3.5.0"
   },
   "dependencies": {
     "gulp": "^3.9.1"
