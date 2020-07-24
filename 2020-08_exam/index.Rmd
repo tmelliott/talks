@@ -31,7 +31,6 @@ An approach to bus prediction using vehicle positions and estimated network stat
 Using particle filtering to model vehicles and generate arrival time distributions
 
 
-
 # Thank you
 
 
