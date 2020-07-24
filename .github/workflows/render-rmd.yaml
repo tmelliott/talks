@@ -16,7 +16,7 @@ jobs:
       - name: Install rmarkdown and revealjs
         run: Rscript -e 'install.packages(c("rmarkdown", "revealjs"))'
       - name: Render files
-        run: cd 2020-08_exam && make
+        run: cd 2020-08_exam && make clean && make
       - name: Commit results
         run: |
           git config --local user.email "actions@github.com"
