@@ -1,0 +1,25 @@
+on:
+  push:
+    paths:
+      - 2020-08_exam/index.Rmd
+
+name: Render files
+
+jobs:
+  render:
+    name: Render Rmd
+    runs-on: macOS-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: r-lib/actions/setup-r@v1
+      - uses: r-lib/actions/setup-pandoc@v1
+      - name: Install rmarkdown and revealjs
+        run: Rscript -e 'install.packages(c("rmarkdown", "revealjs"))'
+      - name: Render files
+        run: cd 2020-08_exam && make
+      - name: Commit results
+        run: |
+          git config --local user.email "actions@github.com"
+          git config --local user.name "GitHub Actions"
+          git commit 2020-08_exam/index.html -m 'Render HTML' || echo "No changes to commit"
+          git push origin || echo "No changes to push"

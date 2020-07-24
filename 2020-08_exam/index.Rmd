@@ -1,0 +1,39 @@
+---
+title: "Buses"
+author: Tom Elliott
+date: "25 August 2020"
+output:
+    revealjs::revealjs_presentation:
+        theme: night
+        center: true
+        slide_level: 1
+        mathjax: default
+        reveal_options:
+            controls: false
+            hash: true
+        transition: none
+---
+
+# Part I
+
+What is the status quo, and what is wrong with it?
+
+
+
+# Part II
+
+An approach to bus prediction using vehicle positions and estimated network state
+
+
+
+# Part III
+
+Using particle filtering to model vehicles and generate arrival time distributions
+
+
+
+# Thank you
+
+
+
+# Appendix
