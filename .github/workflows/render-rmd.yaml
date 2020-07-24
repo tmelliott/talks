@@ -1,7 +1,7 @@
 on:
   push:
     paths:
-      - 2020-08_exam/index.Rmd
+      - '2020-08_exam/index.Rmd'
 
 name: Render files
 
