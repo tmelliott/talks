@@ -157,7 +157,7 @@ stops <- con %>% tbl('stop_times') %>%
         trip_id %in% !!trips$trip_id
     ) %>%
     left_join(con %>% tbl('stops'), by = 'stop_id') %>%
-    select(trip_id, stop_sequence, stop_lat, stop_lon) %>%
+    select(stop_code, trip_id, stop_sequence, stop_lat, stop_lon) %>%
     collect() %>%
     left_join(trips, by = 'trip_id') %>%
     filter(
@@ -165,6 +165,12 @@ stops <- con %>% tbl('stop_times') %>%
         stop_lon > 174.74
     ) %>%
     arrange(route_short_name, stop_sequence)
+stops2 <- stops %>%
+    mutate(
+        stop_lat = ifelse(stop_code %in% c('8213', '8211'), stop_lat + 0.0015, stop_lat)
+    )
+
+dbDisconnect(con)
 
 library(ggplot2)
 pp <- ggplot(shapes, aes(shape_pt_lon, shape_pt_lat, colour = route_short_name)) +
@@ -174,8 +180,8 @@ pp <- ggplot(shapes, aes(shape_pt_lon, shape_pt_lat, colour = route_short_name))
     labs(colour = "")
 
 pp + facet_grid(~route_short_name) +
-    geom_path(lwd = 2) +
-    geom_point(aes(stop_lon, stop_lat), data = stops)
+    geom_path(lwd = 2)
+    # geom_point(aes(stop_lon, stop_lat), data = stops)
 ```
 
 ***
@@ -209,9 +215,9 @@ nw %>% construct()
 
 ```{r, echo=F, fig.width=10,fig.height=4,message=FALSE,warning=FALSE}
 pp +
-    geom_path(aes(stop_lon, stop_lat), lwd = 2, data = stops) +
-    geom_path(aes(stop_lon, stop_lat, linetype = route_short_name), lwd = 2, data = stops) +
-    geom_point(aes(stop_lon, stop_lat, colour = NULL), data = stops) +
+    geom_path(aes(stop_lon, stop_lat), lwd = 2, data = stops2) +
+    geom_path(aes(stop_lon, stop_lat, linetype = route_short_name), lwd = 2, data = stops2) +
+    geom_point(aes(stop_lon, stop_lat, colour = NULL), data = stops2) +
     labs(linetype = "")
 ```
 
