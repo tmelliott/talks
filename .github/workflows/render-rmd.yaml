@@ -11,6 +11,10 @@ jobs:
     runs-on: macOS-latest
     steps:
       - uses: actions/checkout@v2
+        with:
+          lfs: true
+      - name: Checkout LFS files
+        run: git lfs checkout
       - uses: r-lib/actions/setup-r@v1
       - uses: r-lib/actions/setup-pandoc@v1
       - name: Install rmarkdown and revealjs
