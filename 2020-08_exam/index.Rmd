@@ -122,7 +122,6 @@ nw <- create_gtfs("https://cdn01.at.govt.nz/data/gtfs.zip",
 nw %>% construct()
 ```
 
-
 ```{r, echo=F, fig.width=10,fig.height=4,message=FALSE,warning=FALSE}
 library(RSQLite)
 library(dplyr)
