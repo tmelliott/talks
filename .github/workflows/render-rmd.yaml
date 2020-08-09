@@ -14,7 +14,7 @@ jobs:
       - uses: r-lib/actions/setup-r@v1
       - uses: r-lib/actions/setup-pandoc@v1
       - name: Install rmarkdown and revealjs
-        run: Rscript -e 'install.packages(c("rmarkdown", "revealjs"))'
+        run: cd 2020-08_exam && make install
       - name: Render files
         run: cd 2020-08_exam && make clean && make
       - name: Commit results

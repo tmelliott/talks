@@ -9,4 +9,4 @@ clean:
 	@rm $(FILE).html
 
 install:
-	@Rscript -e "utils::install.packages(c('rmarkdown', 'revealjs', 'RSQLite', 'dbplyr'))"
+	@Rscript -e "utils::install.packages(c('rmarkdown', 'revealjs', 'RSQLite', 'dbplyr', 'dplyr', 'magrittr', 'ggplot2'))"
