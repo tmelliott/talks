@@ -4,7 +4,7 @@ author: Tom Elliott
 date: "25 August 2020"
 output:
     revealjs::revealjs_presentation:
-        theme: night
+        theme: serif
         center: true
         slide_level: 1
         mathjax: default
@@ -12,23 +12,218 @@ output:
             controls: false
             hash: true
         transition: none
+bibliography: reflist.bib
+csl: apa.csl
 ---
 
+
 # Part I
+```{sass, echo=FALSE}
+$col1: #18afe3
+$col2: #094b85
+.reveal
+    pre
+        margin-top: 5px
+        margin-bottom: 5px
+
+    section
+        strong
+            color: $col1
+
+        ul>li>span
+            color: $col1
+
+        ul>li>ul
+            font-size: 0.6em
+            list-style-type: '&ndash; '
+/***/
+```
 
 What is the status quo, and what is wrong with it?
 
+***
+## In Auckland ...
 
+* real-time vehicle locations
+* arrival and departure times/delays <br><br>
+* ETA = scheduled arrival + current delay
+* *no use of location information, traffic, historical, ...*
+
+
+***
+## Around the world ...
+
+* many unique real-time information systems
+* various data feeds:
+    * *vehicle positions, passenger counters, taxis, ...*
+* equally different prediction systems
+    * *Kalman filter, artificial neural network, support vector machines, ...*
+  <br><br>
+* GTFS: *General Transit Feed Specification*
+* decribes *how* to organise and format transit data
+* GTFS-realtime: API specification
+
+
+***
+## Vehicle models
+
+* operations management
+    * *on-time performance, reducing bunching behaviour, ...*
+* little recent focus on ETAs
+    * Kalman filter (e.g., @Dailey_2001, @Cathey_2003)
+    * ANN/SVM (e.g., @Yu_2006, ...)
+* but lots of cool models
+    * particle filtering (e.g., @Hans_2015)
+    * other models?
+
+***
+## Traffic models
+
+* essential for reliable predictions
+* difficult to model (data availability, ...)
+* location-specific examples
+    * @Yu_2011 *previous bus along same road, different route*
+    * @Julio_2016 *traffic shockwaves*
+    * ... *taxi data*<br><br>
+* vast majority of transit feeds use *only* GTFS
+
+***
+## Arrival time prediction & journey planning
+
+* current position, travel times, dwell times
+* GTFS-realtime default is *schedule + current delay*
+* usually a point estimate "*ETA: 5 mins*"<br><br>
+* JP is hard (@Horn_2004, @Hame_2013a)
+* Simple to complex questions
+    * which bus to arrive on time
+    * which set of buses to get to destination fastest
+    * minimal waiting time between legs
+* Some frameworks, nothing inherent to GTFS (i.e., general)
+    * decisions using probabilitic arrival time information [@Berczi_2017]
 
 # Part II
 
-An approach to bus prediction using vehicle positions and estimated network state
+Bus arrival prediction using real-time network state
+
+***
+1. GTFS network construction
+2. Vehicle modelling
+3. Transit network modelling
+4. Arrival time prediction
+5. Journey planning
+
+***
+## GTFS network construction
+
+```{r,eval=F}
+library(transitr)
+nw <- create_gtfs("https://cdn01.at.govt.nz/data/gtfs.zip",
+    db = "at_gtfs.sqlite")
+nw %>% construct()
+```
+
+```{r, echo=F, fig.width=10,fig.height=4,message=FALSE,warning=FALSE}
+library(RSQLite)
+library(dplyr)
+library(dbplyr)
+library(magrittr)
+con <- dbConnect(SQLite(), 'at_gtfs.sqlite')
+routes <- con %>% tbl('routes') %>%
+    filter(
+        route_short_name %in% c('27W', '24R', '22A') &
+        (route_long_name %like% '%To City%' | route_long_name %like% '%To Britomart%') &
+        version == 94.7
+    ) %>% select(route_id, route_short_name, route_long_name) %>% collect()
+trips <- con %>% tbl('trips') %>%
+    filter(
+        route_id %in% !!routes$route_id
+    ) %>%
+    select(route_id, trip_id, shape_id) %>%
+    group_by(route_id) %>%
+    summarize(trip_id = min(trip_id, na.rm = TRUE), shape_id = min(shape_id, na.rm = TRUE)) %>%
+    collect() %>%
+    left_join(routes, by = 'route_id')
+shapes <- con %>% tbl('shapes') %>%
+    filter(shape_id %in% !!trips$shape_id) %>%
+    select(shape_id, shape_pt_lat, shape_pt_lon, shape_pt_sequence) %>%
+    collect() %>%
+    left_join(trips, by = 'shape_id') %>%
+    filter(
+        shape_pt_lat > -36.875 &
+        shape_pt_lon > 174.74
+    )
+stops <- con %>% tbl('stop_times') %>%
+    filter(
+        trip_id %in% !!trips$trip_id
+    ) %>%
+    left_join(con %>% tbl('stops'), by = 'stop_id') %>%
+    select(trip_id, stop_sequence, stop_lat, stop_lon) %>%
+    collect() %>%
+    left_join(trips, by = 'trip_id') %>%
+    filter(
+        stop_lat > -36.875 &
+        stop_lon > 174.74
+    ) %>%
+    arrange(route_short_name, stop_sequence)
+
+library(ggplot2)
+pp <- ggplot(shapes, aes(shape_pt_lon, shape_pt_lat, colour = route_short_name)) +
+    coord_fixed(ratio = 0.8) +
+    theme_void() +
+    theme(legend.position = "bottom") +
+    labs(colour = "")
+
+pp + facet_grid(~route_short_name) +
+    geom_path(lwd = 2) +
+    geom_point(aes(stop_lon, stop_lat), data = stops)
+```
+
+***
+## GTFS network construction
+
+```{r,eval=F}
+library(transitr)
+nw <- create_gtfs("https://cdn01.at.govt.nz/data/gtfs.zip",
+    db = "at_gtfs.sqlite")
+nw %>% construct()
+```
+
+```{r, echo=F, fig.width=10,fig.height=4,message=FALSE,warning=FALSE}
+pp +
+    geom_path(lwd = 2) +
+    geom_path(aes(linetype = route_short_name), lwd = 2) +
+    geom_point(aes(stop_lon, stop_lat, colour = NULL), data = stops) +
+    labs(linetype = "")
+```
+
+
+***
+## GTFS network construction
+
+```{r,eval=F}
+library(transitr)
+nw <- create_gtfs("https://cdn01.at.govt.nz/data/gtfs.zip",
+    db = "at_gtfs.sqlite")
+nw %>% construct()
+```
+
+```{r, echo=F, fig.width=10,fig.height=4,message=FALSE,warning=FALSE}
+pp +
+    geom_path(aes(stop_lon, stop_lat), lwd = 2, data = stops) +
+    geom_path(aes(stop_lon, stop_lat, linetype = route_short_name), lwd = 2, data = stops) +
+    geom_point(aes(stop_lon, stop_lat, colour = NULL), data = stops) +
+    labs(linetype = "")
+```
 
 
 
 # Part III
 
 Using particle filtering to model vehicles and generate arrival time distributions
+
+1. particle filter to estimate vehicle state and road travel times
+2. road travel times update road network state (KF)
+3. vehicle state + road state = ETAs
 
 
 # Thank you
