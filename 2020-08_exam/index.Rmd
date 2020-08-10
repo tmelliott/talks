@@ -292,7 +292,7 @@ pp +
 ## 4. Arrival time prediction
 
 * ETA = travel time + dwell time
-*
+* Travel times: sum of (distributions) of segment travel times
 
 
 ***
