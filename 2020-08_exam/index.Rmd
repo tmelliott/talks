@@ -5,7 +5,7 @@ date: "25 August 2020"
 output:
     revealjs::revealjs_presentation:
         theme: serif
-        center: true
+        center: false
         slide_level: 1
         mathjax: default
         reveal_options:
@@ -27,11 +27,12 @@ $col2: #094b85
         margin-bottom: 5px
 
     section
+        text-align: left
         strong
             color: $col1
 
-        ul>li>span
-            color: $col1
+        /*ul>li>span
+            color: $col1*/
 
         ul>li>ul
             font-size: 0.6em
@@ -107,13 +108,14 @@ Bus arrival prediction using real-time network state
 
 ***
 1. GTFS network construction
-2. Vehicle modelling
-3. Transit network modelling
+2. Vehicle model
+3. Transit network model
 4. Arrival time prediction
 5. Journey planning
 
+
 ***
-## GTFS network construction
+## 1. GTFS network construction
 
 ```{r,eval=F}
 library(transitr)
@@ -185,7 +187,7 @@ pp + facet_grid(~route_short_name) +
 ```
 
 ***
-## GTFS network construction
+## 1. GTFS network construction
 
 ```{r,eval=F}
 library(transitr)
@@ -204,7 +206,7 @@ pp +
 
 
 ***
-## GTFS network construction
+## 1. GTFS network construction
 
 ```{r,eval=F}
 library(transitr)
@@ -221,8 +223,81 @@ pp +
     labs(linetype = "")
 ```
 
+***
+## 2. Vehicle model
 
-Ta da!
+* Observations $\boldsymbol{y}_1, \boldsymbol{y}_2, \cdots, \boldsymbol{y}_{k-1}, \boldsymbol{y}_k$
+* Underlying state $\boldsymbol{x}_0, \boldsymbol{x}_1, \cdots, \boldsymbol{x}_{k-2}, \boldsymbol{x}_k$<br><br>
+* Recursive Bayesian estimation
+    * **Predict**: model bus behaviour
+    * **Update**: likelihood of observation (given prediction)
+* Estimates distance, speed,
+  *average speed along each road segment*
+
+***
+## 3. Transit network model
+
+* Observations $b_{v\ell c}$ with error $e_{v\ell c}$
+    * average speed of vehicle $v$, road $\ell$, time period $(t_{c-1},t_c]$
+* Underlying state $\beta_{\ell c}$ (average vehicle speed, m/s)<br><br>
+* Heirarchical structure
+\[
+    \begin{split}
+    b_{v\ell c} &\sim \mathcal{N}(B_{v\ell c}, e_{v\ell c}^2) \\
+    B_{v\ell c} &\sim \mathcal{N}_T(\beta_{\ell c}, \phi_\ell^2) \\
+    \beta_{\ell c} &\sim \mathcal{N}_T(F_c(\beta_{\ell,c-1}, \Delta_c), q^2),\quad
+        \Delta_c = t_c - t_{c-1}
+    \end{split}
+\]
+
+***
+## 3. Transit network model
+
+* Historical data to estimate $\phi_\ell$ and $q$
+* JAGS [@JAGS]<br><br>
+* Kalman filter: real-time network state
+    * $\hat \beta_{c|c-1} = \mathbb{E}(\beta_c | b_{0:c-1})$
+    * $P_{c|c-1} = \mathrm{Var}(\beta_c | b_{0:c-1})$
+* Information filter
+    * Multiple vehicles/segment/time period
+    * Limited to independent segments
+
+***
+## 3. Transit network model
+
+* Predict:
+    \[
+    \begin{split}
+        \hat\beta_{c|c-1} &= \hat\beta_{c-1|c-1} \\
+        P_{c|c-1} &= P_{c|c-1} + (\Delta_c q)^2
+    \end{split}
+    \]
+
+***
+## 3. Transit network model
+
+* Information matrix, vector \[U = P^{-1}, \quad u = \hat\beta P^{-1}\]
+* Obs. inf. matrix, vector *includes between-vehicle variance*
+  \[I_v = (\phi^2 + e_v^2)^{-1},\quad i_v = b_v (\phi^2 + e_v^2)^{-1}\]
+* Sum everything together
+\[
+    \begin{split}
+    U_{c|c} = U_{c|c-1} + \sum_v I_{v,c} \\
+    u_{c|c} = u_{c|c-1} + \sum_v i_{v,c}
+    \end{split}
+\]
+* Back-transform
+
+***
+## 4. Arrival time prediction
+
+* ETA = travel time + dwell time
+*
+
+
+***
+## 5. Journey planning
+
 
 # Part III
 
