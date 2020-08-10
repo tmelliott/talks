@@ -293,10 +293,24 @@ pp +
 
 * ETA = travel time + dwell time
 * Travel times: sum of (distributions) of segment travel times
-
+* Dwell times: multimodality (dwell can be zero)<br><br>
+* Particle filter: simple extension of vehicle model
+    * each particle completes route
+    * records stop arrival times
+    * can handle dwell time, layovers
+```{r,echo=FALSE,fig.width=8,fig.height=3,message=FALSE}
+set.seed(324456)
+x <- data.frame(x = c(rnorm(1000, 5.2*60, 20), rnorm(1000, 6.3*60, 30)))
+ggplot(x, aes(x/60, ..count../sum(..count..))) +
+    geom_histogram() +
+    theme_classic() +
+    xlab("ETA (minutes)") + ylab("Probability")
+```
 
 ***
 ## 5. Journey planning
+
+
 
 
 # Part III
