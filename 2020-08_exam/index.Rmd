@@ -1,6 +1,6 @@
 ---
-title: "Buses"
-author: Tom Elliott
+title: "Improving the prediction of bus arrival using real-time network state"
+author: "<br><br>Tom Elliott"
 date: "25 August 2020"
 output:
     revealjs::revealjs_presentation:
@@ -40,7 +40,7 @@ $col2: #094b85
 /***/
 ```
 
-What is the status quo, and what is wrong with it?
+### What is the status quo, and what is wrong with it?
 
 ***
 ## In Auckland ...
@@ -102,11 +102,13 @@ What is the status quo, and what is wrong with it?
 * Some frameworks, nothing inherent to GTFS (i.e., general)
     * decisions using probabilitic arrival time information [@Berczi_2017]
 
+
 # Part II
 
-Bus arrival prediction using real-time network state
+### Bus arrival prediction using real-time network state
 
-***
+<br><br>
+
 1. GTFS network construction
 2. Vehicle model
 3. Transit network model
@@ -240,7 +242,7 @@ pp +
 * Observations $b_{v\ell c}$ with error $e_{v\ell c}$
     * average speed of vehicle $v$, road $\ell$, time period $(t_{c-1},t_c]$
 * Underlying state $\beta_{\ell c}$ (average vehicle speed, m/s)<br><br>
-* Heirarchical structure
+* Hierarchical structure
 \[
     \begin{split}
     b_{v\ell c} &\sim \mathcal{N}(B_{v\ell c}, e_{v\ell c}^2) \\
@@ -263,21 +265,20 @@ pp +
     * Limited to independent segments
 
 ***
-## 3. Transit network model
+## 3. Transit network model: predict
 
-* Predict:
-    \[
-    \begin{split}
-        \hat\beta_{c|c-1} &= \hat\beta_{c-1|c-1} \\
-        P_{c|c-1} &= P_{c|c-1} + (\Delta_c q)^2
-    \end{split}
-    \]
+\[
+\begin{split}
+    \hat\beta_{c|c-1} &= \hat\beta_{c-1|c-1} \\
+    P_{c|c-1} &= P_{c|c-1} + (\Delta_c q)^2
+\end{split}
+\]
 
 ***
-## 3. Transit network model
+## 3. Transit network model: update
 
 * Information matrix, vector \[U = P^{-1}, \quad u = \hat\beta P^{-1}\]
-* Obs. inf. matrix, vector *includes between-vehicle variance*
+* Obs. inf. matrix, vector; *include between-vehicle variance*
   \[I_v = (\phi^2 + e_v^2)^{-1},\quad i_v = b_v (\phi^2 + e_v^2)^{-1}\]
 * Sum everything together
 \[
@@ -292,12 +293,12 @@ pp +
 ## 4. Arrival time prediction
 
 * ETA = travel time + dwell time
+    * @Shalaby_2004, @Jeong_2005, @Hans_2015
 * Travel times: sum of (distributions) of segment travel times
 * Dwell times: multimodality (dwell can be zero)<br><br>
 * Particle filter: simple extension of vehicle model
-    * each particle completes route
-    * records stop arrival times
-    * can handle dwell time, layovers
+    * particles complete route recording arrival times
+    * handles dwell time, layovers, etc.
 ```{r,echo=FALSE,fig.width=8,fig.height=3,message=FALSE}
 set.seed(324456)
 x <- data.frame(x = c(rnorm(1000, 5.2*60, 20), rnorm(1000, 6.3*60, 30)))
@@ -310,16 +311,306 @@ ggplot(x, aes(x/60, ..count../sum(..count..))) +
 ***
 ## 5. Journey planning
 
+* Need: a useful summary of $p(\alpha_j|\mathcal{T}_k, \boldsymbol{\beta}_k)$
+* ETAs expected as integer minutes
+* CDF approximation
+\[
+    \mathbb{P}(A < a) = \sum_{x=0}^{x=a-1} \mathbb{P}(A \in [x, x+1))
+    = \sum_{x=0}^{x=a-1} \left( \frac{1}{N^\star} \sum_{i=1}^{N^\star} I_{\lfloor \alpha^{(i)}/60 \rfloor = x} \right)
+\]
+```{r,echo=FALSE,fig.width=8,fig.height=3,message=FALSE}
+x <- x %>% mutate(z = floor(x / 60))
+cdf <- x %>% group_by(z) %>% summarize(n = length(z)) %>% mutate(p = n / sum(n)) %>%
+    bind_rows(data.frame(z = min((.)$z) - 1, n = 0, p = 0)) %>%
+    bind_rows(data.frame(z = max((.)$z) + 1, n = 0, p = 0)) %>%
+    arrange(z) %>%
+    mutate(p = cumsum(p))
+ggplot(cdf, aes(z, p)) +
+    geom_step() +
+    theme_classic() +
+    xlab("ETA, a (minutes)") + ylab("P(A < a)")
+```
 
+***
+## 5. Journey planning
+
+* CDF allows us to answer questions:
+    * change of catching bus if I arrive at $a$
+    * which bus should I catch to have at least 90% change of on-time arrival
+    * probabilty of making transfer between two services
+* Provides probabilities (no binary 'Yes' or 'No')
 
 
 # Part III
 
-Using particle filtering to model vehicles and generate arrival time distributions
+### Using particle filtering to model vehicles and generate arrival time distributions
 
-1. particle filter to estimate vehicle state and road travel times
-2. road travel times update road network state (KF)
-3. vehicle state + road state = ETAs
+
+***
+## Why the particle filter?
+
+* Flexible, few assumptions
+* Easy to implement complex vehicle behaviour
+* Intuitive likelihood (distance on the ground; no map-matching)<br><br>
+* Multimodality (bus stops, intersections, loops, ...)
+
+
+***
+## Why not the particle filter?
+
+* Computationally intensive
+* ~~Hard to distribute the results~~
+
+
+***
+## Particle filter in action
+
+```{r,echo=FALSE,message=FALSE,warning=FALSE,fig.width=10,fig.height=4}
+con <- dbConnect(SQLite(), 'at_gtfs.sqlite')
+routes <- con %>% tbl('routes') %>%
+    filter(
+        route_short_name == "380" &
+        route_long_name %like% '%To Onehunga%' &
+        version == 94.7
+    ) %>% select(route_id, route_short_name, route_long_name) %>% collect()
+trips <- con %>% tbl('trips') %>%
+    filter(
+        route_id %in% !!routes$route_id
+    ) %>%
+    select(route_id, trip_id, shape_id) %>%
+    group_by(route_id) %>%
+    summarize(trip_id = min(trip_id, na.rm = TRUE), shape_id = min(shape_id, na.rm = TRUE)) %>%
+    collect() %>%
+    left_join(routes, by = 'route_id')
+shapes <- con %>% tbl('shapes') %>%
+    filter(shape_id %in% !!trips$shape_id) %>%
+    select(shape_id, shape_pt_lat, shape_pt_lon, shape_pt_sequence) %>%
+    collect() %>%
+    left_join(trips, by = 'shape_id') %>%
+    filter(
+        shape_pt_lon > 174.848 & shape_pt_lon < 174.86
+    )
+stops <- con %>% tbl('stop_times') %>%
+    filter(
+        trip_id %in% !!trips$trip_id
+    ) %>%
+    left_join(con %>% tbl('stops'), by = 'stop_id') %>%
+    select(stop_code, trip_id, stop_sequence, stop_lat, stop_lon) %>%
+    collect() %>%
+    left_join(trips, by = 'trip_id') %>%
+    arrange(route_short_name, stop_sequence)
+dbDisconnect(con)
+
+library(geosphere)
+library(patchwork)
+shapes <- shapes %>%
+    mutate(
+        dist = distGeo(cbind(shape_pt_lon, shape_pt_lat)),
+        dist = c(0, cumsum(dist[!is.na(dist)]))
+    )
+
+proj <- function(x, path) {
+    d <- path[,3]
+    path <- path[, 1:2]
+    if (x <= 0) return(path[1, ] %>% as.numeric)
+    if (x >= max(d)) return(path[nrow(path), ] %>% as.numeric)
+    i <- which(d > x)[1]
+    # from i-1:i
+    if (x == d[i]) return(path[i, ])
+    p1 <- path[i, ] %>% as.numeric
+    p2 <- path[i-1, ] %>% as.numeric
+    b <- geosphere::bearing(p1, p2)
+    h <- d[i] - x
+    as.numeric(geosphere::destPoint(p1, b, h))
+}
+h <- function(state, path) {
+    p <- sapply(state$x, proj, path = path)
+    state %>% mutate(lon = p[1,], lat = p[2,])
+}
+
+set.seed(235216)
+N <- 50
+state <- tibble(x = rnorm(N, 500, 10), xdot = rnorm(N, 12, 3))
+path <- cbind(shapes$shape_pt_lon, shapes$shape_pt_lat, shapes$dist)
+state <- h(state, path)
+
+ploop <- ggplot(shapes, aes(shape_pt_lon, shape_pt_lat)) +
+    geom_path() +
+    coord_fixed(ratio = 0.8) +
+    theme_void() +
+    theme(legend.position = "bottom") +
+    labs(colour = "")
+pdist <- ggplot(state, aes(x)) +
+    theme_classic() +
+    xlab("Distance (m)") + ylab("") + xlim(400, 1600) +
+    theme(axis.text.y = element_blank())
+pspeed <- ggplot(state, aes(xdot)) +
+    theme_classic() +
+    xlab("Speed (m/s)") + ylab("") + xlim(0, 25) +
+    theme(axis.text.y = element_blank())
+
+obs <- tibble(lon = mean(state$lon), lat = mean(state$lat) - 0.00005)
+
+library(ggrepel)
+p1 <- ploop +
+    geom_point(aes(lon, lat), data = state) +
+    geom_point(aes(lon, lat), data = obs, colour = "red", size = 2) +
+    geom_text(aes(lon, lat, label = "Y[k-1]"), data = obs, nudge_y = -0.0005, parse = TRUE)
+p2 <- pdist + geom_histogram()
+p3 <- pspeed + geom_histogram()
+
+p1 + (p2 / p3 + plot_layout(height = c(2, 1))) + plot_layout(width = c(2, 1))
+
+```
+
+\[
+    p(\boldsymbol{x}_{k-1} | \boldsymbol{y}_{1:k-1}) \approx
+    \sum_{i=1}^N w_{k-1}^{(i)} \delta_{\boldsymbol{x}_{k-1}^{(i)}} (\boldsymbol{x}_{k-1})
+\]
+
+<small>$N = 100$</small>
+
+***
+## Particle filter in action: predict
+
+```{r,echo=FALSE,message=FALSE,warning=FALSE,fig.width=10,fig.height=4}
+state <- state %>%
+    mutate(t = 60 - rbinom(N, 1, 0.5) * (20 + rnorm(N, 10, 5))) %>%
+    mutate(xdot = truncnorm::rtruncnorm(N, 3, 20, xdot, 1.5)) %>%
+    mutate(x = pmax(650, x + t * xdot))
+state <- h(state, path)
+
+
+ploop <- ggplot(shapes, aes(shape_pt_lon, shape_pt_lat)) +
+    geom_path() +
+    coord_fixed(ratio = 0.8) +
+    theme_void() +
+    theme(legend.position = "bottom") +
+    labs(colour = "")
+pdist <- ggplot(state, aes(x)) +
+    theme_classic() +
+    xlab("Distance (m)") + ylab("") + xlim(400, 1600) +
+    theme(axis.text.y = element_blank())
+pspeed <- ggplot(state, aes(xdot)) +
+    theme_classic() +
+    xlab("Speed (m/s)") + ylab("") + xlim(0, 25) +
+    theme(axis.text.y = element_blank())
+
+p1 <- ploop +
+    geom_point(aes(lon, lat), data = state)
+    # geom_point(aes(lon, lat), data = obs, colour = "red", size = 2) +
+    # geom_text(aes(lon, lat, label = "Y[k-1]"), data = obs, nudge_y = -0.0005, parse = TRUE)
+p2 <- pdist + geom_histogram()
+p3 <- pspeed + geom_histogram()
+
+p1 + (p2 / p3 + plot_layout(height = c(2, 1))) + plot_layout(width = c(2, 1))
+
+```
+
+\[
+    p(\boldsymbol{x}_{k} | \boldsymbol{x}_{k-1}) \approx
+    \sum_{i=1}^N w_{k-1}^{(i)} \delta_{\boldsymbol{x}_{k}^{(i)}} (\boldsymbol{x}_{k})
+\]
+
+<small>$x_k^{(i)} = f(x_{k-1}^{(i)}, \Delta_k, \sigma^2)$, $\Delta_k = t_k - t_{k-1} = 60$</small>
+
+
+
+***
+## Particle filter in action: update
+
+```{r,echo=FALSE,message=FALSE,warning=FALSE,fig.width=10,fig.height=4}
+obs <- proj(750, path)
+obs <- tibble(lon = obs[1], lat = obs[2] + 0.00005)
+
+p1 <- ploop +
+    geom_point(aes(lon, lat), data = state) +
+    geom_point(aes(lon, lat), data = obs, colour = "red", size = 2) +
+    geom_text(aes(lon, lat, label = "Y[k]"), data = obs, nudge_y = -0.0005, parse = TRUE) +
+    theme(legend.position = "none")
+p2 <- pdist + geom_histogram()
+p3 <- pspeed + geom_histogram()
+
+p1 + (p2 / p3 + plot_layout(height = c(2, 1))) + plot_layout(width = c(2, 1))
+
+```
+
+\[
+    p(\boldsymbol{y}_{k} | \boldsymbol{x}_{k}) = ??
+\]
+
+***
+## Particle filter in action: likelihood
+
+```{r,echo=FALSE,message=FALSE,warning=FALSE,fig.width=10,fig.height=4}
+p1 <- ploop +
+    geom_point(aes(lon, lat), data = state) +
+    geom_point(aes(lon, lat), data = obs, colour = "red", size = 2) +
+    geom_text(aes(lon, lat, label = "Y[k]"), data = obs, nudge_y = -0.0005, parse = TRUE)
+
+R <- 6378137
+rad <- function(x) x * pi / 180
+deg <- function(x) x * 180 / pi
+state <- state %>%
+    mutate(
+        xx = R * rad(lon - obs$lon) * cos(rad(obs$lat)),
+        yy = R * rad(lat - obs$lat)
+    )
+
+p2 <- ggplot(aes(xx, yy), data = state) +
+    geom_hline(yintercept = 0, lty = 3) +
+    geom_vline(xintercept = 0, lty = 3) +
+    geom_point() +
+    geom_point(aes(0, 0), data = NULL, colour = "red") +
+    coord_fixed(ratio = 1) +
+    theme_classic() +
+    theme(
+        axis.line = element_blank()
+    ) +
+    labs(x = "East-West (m)", y = "North-South (m)")
+
+p1 + p2 + plot_layout(width = c(2, 1))
+
+```
+
+\[
+    d(\boldsymbol{y}_k | h(\boldsymbol{x}_k^{(i)}) = ||g(\boldsymbol{y}_k | h(\boldsymbol{x}_k^{(i)}) ||
+    = ||\boldsymbol{r}_k^{(i)}||
+\]
+
+Assumption: $\boldsymbol{r}_k \sim \mathcal{N}(\boldsymbol{0}, \epsilon^2\mathbf{I})$
+
+Therefore: $d(\boldsymbol{y}_k | h(\boldsymbol{x}_k^{(i)})^2 \sim \mathcal{E}\left(\frac{1}{2\epsilon^2}\right)$
+
+
+***
+## Particle filter in action: likelihood
+
+```{r,echo=FALSE,message=FALSE,warning=FALSE,fig.width=10,fig.height=4}
+
+state <- state %>%
+    mutate(wt = dexp(xx^2 + yy^2, 1 / (2 * 20^2))) %>%
+    mutate(wt = wt / sum(wt)) %>%
+    mutate(wt.scale = wt / max(wt) * 0.5 + 0.5)
+
+p1 <- ploop +
+    geom_point(aes(lon, lat, size = sqrt(wt)), data = state) +
+    geom_point(aes(lon, lat), data = obs, colour = "red", size = 2) +
+    geom_text(aes(lon, lat, label = "Y[k]"), data = obs, nudge_y = -0.0005, parse = TRUE) +
+    theme(legend.position = "none")
+p2 <- pdist + geom_histogram(aes(weight = wt), data = state)
+p3 <- pspeed + geom_histogram(aes(weight = wt), data = state)
+
+p1 + (p2 / p3 + plot_layout(height = c(2, 1))) + plot_layout(width = c(2, 1))
+
+```
+
+\[
+    w_k^{(i)} = \frac{w_{k-1}^{(i)} p(\boldsymbol{y}_k | \boldsymbol{x}_k^{i})}{\sum_{j=1}^N w_{k-1}^{(j)} p(\boldsymbol{y}_k | \boldsymbol{x}_k^{j})}
+,\quad
+    p(\boldsymbol{x}_{k} | \boldsymbol{y}_{1:k}) \approx
+    \sum_{i=1}^N w_{k}^{(i)} \delta_{\boldsymbol{x}_{k}^{(i)}} (\boldsymbol{x}_{k})
+\]
 
 
 # Thank you
