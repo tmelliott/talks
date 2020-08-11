@@ -37,6 +37,9 @@ $col2: #094b85
         ul>li>ul
             font-size: 0.6em
             list-style-type: '&ndash; '
+
+        #refs
+            font-size: 0.3em
 /***/
 ```
 
@@ -584,7 +587,7 @@ Therefore: $d(\boldsymbol{y}_k | h(\boldsymbol{x}_k^{(i)})^2 \sim \mathcal{E}\le
 
 
 ***
-## Particle filter in action: likelihood
+## Particle filter in action: update
 
 ```{r,echo=FALSE,message=FALSE,warning=FALSE,fig.width=10,fig.height=4}
 
@@ -612,11 +615,51 @@ p1 + (p2 / p3 + plot_layout(height = c(2, 1))) + plot_layout(width = c(2, 1))
     \sum_{i=1}^N w_{k}^{(i)} \delta_{\boldsymbol{x}_{k}^{(i)}} (\boldsymbol{x}_{k})
 \]
 
+***
+## Particle filter to estimate vehicle state
+
+* Easy to model vehicle behaviour
+    * acceleration/deceleration
+    * bus stop dwell times
+    * intersections
+* Multimodality
+    * bus stops
+    * loops
+    * bad data
+* Easy estimation of other quantities ...
+    * travel time/average speed along road segments
+
+\[
+    p(b_\ell | \boldsymbol{y}_{1:k}) \approx
+    \sum_{i=1}^N w_{k}^{(i)} \delta_{b_{\ell}^{(i)}} (b_{\ell})
+\]
+
+***
+## Particle filter to predict arrival times
+
+* Each particle travels to end of route
+    * travel time (distribution)
+    * dwell times and layovers
+    * intersections
+* Arrival times $\alpha_j$ recorded
+
+\[
+    p(\alpha_j | \boldsymbol{B}_k, \mathcal{T}_{k}) \approx
+    \sum_{i=1}^N w_{k}^{(i)} \delta_{\alpha_{j}^{(i)}} (\alpha_{j})
+\]
+
+* Sped up using a weighted subsample size $N^\star$
+
+\[
+    p(\alpha_j | \boldsymbol{B}_k, \mathcal{T}_{k}) \approx
+    \frac{1}{N^\star} \sum_{i=1}^{N^\star} \delta_{\alpha_{j}^{(i)}} (\alpha_{j})
+\]
 
 # Thank you
 
 
+# References
+<div id="refs"></div>
+
 
 # Appendix
-
-Some slides ...
