@@ -655,6 +655,137 @@ p1 + (p2 / p3 + plot_layout(height = c(2, 1))) + plot_layout(width = c(2, 1))
     \frac{1}{N^\star} \sum_{i=1}^{N^\star} \delta_{\alpha_{j}^{(i)}} (\alpha_{j})
 \]
 
+
+***
+## Particle filter to predict arrival times
+
+* Implemented to full day of data (Auckland)
+* After, match predictions with actual arrivals
+* Examine prediction accuracy
+    * RMSE, MAE
+    * MAPE (~only short-term forecasts)
+    * PICP (5 and 90% particle quantiles)
+* Compare to GTFS (single point estimate, schedule + current delay)
+
+
+***
+## Particle filter to predict arrival times
+
+```{r,echo=FALSE,eval=FALSE}
+eta_files <- list.files("~/Documents/uni/phd-thesis/chapters/chapter05/data",
+    pattern = "eta_results.\\.rda",
+    full.names = TRUE
+)
+eta_results_all <-
+    do.call(bind_rows,
+        lapply(eta_files, function(f) {
+            load(f)
+            etai
+        })
+    ) %>%
+    ungroup()
+
+eta_talk <- eta_results_all %>%
+    select(
+        stop_sequence, timestamp,
+        pf_mean, pf_var, pf_lower, pf_upper, pf_error, pf_ci,
+        scheduled_arrival, actual_arrival, delay,
+        time_until_arrival, current_delay,
+        gtfs_arrival_time, gtfs_eta, gtfs_error
+    )
+
+save(eta_talk, file = "etadata.rda")
+```
+
+```{r,echo=FALSE,fig.width=10,fig.height=6,message=FALSE,warning=FALSE,cache=TRUE}
+# rmse - time of day
+load("etadata.rda")
+res_timeofday <- eta_talk %>%
+    mutate(
+        hour = timestamp %>% format("%H") %>% as.integer,
+        minute = timestamp %>% format("%M") %>% as.integer,
+        hour = hour + (floor(minute / 15) * 15 / 60)
+    ) %>%
+    filter(time_until_arrival > 0) %>%
+    group_by(hour) %>%
+    summarize(
+        pf_rmse = sqrt(mean(pf_error^2)),
+        pf_mae = mean(abs(pf_error)),
+        pf_mape = mean(abs(pf_error / time_until_arrival)),
+        pf_ci_cov = mean(pf_ci),
+        pf_ci_width = mean(pf_upper - pf_lower),
+        pf_ci_lower = quantile(pf_upper - pf_lower, 0.025),
+        pf_ci_upper = quantile(pf_upper - pf_lower, 0.975),
+        gtfs_rmse = sqrt(mean(gtfs_error^2)),
+        gtfs_mae = mean(abs(gtfs_error)),
+        gtfs_mape = mean(abs(gtfs_error / time_until_arrival))
+    ) %>% arrange(hour)
+
+pal <- viridis::magma(3)[2:1] #RColorBrewer::brewer.pal(2, "Set1")
+names(pal) <- c("Particle filter", "GTFS")
+
+plot_base <- ggplot(res_timeofday, aes(hour)) +
+    theme_classic() +
+    theme(legend.position = "none") +
+    scale_colour_manual(values = pal, name = "") +
+    xlab("Time of day (hour)")
+
+plot_rmse <- plot_base +
+    geom_path(aes(y = pf_rmse, colour = "Particle filter")) +
+    geom_path(aes(y = gtfs_rmse, colour = "GTFS"), alpha = 0.5) +
+    scale_y_continuous(
+        "RMSE (s)"
+        # trans = "log10"
+    ) +
+    theme(legend.position = "bottom")
+
+plot_mae <- plot_base +
+    geom_path(aes(y = pf_mae, colour = "Particle filter")) +
+    geom_path(aes(y = gtfs_mae, colour = "GTFS"), alpha = 0.5) +
+    scale_y_continuous(
+        "MAE (s)"
+        # trans = "log10"
+    )
+
+plot_mape <- plot_base +
+    geom_path(aes(y = 100 * pf_mape, colour = "Particle filter")) +
+    geom_path(aes(y = 100 * gtfs_mape, colour = "GTFS"), alpha = 0.5) +
+    scale_y_continuous(
+        "MAPE (%)"
+        # trans = "log10"
+    )
+
+plot_ci <- plot_base +
+    geom_hline(aes(yintercept = 85), lty = 2) +
+    geom_path(aes(y = 100 * pf_ci_cov, colour = "Particle filter")) +
+    scale_y_continuous(
+        name = "PICP (%)"
+    )
+
+plot_rmse + plot_mae +
+    plot_mape + plot_ci +
+    guide_area() +
+    plot_layout(
+        guides = "collect",
+        design = "
+            13
+            24
+            55
+        ",
+        heights = c(1, 1, 0.1)
+    )
+
+```
+
+***
+## Particle filter to predict arrival times
+
+* Generally better than GTFS estimate
+* Captures uncertainty during daytime off-peak
+    * difficulty forecasting peak times (model not implemented)
+
+
+
 # Thank you
 
 
