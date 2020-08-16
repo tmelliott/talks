@@ -801,6 +801,11 @@ plot_rmse + plot_mae +
 * Could be used in route selection criteria
     * "I want to travel from A to B, find me the fastest/soonest/less waiting route"
 
+***
+## Particle filter and journey planning events
+
+[[ figure of arrival time CDFs for simple JP ]]
+
 
 # Conclusion
 
