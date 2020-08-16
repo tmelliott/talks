@@ -191,7 +191,6 @@ pp + facet_grid(~route_short_name) +
     # geom_point(aes(stop_lon, stop_lat), data = stops)
 ```
 
-
 ***
 ## 1. GTFS network construction
 

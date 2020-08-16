@@ -11,9 +11,9 @@ jobs:
     runs-on: macOS-latest
     steps:
       - name: Setup timezone
-        uses: zcong1993/setup-timezone@master
+        uses: allenevans/set-env@v1.0.0
         with:
-          timezone: Pacific/Auckland
+          TZ: 'Pacific/Auckland'
       - uses: actions/checkout@v2
         with:
           lfs: true
