@@ -294,6 +294,12 @@ pp +
 * Back-transform
 
 ***
+## 3. Transit network model: results
+
+[[ A picture of travel times with JAGS and KF fits overlaid ]]
+
+
+***
 ## 4. Arrival time prediction
 
 * ETA = travel time + dwell time
