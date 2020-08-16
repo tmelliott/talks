@@ -181,7 +181,7 @@ dbDisconnect(con)
 
 library(ggplot2)
 pp <- ggplot(shapes, aes(shape_pt_lon, shape_pt_lat, colour = route_short_name)) +
-    coord_fixed(ratio = 0.8) +
+    coord_fixed(ratio = 1/0.8) +
     theme_void() +
     theme(legend.position = "bottom") +
     labs(colour = "")
@@ -341,7 +341,7 @@ ggplot(cdf, aes(z, p)) +
     * change of catching bus if I arrive at $a$
     * which bus should I catch to have at least 90% change of on-time arrival
     * probabilty of making transfer between two services
-* Provides probabilities (no binary 'Yes' or 'No')
+* Provides event probabilities (not binary 'Yes' or 'No')
 
 
 # Part III
@@ -439,7 +439,7 @@ state <- h(state, path)
 
 ploop <- ggplot(shapes, aes(shape_pt_lon, shape_pt_lat)) +
     geom_path() +
-    coord_fixed(ratio = 0.8) +
+    coord_fixed(ratio = 1/0.8) +
     theme_void() +
     theme(legend.position = "bottom") +
     labs(colour = "")
@@ -471,7 +471,7 @@ p1 + (p2 / p3 + plot_layout(height = c(2, 1))) + plot_layout(width = c(2, 1))
     \sum_{i=1}^N w_{k-1}^{(i)} \delta_{\boldsymbol{x}_{k-1}^{(i)}} (\boldsymbol{x}_{k-1})
 \]
 
-<small>$N = 100$</small>
+<small>$N = `r N`$</small>
 
 ***
 ## Particle filter in action: predict
@@ -486,7 +486,7 @@ state <- h(state, path)
 
 ploop <- ggplot(shapes, aes(shape_pt_lon, shape_pt_lat)) +
     geom_path() +
-    coord_fixed(ratio = 0.8) +
+    coord_fixed(ratio = 1/0.8) +
     theme_void() +
     theme(legend.position = "bottom") +
     labs(colour = "")
@@ -515,7 +515,7 @@ p1 + (p2 / p3 + plot_layout(height = c(2, 1))) + plot_layout(width = c(2, 1))
     \sum_{i=1}^N w_{k-1}^{(i)} \delta_{\boldsymbol{x}_{k}^{(i)}} (\boldsymbol{x}_{k})
 \]
 
-<small>$x_k^{(i)} = f(x_{k-1}^{(i)}, \Delta_k, \sigma^2)$, $\Delta_k = t_k - t_{k-1} = 60$</small>
+<small>$\boldsymbol{x}_k^{(i)} = f(\boldsymbol{x}_{k-1}^{(i)}, \Delta_k, \sigma^2)$, $\Delta_k = t_k - t_{k-1} = 60$</small>
 
 
 
@@ -644,14 +644,14 @@ p1 + (p2 / p3 + plot_layout(height = c(2, 1))) + plot_layout(width = c(2, 1))
 * Arrival times $\alpha_j$ recorded
 
 \[
-    p(\alpha_j | \boldsymbol{B}_k, \mathcal{T}_{k}) \approx
+    p(\alpha_j | \boldsymbol{\beta}_{\mathcal{T},k}, \mathcal{T}_{k}) \approx
     \sum_{i=1}^N w_{k}^{(i)} \delta_{\alpha_{j}^{(i)}} (\alpha_{j})
 \]
 
 * Sped up using a weighted subsample size $N^\star$
 
 \[
-    p(\alpha_j | \boldsymbol{B}_k, \mathcal{T}_{k}) \approx
+    p(\alpha_j | \boldsymbol{\beta}_{\mathcal{T},k}, \mathcal{T}_{k}) \approx
     \frac{1}{N^\star} \sum_{i=1}^{N^\star} \delta_{\alpha_{j}^{(i)}} (\alpha_{j})
 \]
 
@@ -784,6 +784,31 @@ plot_rmse + plot_mae +
 * Captures uncertainty during daytime off-peak
     * difficulty forecasting peak times (model not implemented)
 
+
+***
+## Particle filter and journey planning events
+
+* Probability bus arrives before/after $t$
+* Transfer probability<br><br>
+* Directly from CDF
+* Could be used in route selection criteria
+    * "I want to travel from A to B, find me the fastest/soonest/less waiting route"
+
+
+# Conclusion
+
+* GTFS network
+    * match observations to physical roads
+* Particle filter
+    * flexible, multimodality, simple likelihood, estimation of road travel times
+* Network state
+    * updated in real-time from travel time estimates, extensible (forecasts)
+* Predictions
+    * real-time network state, dwell times
+* Journey planning
+    * simplified CDF easy to share, calculate event probabilities<br><br>
+* `transitr` R package
+    * future research, deployment
 
 
 # Thank you
