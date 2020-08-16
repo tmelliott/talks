@@ -10,6 +10,10 @@ jobs:
     name: Render Rmd
     runs-on: macOS-latest
     steps:
+      - name: Setup timezone
+        uses: zcong1993/setup-timezone@master
+        with:
+          timezone: Pacific/Auckland
       - uses: actions/checkout@v2
         with:
           lfs: true
