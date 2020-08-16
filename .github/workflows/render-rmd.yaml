@@ -10,10 +10,6 @@ jobs:
     name: Render Rmd
     runs-on: macOS-latest
     steps:
-      - name: Setup timezone
-        uses: allenevans/set-env@v1.0.0
-        with:
-          TZ: 'Pacific/Auckland'
       - uses: actions/checkout@v2
         with:
           lfs: true
@@ -24,6 +20,8 @@ jobs:
       - name: Install rmarkdown and revealjs
         run: cd 2020-08_exam && make install
       - name: Render files
+        env:
+          TZ: 'Pacific/Auckland'
         run: cd 2020-08_exam && make clean && make
       - name: Commit results
         run: |
