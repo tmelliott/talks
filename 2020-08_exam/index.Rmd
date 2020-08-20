@@ -64,8 +64,6 @@ $col2: #094b85
     * *Kalman filter, artificial neural network, support vector machines, ...*
   <br><br>
 * GTFS: *General Transit Feed Specification*
-* decribes *how* to organise and format transit data
-* GTFS-realtime: API specification
 
 
 ***
@@ -78,7 +76,6 @@ $col2: #094b85
     * ANN/SVM (e.g., @Yu_2006, ...)
 * but lots of cool models
     * particle filtering (e.g., @Hans_2015)
-    * other models?
 
 ***
 ## Traffic models
@@ -95,15 +92,14 @@ $col2: #094b85
 ## Arrival time prediction & journey planning
 
 * current position, travel times, dwell times
-* GTFS-realtime default is *schedule + current delay*
+* GTFS default: *schedule + current delay*
 * usually a point estimate "*ETA: 5 mins*"<br><br>
 * JP is hard (@Horn_2004, @Hame_2013a)
 * Simple to complex questions
     * which bus to arrive on time
     * which set of buses to get to destination fastest
     * minimal waiting time between legs
-* Some frameworks, nothing inherent to GTFS (i.e., general)
-    * decisions using probabilitic arrival time information [@Berczi_2017]
+* @Berczi_2017: use of probabilitic arrival time information
 
 
 # Part II
@@ -234,9 +230,7 @@ pp +
 
 * Observations $\boldsymbol{y}_1, \boldsymbol{y}_2, \cdots, \boldsymbol{y}_{k-1}, \boldsymbol{y}_k$
 * Underlying state $\boldsymbol{x}_0, \boldsymbol{x}_1, \cdots, \boldsymbol{x}_{k-2}, \boldsymbol{x}_k$<br><br>
-* Recursive Bayesian estimation
-    * **Predict**: model bus behaviour
-    * **Update**: likelihood of observation (given prediction)
+* Recursive Bayesian estimation: **Predict** and **Update**
 * Estimates distance, speed,
   *average speed along each road segment*
 
@@ -280,40 +274,52 @@ pp +
 * ETA = travel time + dwell time
     * @Shalaby_2004, @Jeong_2005, @Hans_2015
 * Travel times: sum of (distributions) of segment travel times
-* Dwell times: multimodality (dwell can be zero)<br><br>
+    * travel time = distance / speed
+* Dwell times: multimodality (dwell can be zero)
+
+***
+## 4. Arrival time prediction
+
 * Particle filter
     * particles complete route recording arrival times
     * handles dwell time, layovers, etc.
 ```{r,echo=FALSE,fig.width=8,fig.height=3,message=FALSE}
 set.seed(324456)
 x <- data.frame(x = c(rnorm(1000, 5.2*60, 20), rnorm(1000, 6.3*60, 30)))
-ggplot(x, aes(x/60, ..count../sum(..count..))) +
+p_dist <- ggplot(x, aes(x/60, ..count../sum(..count..))) +
     geom_histogram() +
     theme_classic() +
     xlab("ETA (minutes)") + ylab("Probability")
+p_dist
 ```
 
 ***
 ## 5. Journey planning
 
-* Need: a useful summary of $p(\alpha_j|\mathcal{T}_k, \boldsymbol{\beta}_k)$
+* Need a useful summary of $p(\alpha_j|\mathcal{T}_k, \boldsymbol{\beta}_k)$
 * ETAs expected as integer minutes
 * CDF approximation
 \[
     \mathbb{P}(A < a) = \sum_{x=0}^{x=a-1} \mathbb{P}(A \in [x, x+1))
     = \sum_{x=0}^{x=a-1} \left( \frac{1}{N^\star} \sum_{i=1}^{N^\star} I_{\lfloor \alpha^{(i)}/60 \rfloor = x} \right)
 \]
-```{r,echo=FALSE,fig.width=8,fig.height=3,message=FALSE}
+
+***
+
+```{r,echo=FALSE,fig.width=8,fig.height=6,message=FALSE,fig.align="center"}
 x <- x %>% mutate(z = floor(x / 60))
 cdf <- x %>% group_by(z) %>% summarize(n = length(z)) %>% mutate(p = n / sum(n)) %>%
     bind_rows(data.frame(z = min((.)$z) - 1, n = 0, p = 0)) %>%
     bind_rows(data.frame(z = max((.)$z) + 1, n = 0, p = 0)) %>%
     arrange(z) %>%
     mutate(p = cumsum(p))
-ggplot(cdf, aes(z, p)) +
+p_cdf <- ggplot(cdf, aes(z, p)) +
     geom_step() +
     theme_classic() +
     xlab("ETA, a (minutes)") + ylab("P(A < a)")
+
+library(patchwork)
+p_dist / p_cdf
 ```
 
 ***
@@ -334,18 +340,23 @@ ggplot(cdf, aes(z, p)) +
 ***
 ## Why the particle filter?
 
-* Flexible, few assumptions
-* Easy to implement complex vehicle behaviour
-* Intuitive likelihood (distance on the ground; no map-matching)<br><br>
-* Multimodality (bus stops, intersections, loops, ...)
+* Flexible with few assumptions
+* Handles complex vehicle behaviour
+* Intuitive likelihood<br><br>
+* Multimodality
 
 
 ***
 ## Why not the particle filter?
 
 * Computationally intensive
-* ~~Hard to distribute the results~~
+* Hard to distribute the results
 
+***
+## Why not the particle filter?
+
+* Computationally intensive
+* ~~Hard to distribute the results~~
 
 ***
 ## Particle filter in action
@@ -620,7 +631,7 @@ p1 + (p2 / p3 + plot_layout(height = c(2, 1))) + plot_layout(width = c(2, 1))
 ## Particle filter to predict arrival times
 
 * Each particle travels to end of route
-    * travel time (distribution)
+    * average segment speeds (distribution)
     * dwell times and layovers
     * intersections
 * Arrival times $\alpha_j$ recorded
@@ -767,29 +778,14 @@ plot_rmse + plot_mae +
     * difficulty forecasting peak times (model not implemented)
 
 
-***
-## Particle filter and journey planning events
-
-* Probability bus arrives before/after $t$
-* Transfer probability<br><br>
-* Directly from CDF
-* Could be used in route selection criteria
-    * "I want to travel from A to B, find me the fastest/soonest/less waiting route"
-
-***
-## Particle filter and journey planning events
-
-[[ figure of arrival time CDFs for simple JP ]]
-
-
 # Conclusion
 
 * GTFS network
     * match observations to physical roads
 * Particle filter
-    * flexible, multimodality, simple likelihood, estimation of road travel times
+    * flexible, multimodality, simple likelihood, estimation of road speeds
 * Network state
-    * updated in real-time from travel time estimates, extensible (forecasts)
+    * updated in real-time from speed estimates, extensible (forecasts)
 * Predictions
     * real-time network state, dwell times
 * Journey planning
