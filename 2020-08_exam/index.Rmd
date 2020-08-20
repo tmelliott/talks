@@ -269,31 +269,6 @@ pp +
     * Limited to independent segments
 
 ***
-## 3. Transit network model: predict
-
-\[
-\begin{split}
-    \hat\beta_{c|c-1} &= \hat\beta_{c-1|c-1} \\
-    P_{c|c-1} &= P_{c|c-1} + (\Delta_c q)^2
-\end{split}
-\]
-
-***
-## 3. Transit network model: update
-
-* Information matrix, vector \[U = P^{-1}, \quad u = \hat\beta P^{-1}\]
-* Obs. inf. matrix, vector; *include between-vehicle variance*
-  \[I_v = (\phi^2 + e_v^2)^{-1},\quad i_v = b_v (\phi^2 + e_v^2)^{-1}\]
-* Sum everything together
-\[
-    \begin{split}
-    U_{c|c} = U_{c|c-1} + \sum_v I_{v,c} \\
-    u_{c|c} = u_{c|c-1} + \sum_v i_{v,c}
-    \end{split}
-\]
-* Back-transform
-
-***
 ## 3. Transit network model: results
 
 [[ A picture of travel times with JAGS and KF fits overlaid ]]
@@ -306,7 +281,7 @@ pp +
     * @Shalaby_2004, @Jeong_2005, @Hans_2015
 * Travel times: sum of (distributions) of segment travel times
 * Dwell times: multimodality (dwell can be zero)<br><br>
-* Particle filter: simple extension of vehicle model
+* Particle filter
     * particles complete route recording arrival times
     * handles dwell time, layovers, etc.
 ```{r,echo=FALSE,fig.width=8,fig.height=3,message=FALSE}
@@ -831,3 +806,34 @@ plot_rmse + plot_mae +
 
 
 # Appendix
+
+- [Information filter](#information-filter)
+
+
+# Information filter
+
+## Predict
+
+* use standard Kalman filter prediction equations
+
+\[
+\begin{split}
+    \hat\beta_{c|c-1} &= \hat\beta_{c-1|c-1} \\
+    P_{c|c-1} &= P_{c|c-1} + (\Delta_c q)^2
+\end{split}
+\]
+
+***
+## Information fitler: update
+
+* Information matrix, vector \[U = P^{-1}, \quad u = \hat\beta P^{-1}\]
+* Obs. inf. matrix, vector; *include between-vehicle variance*
+  \[I_v = (\phi^2 + e_v^2)^{-1},\quad i_v = b_v (\phi^2 + e_v^2)^{-1}\]
+* Sum everything together
+\[
+    \begin{split}
+    U_{c|c} = U_{c|c-1} + \sum_v I_{v,c} \\
+    u_{c|c} = u_{c|c-1} + \sum_v i_{v,c}
+    \end{split}
+\]
+* Back-transform
