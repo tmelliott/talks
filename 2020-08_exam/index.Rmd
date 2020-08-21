@@ -99,7 +99,7 @@ $col2: #094b85
     * which bus to arrive on time
     * which set of buses to get to destination fastest
     * minimal waiting time between legs
-* @Berczi_2017: use of probabilitic arrival time information
+* @Berczi_2017: use of probabilistic arrival time information
 
 
 # Part II
