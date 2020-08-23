@@ -333,7 +333,7 @@ nwp2 <- kf_fits %>%
 ```
 
 <span style="background:#ff000030;padding:0.5em">
-<span style="color:red">$\hat\beta_\ell$</span> $\pm 1.96\sqrt{P_\ell}$</span> and
+<span style="color:red">$\hat\beta_\ell$</span> $\pm 1.96\sqrt{\vphantom{x^2}P_\ell}$</span> and
 <span style="background:#00000030;padding:0.5em">
 <span style="color:red">$\hat\beta_\ell$</span> $\pm 1.96\sqrt{P_\ell + \phi_\ell^2}$
 </span>
