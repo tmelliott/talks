@@ -130,6 +130,7 @@ library(RSQLite)
 library(dplyr)
 library(dbplyr)
 library(magrittr)
+library(patchwork)
 con <- dbConnect(SQLite(), 'at_gtfs.sqlite')
 routes <- con %>% tbl('routes') %>%
     filter(
@@ -265,7 +266,77 @@ pp +
 ***
 ## 3. Transit network model: results
 
-[[ A picture of travel times with JAGS and KF fits overlaid ]]
+```{r,echo=FALSE,fig.height=5,fig.width=9,out.width="100%",fig.align="center",cache=TRUE,warning=FALSE,message=FALSE}
+load("nwfit.rda")
+x <- lapply(names(all), function(x) assign(x, all[[x]], .GlobalEnv))
+rm(x)
+
+library(ggplot2)
+library(magrittr)
+library(dplyr)
+library(ggtext)
+USE_SEGS <- c(1, 3)
+nwp1 <- betas %>%
+    filter(l %in% USE_SEGS) %>%
+    mutate(l = paste("Segment", l)) %>%
+    ggplot() +
+    geom_point(aes(timestamp, length / travel_time),
+        data = segdat %>% filter(l %in% USE_SEGS) %>% mutate(l = paste("Segment", l)),
+        colour = "black", size = 0.5) +
+    geom_path(aes(t, beta, group = .draw),
+        colour = "red", alpha = 0.5) +
+    facet_wrap(~l, ncol = 2, labeller = function(x) "") +
+    theme_classic() +
+    theme(
+        strip.background = element_blank(),
+        plot.title = element_textbox()
+    ) +
+    ylim(0, 25) +
+    xlab("Time") + ylab("Speed (m/s)")
+
+USE_SEGS <- paste("Segment", USE_SEGS)
+nwp2 <- kf_fits %>%
+    mutate(
+        l = paste("Segment", as.integer(as.factor(segment_id)))
+    ) %>%
+    filter(l %in% USE_SEGS) %>%
+    ggplot(aes(time)) +
+    facet_wrap(~l, ncol = 2, labeller = function(x) "") +
+    geom_point(aes(arrival_time, y = length / travel_time),
+        data = tt_future %>% filter(segment_id %in% sids) %>%
+            mutate(
+                l = paste("Segment", as.integer(as.factor(segment_id)))
+            ) %>% filter(l %in% USE_SEGS),
+        size = 0.5
+    ) +
+    geom_ribbon(aes(
+            ymin = truncnorm::qtruncnorm(0.025, 0, mu, beta, sqrt(P) + phi),
+            ymax = truncnorm::qtruncnorm(0.975, 0, mu, beta, sqrt(P) + phi)
+        ),
+        fill = "black", alpha = 0.2) +
+    geom_ribbon(aes(
+            ymin = truncnorm::qtruncnorm(0.025, 0, mu, beta, sqrt(P)),
+            ymax = truncnorm::qtruncnorm(0.975, 0, mu, beta, sqrt(P))
+        ),
+        fill = "red", alpha = 0.2) +
+    geom_path(aes(y = beta), col = "red") +
+    theme_classic() +
+    theme(
+        strip.background = element_blank(),
+        plot.title = element_textbox()
+    ) +
+    ylim(0, 25) +
+    xlab("Time") + ylab("Speed (m/s)")
+
+(nwp1 + ggtitle("JAGS fitted to August 13")) /
+ (nwp2 + ggtitle("KF fitted to August 20"))
+```
+
+<span style="background:#ff000030;padding:0.5em">
+<span style="color:red">$\mu$</span> $\pm 1.96\sqrt{P}$</span> and
+<span style="background:#00000030;padding:0.5em">
+<span style="color:red">$\mu$</span> $\pm 1.96\sqrt{P + \phi_\ell^2}$
+</span>
 
 
 ***
@@ -318,7 +389,6 @@ p_cdf <- ggplot(cdf, aes(z, p)) +
     theme_classic() +
     xlab("ETA, a (minutes)") + ylab("P(A < a)")
 
-library(patchwork)
 p_dist / p_cdf
 ```
 
@@ -398,7 +468,6 @@ stops <- con %>% tbl('stop_times') %>%
 dbDisconnect(con)
 
 library(geosphere)
-library(patchwork)
 shapes <- shapes %>%
     mutate(
         dist = distGeo(cbind(shape_pt_lon, shape_pt_lat)),
