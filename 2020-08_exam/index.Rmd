@@ -367,7 +367,7 @@ p_dist
 ***
 ## 5. Journey planning
 
-* Need a useful summary of $p(\alpha_j|\mathcal{T}_k, \boldsymbol{\beta}_k)$
+* Need a useful summary of $p(\alpha_j|\boldsymbol{x}_k, \boldsymbol{\beta}_k)$
 * ETAs expected as integer minutes
 * CDF approximation
 \[
@@ -706,14 +706,14 @@ p1 + (p2 / p3 + plot_layout(height = c(2, 1))) + plot_layout(width = c(2, 1))
 * Arrival times $\alpha_j$ recorded
 
 \[
-    p(\alpha_j | \boldsymbol{\beta}_{\mathcal{T},k}, \mathcal{T}_{k}) \approx
+    p(\alpha_j | \boldsymbol{\beta}_{k}, \boldsymbol{x}_{k}) \approx
     \sum_{i=1}^N w_{k}^{(i)} \delta_{\alpha_{j}^{(i)}} (\alpha_{j})
 \]
 
 * Sped up using a weighted subsample size $N^\star$
 
 \[
-    p(\alpha_j | \boldsymbol{\beta}_{\mathcal{T},k}, \mathcal{T}_{k}) \approx
+    p(\alpha_j | \boldsymbol{\beta}_{k}, \boldsymbol{x}_{k}) \approx
     \frac{1}{N^\star} \sum_{i=1}^{N^\star} \delta_{\alpha_{j}^{(i)}} (\alpha_{j})
 \]
 
