@@ -872,8 +872,17 @@ plot_rmse + plot_mae +
 
 # Appendix
 
+- [GPS error distribution](#gps-error-distribution)
 - [Information filter](#information-filter)
+- [PF journey planning](#particle-filter-journey-planning)
 
+# GPS error distribution
+
+Observed shortest distance between $\boldsymbol{y}_k$ and the shape path $\mathcal{P}$.
+
+<center>
+![GPS error distribution](gps-error.jpg)
+</center>
 
 # Information filter
 
@@ -902,3 +911,15 @@ plot_rmse + plot_mae +
     \end{split}
 \]
 * Back-transform
+
+# Particle filter journey planning
+
+
+<center>
+![Probability of capture/on-time-arrival](pf_results_1.png)
+</center>
+
+# Particle filter journey planning
+<center>
+<img src="pf_results_2.png" width="50%">
+</center>
