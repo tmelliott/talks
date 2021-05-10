@@ -1,0 +1,5 @@
+Title: iNZight, Surveys, and the IDI
+Speaker: Tom Elliott
+Affiliation: Victoria University of Wellington
+
+iNZight was originally designed to teach students core data analysis skills without the need for coding. However, it is also a powerful research development tool, allowing researchers low on time, money, or both to quickly obtain simple (or advanced) statistics without having to learn to code or pay an expensive programmer/statistician to do the work for them. iNZight now handles survey designs natively (without even needing to specify the design!?) into all graphs, summaries, data wrangling, and modelling. iNZight also now features an add-on system, providing a simple way of extending the existing UI to unique problems, for example Bayesian small area demography. In this talk, I'll be discussing recent modifications and additions to iNZight, plus some other work I've been doing as a member of Te Rourou Tātaritanga (https://terourou.org), an MBIE-funded data science research group aiming to improve New Zealand's data infrastructure.
