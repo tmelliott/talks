@@ -3,3 +3,94 @@ Speaker: Tom Elliott
 Affiliation: Victoria University of Wellington
 
 iNZight was originally designed to teach students core data analysis skills without the need for coding. However, it is also a powerful research development tool, allowing researchers low on time, money, or both to quickly obtain simple (or advanced) statistics without having to learn to code or pay an expensive programmer/statistician to do the work for them. iNZight now handles survey designs natively (without even needing to specify the design!?) into all graphs, summaries, data wrangling, and modelling. iNZight also now features an add-on system, providing a simple way of extending the existing UI to unique problems, for example Bayesian small area demography. In this talk, I'll be discussing recent modifications and additions to iNZight, plus some other work I've been doing as a member of Te Rourou Tātaritanga (https://terourou.org), an MBIE-funded data science research group aiming to improve New Zealand's data infrastructure.
+
+
+~ Outline
+
+Updates
+- submitted my thesis during 1st L4, defended during second L4! - graduating tomorrow
+-> TL;DR predicting buses is hard
+-> point estimates are *very* hard/impossible
+-> BUT interval estimates are 'reliable' (pretty accurate % coverage), might be useful for 'probabilistic journey planning' (but I'll leave that for someone else)
+- Postdoc at VUW - MBIE Endeavour grant with Colin Simpson (VUW), Barry Milne (COMPASS), Andrew Sporle (here/iNZight Analytics)
+-> details later!
+- Honorary position here (thanks James) so I didn't have to move to Wgtn (no offence) - sorry for confusing everyone!!
+
+iNZight
+- my 'side-project' since 2013/14
+- recent focus (1-2 years) on surveys, recently completely refactored to handle surveys 'natively'
+- evolving with a shift in usage
+-> pre 2015 - an education tool
+-> 2015-2019ish - education primary, but cropping up in unexpected places around the world after our FutureLearn course
+-> recent focus on "democratisation" of data (Chris Wild's #1 rock hit "We Will Plot You").
+-> Andrew Sporle praising it as a "rapid research development tool" for *a bunch of groups* (low money/time/both)
+- surveys is a big part of this (phew!) especially removing as many barriers as possible
+-> cue survey design specification!!
+
+Surveys
+- remembering survey designs/having to specify (esp. replicate weight designs) is hard/annoying
+- making surveys accessible means removing barriers - we've removed most of them with iNZight
+-> 1. download a ZIP containing data + survey spec file (details later) - unzip
+-> 2. load iNZight - import survey spec file
+-> 3. use iNZight as normal (this is a survey? who knew!)
+-> plots/summaries/data wrangling/modelling all use survey methods behind the scenes - output says "this is a survey design, btw"
+- the survey spec:
+-> YAML / TOML (I can't remember which lol)
+-> essentially just the arguments to `survey::svydesign()` / `survey::svrepdesign()`
+-> including a 'data'/'file' argument giving the (relative) path for the data
+-> iNZight parses the file and creates a survey spec object, loads the data, creates design - ta da!
+- functions within iNZight modified to handle survey designs
+-> cue "Here's how iNZight works"
+
+Aside: iNZight's Packages
+- the 'iNZight' package is (more and more) *just* about the GUI - no 'data logic'
+- e.g., that survey-import-magic is actually a function within 'iNZightTools' (`iNZightTools::import_survey()`)
+- which is actually called by the main function doing all the work `iNZightTools::smart_read()` I never claimed to be good at naming things
+-> uses extension (e.g., .txt, .csv, .xlsx, .7bdat, .svydesign, ...) to use the appropriate external import method so you don't have to remember (readxl::read_excel, haven::read_spss, ...)
+- all the packages use similar ideas
+- major idea: code writing!
+-> e.g., smart_read('file.txt') #-> readr::read_delim('file.txt')
+-> e.g., filterNumeric(data, height, '<', 150) #-> data %>% dplyr::filter(height < 150)
+-> the first form is easier for the GUI - it just takes user inputs and maps to single function arguments
+-> the 'iNZightTools' wrapper puts fn call together and evaluates it
+
+Back to iNZight Surveys
+- previously all the `iNZightTools::*` methods accepted a data argument
+- now they accept data *which can also be a survey*
+- if it's a survey, I use the 'srvyr' package to do the same stuff ...
+-> e.g., filterNumeric(des, height, '<', 150) #-> srvyr::as_survey_design(des) %>% dplyr::filter(height < 150)
+-> returns a filtered survey design (using methods from 'survey', e.g., `subset()`)
+- code is included
+- so you can import a survey, play with it, wrangle it, etc., and end up with an R script tracking everything you did - which you can then run in R, edit/modify/share etc.
+- Future Work (Idea): writing a 'history' that iNZight can read (so you can import/reproduce a session within iNZight)
+
+How does this relate to my job?
+- Te Rourou Tātaritanga -> 'Analytics basket'
+- [Māori sharing quote] -> sharing for the good of the community
+- or "Informatics for Social Services and Wellbeing"
+- MBIE funded research project with aims to
+-> improve data standards
+-> promote Māori data sovereignty (e.g., access/use of data about themselves -> iNZight as a front-end)
+-> develop systems to support access (iNZight [in the data lab?] to remove major coding requirements for access to data)
+-> evaluate synthesising of datasets
+-> security and privicy implications
+-> machine learning and AI methods
+- WIP: adding iNZight to the data lab as a tool for researchers
+-> at first, small confined datasets: primary researcher can extract data from SQL database, then let other researchers explore it, fit models, etc etc
+- outside of the datalab, survey analysis for research groups
+- Iwi, Pacific nations - a need for doing simple (and advanced) population/demographic statistics
+-> iNZight makes it easy for any with no time/money to train/pay a statistician
+-> often only do things once a year/2 years! so easy to forget coding skills
+- for those with more complex needs, e.g., demographic modelling
+-> calculating life expectancy for a small subpopulation, for example
+-> John Bryant's 'dembase', 'demest' packages for fitting hierarchical demographic Bayesian models
+-> require coding (can get a little complicated too)
+-> great opportunity to try out iNZight's recently added 'add on' system!
+-> DEMO!!
+
+Other projects
+- IDI search app
+-> often researchers don't know what's in the IDI and have to try and writing research proposals
+-> put together a searchable database to find what's available and allows buildling a research Q
+-> DEMO!!
+-
