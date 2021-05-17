@@ -1,7 +1,7 @@
 ---
 title: "iNZight, Surveys, and the IDI"
 author: Tom Elliott
-date: "Department of Statistics Seminar<br>2 June, 2021"
+date: "Te Rourou Tātaritanga<br>Victoria University of Wellington<br><br>tomelliott.co.nz"
 output:
     revealjs::revealjs_presentation:
         theme: night
@@ -33,7 +33,7 @@ $col2: #094b85
 
     section
         .title
-            margin-bottom: 4em;
+            margin: 2em;
 
         img.logo
             border: none
@@ -67,6 +67,13 @@ $col2: #094b85
 
         ul>li>span
             color: $col1
+
+        h1 img
+            background: none !important
+            border: none !important
+            box-shadow: none !important
+            height: 2em;
+
 /***/
 ```
 
@@ -74,6 +81,40 @@ $col2: #094b85
 ricon <- "<i class=\"fab fa-r-project\"></i>"
 ricon <- "<img src=\"assets/images/Rlogo.svg\" class=\"logo\" >"
 ```
+
+#
+
+## PhD thesis
+
+* submitted April (during L4)
+* defended August (during L4)
+* graduation tomorrow!
+
+#
+
+## PhD thesis (TL;DR)
+
+* predicting buses is hard
+* using real-time traffic data from other buses doesn't help **point estimates** much ...
+* ... but **interval estimates** are actually reliable!
+* quantities like "Pr(catch bus | arrive at)"
+* useful for probabilistic journey planning
+
+If you're interested ... https://tomelliott.co.nz/phd
+
+#
+
+## Postdoc @ VUW @ UoA
+
+* MBIE Endeavour grant
+    * Colin Simpson (VUW), Barry Milne (COMPASS), Andrew Sporle
+    * Informatics for Social Services and Wellbeing ...
+    * more later!
+
+* Honorary position here (thanks James)
+
+# ![iNZight](assets/images/inzight_logo.png)
+
 
 
 #
@@ -90,55 +131,36 @@ iNZight()
 
 #
 
-<ul class="fa-ul">
-<li>
-<span class="fa-li"><i class="fas fa-check-circle"></i></span>
-`r ricon` package!
-</li>
-<li class="fragment">
-<span class="fa-li"><i class="fas fa-check-circle"></i></span>
-GUI for __visually exploring__ data
-</li>
-<li class="fragment">
-<span class="fa-li"><i class="fas fa-check-circle"></i></span>
-__easy-to-learn__ tool for students/beginners ...
-</li>
-<li class="fragment">
-<span class="fa-li"><i class="fas fa-check-circle"></i></span>
-... but also non-beginners!
-</li>
-</ul>
+* my side-project since 2013/14
 
-#
+* shifting focus as audience has evolved
 
-<img src="assets/images/alberto1.png" width="60%">
-<img src="assets/images/alberto2.png" width="60%">
+    * pre 2015: school/some university
 
+    * 2015--2019: education (school/university/FutureLearn), and cropping up in unexpected places (around the world)
 
-#
+    * recently:
 
-<ul class="fa-ul">
-<li>
-<span class="fa-li"><i class="fas fa-check-circle"></i></span>
-`r ricon` package!
-</li>
-<li>
-<span class="fa-li"><i class="fas fa-check-circle"></i></span>
-GUI for __visually exploring__ data
-</li>
-<li>
-<span class="fa-li"><i class="fas fa-check-circle"></i></span>
-__easy-to-learn__ tool for students/beginners ...
-</li>
-<li>
-<span class="fa-li"><i class="fas fa-check-circle"></i></span>
-... but also non-beginners!
-</li>
-<li>
-<span class="fa-li"><i class="fas fa-check-circle"></i></span>
-bridge between __GUI__ and __coding__
-</li>
-</ul>
+        * **Democratisation**
+
+          See Chris Wild's talks featuring hits like *We Will Plot You*)
+
+        * **rapid research development tools**
+
+          (Andrew Sporle) for organisations with low money/time/both
+
+***
+
+* recent focus on surveys --- now handled natively!
+
+    * plots
+    * summaries (tables of counts)
+    * inference / modelling
+    * data wrangling ...
+
+* key goal is **removal of barriers**
+
+# Surveys and iNZight
 
 #
 
@@ -185,7 +207,7 @@ Explore
 <div class="fragment" data-fragment-index="3">
 <i class="fa fa-arrow-alt-circle-down"></i>
 
-Save `r ricon` script
+Save output / `r ricon` script
 </div>
 </div>
 
@@ -210,112 +232,46 @@ Save `r ricon` script
 </div>
 </div>
 
-
-
-# Part II
-## The __development__ of iNZight
-
 #
 
-
-<div class="dual-panel dual-top">
-<div class="left-panel">
-<i class="fas fa-brain"></i> Chris Wild
-<img src="assets/images/chris_wild.png">
-</div>
-
-<div class="left-panel fragment">
-<i class="fas fa-university"></i> UoA statistics students
-<img src="assets/images/inzight_team.png">
-</div>
-</div>
+## What if `data` is from a survey?
 
 
 #
 
+In R
 
-```{css,echo=FALSE}
-.space {
-    padding-left: 20px;
-    padding-right: 20px;
-}
-.reveal section .footnotes {
-    margin-top: 200px;
-    font-size: 0.8em;
-}
-```
+```r
+some_data <- read.csv('path/to/data')
 
-<div style="height:100px"></div>
-`r ricon`
-<i class="space fas fa-arrows-alt-h"></i> `gWidgets2` + `gWidgets2RGtk2`^&dagger;^
-<i class="space fas fa-arrows-alt-h"></i> `RGtk2`^&ddagger;^
-<i class="space fas fa-arrows-alt-h"></i> GTK
+some_svy <- survey::svydesign(~something,
+    weights = ~FXWT3, # or another variable with 'WT' in it ...
+    strata = ~does_it_have_any,
+    fpc = ~i_dont_know_what_this_means
+)
 
-<div class="footnotes">
-&dagger; John Verzani<span style="margin-right: 50px"></span>
-&ddagger; Michael Lawrence
-</div>
-
-#
-
-<p style="text-align:left">Started off __small__ ...</p>
-
-<ul class="fa-ul">
-<li class="fragment">
-<span class="fa-li"><i class="fas fa-plus-circle"></i></span>
-a __feature__ here ...
-</li>
-<li class="fragment">
-<span class="fa-li"><i class="fas fa-plus-circle"></i></span>
-a __module__ there ...
-</li>
-</ul>
-
-<p class="fragment" style="text-align:right">
-... et voil&agrave;: a __rewrite__ was needed!
-</p>
-
-```{sass,echo=FALSE}
-.reveal section ul.list2
-    text-align: left
-    width: 100%
-    margin-top: 50px
 ```
 
 #
 
-## What makes Version 2+ __better__?
+iNZight isn't much better ... <span class="fragment"><strong>or is it?!</strong></span>
 
-<ul class="list2 fa-ul">
-<li class="fragment">
-<span class="fa-li"><i class="fas fa-terminal"></i></span>
-Object Oriented Programming (OOP)
-</li>
-<li class="fragment">
-<span class="fa-li"><i class="fas fa-terminal"></i></span>
-Separability
-</li>
-<li class="fragment">
-<span class="fa-li"><i class="fas fa-terminal"></i></span>
-Reactivity
-</li>
-<li class="fragment">
-<span class="fa-li"><i class="fas fa-terminal"></i></span>
-Extensibility
-</li>
-</ul>
+![Specify survey design](assets/images/inzight_import_survey.png)
 
+(Remember survey variables *never* have nice names)
 
-# Object Oriented Programming
-
-<ul class="fa-ul">
-<li class="fragment code">
-<span class="fa-li"><i class="fas fa-code"></i></span>
-each __component__ of the UI is represented by a __class__
-</li>
-</ul>
 
 #
+
+## mysurvey.zip
+
+* mysurvey.csv
+* mysyrvey.svydesign
+
+
+#
+
+## Demo
 
 <img src="assets/images/inzight_main_window.png"
     alt="iNZight main window"
@@ -324,397 +280,254 @@ each __component__ of the UI is represented by a __class__
 
 #
 
-<img src="assets/images/inzight_main_window_widgets.png"
-    alt="iNZight main window"
-    width="80%"
-    >
+## mysurvey.svydesign
 
-# Object Oriented Programming
+```
+data = "mysurvey.csv"
+weights = "wt0"
+repweights = "^w[0-4]"
+reptype = "JK1"
+```
 
-<ul class="fa-ul">
-<li class=" code">
-<span class="fa-li"><i class="fas fa-code"></i></span>
-each __component__ of the UI is represented by a __class__
-</li>
-<li class="fragment code separate">
-<span class="fa-li"><i class="fas fa-code"></i></span>
-classes have __properties__ ("fields") and __methods__
-</li>
+* User doesn't have to know about the underlying survey design
 
-<li class="fragment">
-<span class="fa-li"><i class="fab fa-r-project"></i></span>
-Reference Classes (RC) and R6
-</li>
-</ul>
+* Researchers can quickly open and explore a (survey) data set
 
+* Everything is taken care of
+
+    * plots (dotplots become histograms, scatter plots become bubble plots or hexbin plots)
+
+    * summary tables give population counts (plus errors)
+
+    * data wrangling functions use the correct methods
+
+      e.g., `survey::subset()` for filtering
+
+
+# (A few) Details
+## iNZight's R package collection
 
 #
 
-```{css,echo=FALSE}
-.reveal section code {
-    max-height: none;
-}
+* iNZight is not just a single R package
+
+* collection of 9+ 'iNZight*' packages with specific tasks
+
+    * 'iNZightPlots' makes graphs
+
+    * 'iNZightTools' provides a suite of utility functions (data wrangling)
+
+* main GUI package **provides interface** and **collects user inputs** (and displays results)
+
+* **wrapper functions** make programming GUIs much easier --- just a case of mapping inputs to arguments
+
+* ... and allow us to return the behind-the-scenes R code!
+
+
+***
+## An example: Filtering data
+
+
+```{r}
+library(iNZightTools)
+iris_filtered <- filterNumeric(iris, "Sepal.Width", "<", 100)
+head(iris_filtered)
+code(iris_filtered)
 ```
 
-```r
-LoadDataWindow <- setRefClass("LoadDataWindow",
-    fields = list(
-        filename = "character"
-    ),
-    methods = list(
-        initialize = function(...) {
-            w <- gwindow("Load data")
-            g <- ggroup(horizontal = FALSE, container = w)
 
-            # Get filename from user
-            fileedit <- gedit(container = g)
+***
 
-            # Load data
-            loadbtn <- gbutton("Load", container = g)
+* recent work involved modifying wrapper functions to handle surveys
 
-            addHandlerKeystroke(fileedit,
-                handler = function(h, ...) {
-                    filename <<- svalue(h$obj)
-                }
-            )
+* the GUI just needs to pass around a 'data-thing' (either data or survey)
 
-            addHandlerClicked(loadbtn, function(h, ...) loadData())
-        },
-        loadData = function() {
-            data <- read.csv(filename)
-        }
-    )
+```{r,message=F,warning=F}
+library(survey)
+data(api, package = "survey")
+dclus2 <- svydesign(id = ~dnum+snum,
+    fpc = ~fpc1+fpc2,
+    data = apiclus2
 )
+dclus2_filtered <- filterNumeric(dclus2, "api99", ">=", 700)
+code(dclus2_filtered)
 ```
 
-```{sass,echo=FALSE}
-.reveal section .loadwindow
-    position: fixed
-    top: 50%
-    left: 50%
-    transform: translate(-50%, -50%)
-    border: none
-    background: none
-```
+**Big thanks to the 'srvyr' package!**
 
 
-<img src="assets/images/load_window_01.png"
-    alt="Demo Load Window"
-    width="40%"
-    class="loadwindow fragment"
-    >
+# Te Rourou Tātaritanga
+
+How does this all relate to my postdoc?
+
+***
+
+**Rourou** = basket
+
+   *Nā tō rourou, nā taku rourou, ka ora ai te iwi.*
+
+   (With your food basket and my food basket the people will thrive.)
+
+**Tātaritanga** = analysis
 
 
-# Separability
+"Tools for analytics and sharing data for the betterment of communities."
 
-<ul class="fa-ul">
-<li class="fragment">
-<span class="fa-li"><i class="fas fa-code"></i></span>
-keep UI and data logic separate
-</li>
-<li class="fragment">
-<span class="fa-li"><i class="fas fa-code"></i></span>
-Desktop and Shiny versions use the same data logic
-</li>
-<li class="fragment">
-<span class="fa-li"><i class="fas fa-code"></i></span>
-UI inputs control arguments to a __single function__
-</li>
-<li class="fragment">
-<span class="fa-li"><i class="fas fa-code"></i></span>
-existing or new __wrapper__ for another __package__
-</li>
-</ul>
+<hr>
 
-#
-
-```r
-LoadDataWindow <- setRefClass("LoadDataWindow",
-    fields = list(
-        filename = "character"
-    ),
-    methods = list(
-        initialize = function() { ... },
-        loadData = function() {
-            data <- read.csv(filename)
-        }
-    )
-)
-```
-
-#
-
-```r
-LoadDataWindow <- setRefClass("LoadDataWindow",
-    fields = list(
-        filename = "character",
-        filetype = "character",
-        delimiter = "character", # csv can use , or ;
-        ...
-    ),
-    methods = list(
-        initialize = function(...),
-        loadData = function() {
-            if (filetype == "csv") {
-                data <- read.csv(filename, delimiter = delimiter, ...)
-            } else if (filetype == "excel") {
-                data <- readxl::read_xls(filename, ...)
-            } else ...
-        }
-    )
-)
-```
-
-#
-
-```r
-LoadDataWindow <- setRefClass("LoadDataWindow",
-    fields = list(
-        filename = "character",
-        filetype = "character",
-        delimiter = "character", # csv can use , or ;
-        ...
-    ),
-    methods = list(
-        initialize = function(...),
-        loadData = function() {
-            data <- iNZightTools::smart_read(filename,
-                filetype = filetype,
-                delim = delimiter,
-                ...
-            )
-        }
-    )
-)
-```
-
-#
-
-```r
-LoadDataWindow <- setRefClass("LoadDataWindow",
-    fields = list(
-        filename = "character",
-        filetype = "character",
-        delimiter = "character", # csv can use , or ;
-        ...
-    ),
-    methods = list(
-        initialize(...),
-        loadData = function() {
-            data <- iNZightTools::smart_read(filename,
-                filetype = filetype,
-                delim = delimiter,
-                ...
-            )
-            cat(iNZightTools::code(data), file = "script.R")
-        }
-    )
-)
-```
-
-```{r,eval=FALSE}
-# script.R
-data <- readr::read_csv("data.csv", delim = ";", comment = "#")
-```
-
-#
-
-```r
-LoadDataWindow <- setRefClass("LoadDataWindow",
-    fields = list(
-        filename = "character",
-        filetype = "character",
-        delimiter = "character", # csv can use , or ;
-        ...
-    ),
-    methods = list(
-        initialize(...),
-        loadData = function() {
-            data <- iNZightTools::smart_read(filename,
-                filetype = filetype,
-                delim = delimiter,
-                ...
-            )
-            cat(iNZightTools::code(data), file = "script.R")
-        }
-    )
-)
-```
-
-```{r,eval=FALSE}
-# script.R
-data <- readxl::read_excel("data.xlsx")
-```
-
-# Reactivity
-
-<ul class="fa-ul">
-<li class="fragment">
-<span class="fa-li"><i class="fas fa-code"></i></span>
-<strong>Instant</strong> feedback
-</li>
-<li class="fragment">
-<span class="fa-li"><i class="fas fa-code"></i></span>
-Makes <strong>exploring</strong> data <strong>faster and easier</strong>
-</li>
-<li class="fragment">
-<span class="fa-li"><i class="fas fa-code"></i></span>
-Widget <strong>handlers</strong><br>
-_Change, keystroke, click, mouseover, focus, ..._
-</li>
-</ul>
-
-#
-
-```{r,eval=FALSE}
-Demo <- setRefClass("Demo",
-    field = list(
-        data = "data.frame",
-        colour = "character"
-    ),
-    methods = list(
-        initialize = function() {
-            w <- gwindow("Demo")
-            g <- ggroup(horizontal = FALSE, container = w)
-            col <- gcombobox(
-                c("Orangered", "Goldenrod", "Steelblue"),
-                container = g,
-                handler = function(h, ...) {
-                    colour <<- svalue(h$obj)
-                    draw()
-                }
-            )
-
-            data <<- data.frame(x = rnorm(100), y = rnorm(100))
-            colour <<- "Orangered"
-
-            draw()
-        },
-        draw = function() {
-            plot(y ~ x,
-                data = data,
-                col = colour
-            )
-        }
-    )
-)
-```
-
-# Extensibility
-
-```{sass,echo=FALSE}
-.reveal section ul>li.separate
-    margin-bottom: 1em
-```
-
-<ul class="fa-ul">
-<li class="fragment">
-<span class="fa-li"><i class="fas fa-code"></i></span>
-<strong>Foresight</strong> and <strong>planning</strong>
-</li>
-<li class="fragment">
-<span class="fa-li"><i class="fas fa-code"></i></span>
-Add <strong>new</strong> or change <strong>existing</strong> features ...
-</li>
-<li class="fragment separate">
-<span class="fa-li"><i class=""></i></span>
-... without rewriting everything!
-</li>
-<li class="fragment">
-<span class="fa-li"><i class="fas fa-code"></i></span>
-<strong>OOP:</strong> add new classes, inheritance, ...
-</li>
-<li class="fragment separate">
-<span class="fa-li"><i class="fas fa-code"></i></span>
-<strong>Separability:</strong> new field = new argument<br>everything else unchanged
-</li>
-
-<li class="fragment">
-<span class="fa-li"><i class="fas fa-code"></i></span>
-In progress: a system for adding __completely new__ modules
-</li>
-</ul>
-
-#
-
-```r
-# DemoModule.R
-DemoModule <- setRefClass(
-    "Demo Module",
-    contains = "CustomModule",
-    fields = list(
-        GUI = "ANY",
-        ...
-    ),
-    methods = list(
-        initialize = function(gui, name) {
-            callSuper(gui,
-                name = name,
-                embedded = TRUE
-            )
-            ...
-        },
-        ...
-    )
-)
-```
-
-#
-
-<div style="text-align:left;">
-`path/to/iNZightVIT/modules`
-
-<ul class="fa-ul">
-<li>
-<span class="fa-li"><i class="fas fa-plus-circle"></i></span>
-`DemoModule.R`
-</li>
-</ul>
-</div>
-
-<img src="assets/images/inzight_demo_menu.png"
-    alt="iNZight main window"
-    width="80%"
-    >
-
-#
+Or: "Informatics for Social Services and Wellbeing"
 
 
-<div style="text-align:left;">
-`path/to/iNZightVIT/modules`
+***
 
-<ul class="fa-ul">
-<li>
-<span class="fa-li"><i class="fas fa-plus-circle"></i></span>
-`DemoModule.R`
-</li>
-</ul>
-</div>
+## Primary goals
 
-<img src="assets/images/inzight_demo_module.png"
-    alt="iNZight main window"
-    width="80%"
-    >
+1. Improve data standards
+
+2. Promote Māori data sovereignty
+
+3. Develop systems to support access
+
+4. Evaluate synthesising of datasets
+
+5. Security and privacy implications
+
+6. Machine learning and AI methods
+
+https://terourou.org
+
+***
+
+## Primary goals
+
+1. **Improve data standards**
+
+2. **Promote Māori data sovereignty**
+
+3. **Develop systems to support access**
+
+4. Evaluate synthesising of datasets
+
+5. Security and privacy implications
+
+6. Machine learning and AI methods
+
+https://terourou.org
+
+
+***
+## The Integrated Data Infrastructure (IDI)
+
+* database connecting data across NZs sectors
+
+* high security environment
+
+* but also other unnecessary barriers: **coding**!
+
+***
+## iNZight to the rescue!
+
+* many upcoming researchers will have used iNZight at high school or university
+
+* no need to learn to code, OR remember how to do things you haven't done in 2 years
+
+* currently working on deploying a demo of iNZight in the Stats NZ data lab --- watch this space!
+
+    * intial goal: confine to small datasets
+    * primary researcher can prepare using SQL to select/join data
+    * other researchers (without great coding skills) can easily explore the data --- graphs, tables, models!
+    * offers a restricted set of methods which can help prevent novices from running really-big-queries and causing havoc on the servers
+    * and build from there!
+
+***
+## Outside the data lab
+
+* lots of data outside the datalab
+
+* many iwi groups, pacific nations, etc. have specific needs for simple (to complex) population summaries/demographic outputs
+
+* iNZight means they can do it every 1--2 years without needing to train/retrain/pay expensive statisticians
+
+* iNZight also produces code: generate script to re-run/edit as necessary (without having to do all the hard stuff first)
+
+***
+## Bayesian demography
+
+* why limit yourself to tables when you can fit hierarchical Bayesian models with model-specific priors, likelihoods, ... ?
+
+* John Bryant has a set of R packages (dembase, demest, ...) for doing Bayesian demography
+
+* using them is a bit of a challenge (especially if you don't do much R coding!)
+
+* so we tested out iNZight's new add-on system ...
+
+***
+## DEMO
+
+
+# Other projects
+
+Both work and 'fun'
+
+***
+## IDI Search App
+
+* to get access to the IDI, you need to put together a research proposal
+
+* putting together a research proposal requires knowing what data is available to investigate
+
+* that data is hidden away in the IDI
+
+***
+
+## IDI Search app
+
+* we put together a simple web app providing a searchable database so prospective (and current) IDI researchers can explore what's available
+
+* build using ReactJS
+
+***
+## DEMO
+
+https://idi-search.web.app/
+
+***
+## Bus display v2
+
+* the display in 302 was broken
+
+* so I rebuilt it again, this time using ReactJS + d3
+
+* simpler than the last version (no 'history' as it just uses real-time data, no backing server)
+
+***
+## DEMO
+
+https://tomelliott.co.nz/bus-display/
+
+***
+## Lots of ReactJS ...
+
+* it's my goal to, one day, put together a prototype of a new version of iNZight using ReactJS and R-serve
+
+* one version that runs on Windows / macOS / Linux / web
+
+* plus capability of having a local R server, remote R server - firewall, etc.
+
+***
+## NO DEMO
+
+
+
 
 
 # Thank you
 
 
+Github: tmelliott | iNZightVIT | terourou
 
-<div class='social-links'>
-<div class='left'>
-<p><strong>tmelliott</strong></p>
-<p><strong>@tomelliottnz</strong></p>
-</div>
-<div class='middle'>
-<p><i class='fab fa-github'></i></p>
-<p><i class='fab fa-twitter'></i></p>
-</div>
-<div class='right'>
-<p><strong>iNZightVIT</strong></p>
-<p><strong>@iNZightUoA</strong></p>
-</div>
-</div>
+Twitter: @tomelliottnz | @iNZightUoA | @terourou
 
-<div style="margin-bottom:3em"></div>
-### Slides: __bit.ly/iNZightSatRday__
+tomelliott.co.nz | inzight.nz | terourou.org
+
+# References
