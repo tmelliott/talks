@@ -93,4 +93,9 @@ Other projects
 -> often researchers don't know what's in the IDI and have to try and writing research proposals
 -> put together a searchable database to find what's available and allows buildling a research Q
 -> DEMO!!
--
+-> ReactJS
+- Updated bus display (weekend project ... )
+-> learning ReactJS + d3 (+ mapbox)
+-> in fact, ReactJS can almost make d3 redundant!
+-> All preparation for putting together a new inzight prototype ......?
+- Working on new iNZight website (documentation-style!)
