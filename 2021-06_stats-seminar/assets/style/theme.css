@@ -1,9 +1,11 @@
 @import "../fontawesome/css/all.css";
-@import url('https://fonts.googleapis.com/css2?family=Farro&family=Poppins&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Farro:wght@400;700&family=Poppins:ital,wght@0,400;0,700;1,400&Fira+Code:wght@400;600&display=swap');
 
 :root {
     --light-blue: #18afe3;
+    --light-blue2: #0b97c8;
     --dark-blue: #094b85;
+    --red: #bd4112;
 }
 
 body {
@@ -12,6 +14,7 @@ body {
 
 .reveal {
     font-size: 30px;
+    font-family: "Poppins";
 }
 
 .reveal h1,
@@ -42,11 +45,24 @@ body {
 .reveal ul {
     list-style-type: disclosure-closed;
 }
+.reveal ul li::marker {
+    color: #797979;
+}
+.reveal .fa-ul {
+    list-style-type: none;
+}
+.reveal ul.loose li {
+    margin: 20px 0;
+}
 .reveal ul ul {
     list-style-type: disc;
 }
 .reveal ul ul ul {
     list-style-type: square;
+}
+
+.reveal a {
+    color: var(--red);
 }
 
 
@@ -57,6 +73,19 @@ body {
 .reveal pre code {
     padding: 10px;
     background: white;
+}
+.reveal code {
+    font-family: "Fira Code";
+}
+
+code span.kw {
+    color: var(--light-blue2);
+}
+code span.dt {
+    color: var(--dark-blue);
+}
+code span.st {
+    color: var(--red);
 }
 
 .reveal strong {
@@ -74,6 +103,10 @@ body {
     height: 2em;
 }
 
+.reveal section img {
+    box-shadow: none;
+}
+
 
 .reveal section .dual-panel {
     display: flex;
@@ -84,7 +117,7 @@ body {
 }
 
 .reveal section .dual-panel .left-panel {
-    flex: 1;
+    padding: 1em;
 }
 .reveal section .dual-panel .right-panel {
     flex: 1;
@@ -96,6 +129,6 @@ body {
     position: absolute;
     top: 50%;
     left: 0;
-    width: 500px;
+    width: 100%;
     transform: translateY(-50%);
 }

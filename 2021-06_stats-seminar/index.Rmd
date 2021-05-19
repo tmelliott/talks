@@ -17,68 +17,6 @@ output:
 
 
 # Updates
-```{sass, echo=FALSE,eval=FALSE}
-@import url('https://fonts.googleapis.com/css2?family=Farro&family=Poppins&display=swap')
-
-$col1: #18afe3
-$col2: #094b85
-.reveal
-    @import "assets/fontawesome/scss/fontawesome"
-    h1, h2, h3, h4, h5, h6
-        font-family: "Farro"
-
-    pre
-        margin-top: 5px
-        margin-bottom: 5px
-
-    .progress span
-        background: $col2 !important
-
-    section
-        .title
-            margin: 2em;
-
-        img.logo
-            border: none
-            background: transparent
-            padding: 0
-            margin: 0
-            height: 1em
-            &.biglogo
-                height: 2em
-
-        .social-links
-            margin-top: 10vh
-            color: $col2
-            display: flex
-            justify-content: center
-            align-items: center
-
-            p
-                margin: 0
-
-            .left
-                text-align: right
-            .right
-                text-align: left
-
-            .middle
-                margin: 0 40px
-                font-size: 1.2em
-        strong
-            color: $col1
-
-        ul>li>span
-            color: $col1
-
-        h1 img
-            background: none !important
-            border: none !important
-            box-shadow: none !important
-            height: 2em;
-
-/***/
-```
 
 ```{r,echo=FALSE}
 ricon <- "<i class=\"fab fa-r-project\"></i>"
@@ -89,29 +27,45 @@ ricon <- "<img src=\"assets/images/Rlogo.svg\" class=\"logo\" >"
 
 ## PhD thesis
 
-* submitted April (during L4)
-* defended August (during L4)
+* submitted 9th April
+* defended 1st August
 * graduation tomorrow!
 
 #
 
 ## PhD thesis (TL;DR)
 
-* predicting buses is hard
-* using real-time traffic data from other buses doesn't help **point estimates** much ...
-* ... but **interval estimates** are actually reliable!
-* quantities like "Pr(catch bus | arrive at)"
-* useful for probabilistic journey planning
+<ul class="loose">
+<li>predicting buses is hard.</li>
 
-If you're interested ... https://tomelliott.co.nz/phd
+<li><strong>real-time traffic data from other buses</strong> to predict upcoming ones ... </li>
+<ul class="fa-ul">
+    <li class="fragment">
+        <span class="fa-li"><i class="far fa-thumbs-down"></i></span>
+        point estimates
+    </li>
+    <li class="fragment">
+        <span class="fa-li"><i class="far fa-thumbs-up"></i></span>
+        interval estimates
+    </li>
+</ul>
+
+<li class="fragment">$\mathbb{P}$(catch bus | I arrive by), $\mathbb{P}$(bus arrives before 9am)</li>
+<li class="fragment">useful for <strong>probabilistic journey planning</strong></li>
+</ul>
+
+<p class="fragment">If you're interested ... https://tomelliott.co.nz/phd</p>
 
 #
 
 ## Postdoc @ VUW @ UoA
 
 * MBIE Endeavour grant
+
     * Colin Simpson (VUW), Barry Milne (COMPASS), Andrew Sporle
+
     * Informatics for Social Services and Wellbeing ...
+
     * more later!
 
 * Honorary position here (thanks James)
@@ -132,27 +86,49 @@ iNZight()
     width="80%"
     >
 
-#
+# ![iNZight](assets/images/inzight_logo.png)
+
 
 * my side-project since 2013/14
 
 * shifting focus as audience has evolved
 
-    * pre 2015: school/some university
+# ![iNZight](assets/images/inzight_logo.png)
 
-    * 2015--2019: education (school/university/FutureLearn), and cropping up in unexpected places (around the world)
+### Before 2015
 
-    * recently:
+<ul class="fa-ul loose">
+<li><span class="fa-li"><i class="fas fa-school"></i></span> schools</li>
+<li><span class="fa-li"><i class="fas fa-university"></i></span> some university</li>
+</ul>
 
-        * **Democratisation**
+# ![iNZight](assets/images/inzight_logo.png)
+### 2015--2019
 
-          See Chris Wild's talks featuring hits like *We Will Plot You*)
+<ul class="fa-ul loose">
+<li><span class="fa-li"><i class="fas fa-graduation-cap"></i></span> education (school/university/MOOC)</li>
+<li><span class="fa-li"><i class="fas fa-globe"></i></span> unexpected places
+<ul class="fa-ul loose">
+    <li class="fragment"><span class="fa-li"><i class="fas fa-newspaper"></i></span> data journalism</li>
+    <li class="fragment"><span class="fa-li"><i class="fas fa-paw"></i></span> wildlife manager in Canada</li>
+</ul>
+</li>
+</ul>
 
-        * **rapid research development tools**
+# ![iNZight](assets/images/inzight_logo.png)
 
-          (Andrew Sporle) for organisations with low money/time/both
+### Recently
 
-***
+<ul class="fa-ul">
+<li><span class="fa-li"><i class="fas fa-users"></i></span> <strong>democratisation</strong>
+<p>See Chris Wild's talks featuring hits like <i class="fas fa-music"></i> <em>We Will Plot You</em></p>
+</li>
+<li><span class="fa-li"><i class="fas fa-tachometer-alt"></i></span> <strong>rapid research development</strong> (Andrew Sporle)
+<p>for organisations/groups with low/no money/time/both</p>
+</li>
+</ul>
+
+# ![iNZight](assets/images/inzight_logo.png)
 
 * recent focus on surveys --- now handled natively!
 
@@ -166,30 +142,6 @@ iNZight()
 # Surveys and iNZight
 
 #
-
-```{sass,echo=FALSE,eval=F}
-.reveal section .dual-panel
-    display: flex
-    align-items: center
-    &.dual-top
-        align-items: flex-start
-
-    .left-panel
-        flex: 1
-
-    .right-panel
-        flex: 1
-        position: relative
-        height: 600px
-
-        img
-            position: absolute
-            top: 50%
-            left: 0
-            width: 500px
-            transform: translateY(-50%)
-/***/
-```
 
 <div class="dual-panel">
 <div class="left-panel">
@@ -210,7 +162,7 @@ Explore
 <div class="fragment" data-fragment-index="3">
 <i class="fa fa-arrow-alt-circle-down"></i>
 
-Save output / `r ricon` script
+Export results/code
 </div>
 </div>
 
@@ -242,7 +194,7 @@ Save output / `r ricon` script
 
 #
 
-In R
+In `r ricon`
 
 ```r
 some_data <- read.csv('path/to/data')
@@ -268,8 +220,10 @@ iNZight isn't much better ... <span class="fragment"><strong>or is it?!</strong>
 
 ## mysurvey.zip
 
-* mysurvey.csv
-* mysyrvey.svydesign
+<ul class="fa-ul loose">
+<li><span class="fa-li"><i class="fas fa-file-csv"></i></span> mysurvey.csv</li>
+<li><span class="fa-li"><i class="fas fa-file-alt"></i></span> mysurvey.svydesign</li>
+</ul>
 
 
 #
@@ -292,39 +246,60 @@ repweights = "^w[0-4]"
 reptype = "JK1"
 ```
 
-* User doesn't have to know about the underlying survey design
-
-* Researchers can quickly open and explore a (survey) data set
-
-* Everything is taken care of
-
-    * plots (dotplots become histograms, scatter plots become bubble plots or hexbin plots)
-
-    * summary tables give population counts (plus errors)
-
-    * data wrangling functions use the correct methods
-
-      e.g., `survey::subset()` for filtering
+<ul class="fa-ul loose">
+<li><span class="fa-li"><i class="fas fa-wheelchair"></i></span> accessible</li>
+<li><span class="fa-li"><i class="fas fa-tachometer-alt"></i></span> quickly open and explore</li>
+<li><span class="fa-li"><i class="fas fa-desktop"></i></span> business as usual
+<ul>
+    <li>plots</li>
+    <li>summaries/inference (population counts)</li>
+    <li>data wrangling</li>
+</ul>
+</li>
+</ul>
 
 
 # (A few) Details
-## iNZight's R package collection
+## iNZight's `r ricon` package collection
 
-#
+***
+## 9+ **iNZight*** packages
 
-* iNZight is not just a single R package
+* **iNZight** (GUI interface, collects user input, displays results)
 
-* collection of 9+ 'iNZight*' packages with specific tasks
+* **iNZightModules** (UI for time series, regression, maps, ...)
 
-    * 'iNZightPlots' makes graphs
+* **iNZightPlots** (graphs, summaries, inference)
 
-    * 'iNZightTools' provides a suite of utility functions (data wrangling)
+* **iNZightTools** (utility functions, data wrangling)
 
-* main GUI package **provides interface** and **collects user inputs** (and displays results)
+* **iNZightTS** (time series)
 
-* **wrapper functions** make programming GUIs much easier --- just a case of mapping inputs to arguments
+* **iNZightMR** (multiple response)
 
-* ... and allow us to return the behind-the-scenes R code!
+* **iNZightRegression** (model summaries, residual plots)
+
+* **iNZightMaps** (lat/lng points, fill-in-the-shapefile maps)
+
+* plus **vit** and some others ...
+
+***
+
+* **wrapper functions** makes programming GUIs easier
+
+    * inputs $\equiv$ arguments
+
+* packages don't need GUI 
+
+    * `iNZightPlots::inzplot()`
+
+    * simple functions aimed towards novice coders
+
+* returns the R code
+
+
+<p class="fragment">GUI $\rightarrow$ high level functions $\rightarrow$ lower-level (e.g., <strong>ggplot</strong>)</p>
+
 
 
 ***
@@ -341,9 +316,13 @@ code(iris_filtered)
 
 ***
 
-* recent work involved modifying wrapper functions to handle surveys
+## What about surveys?
 
-* the GUI just needs to pass around a 'data-thing' (either data or survey)
+***
+
+* modified wrapper functions to handle surveys
+
+* refactored GUI to pass around a 'data-thing' (data or survey)
 
 ```{r,message=F,warning=F}
 library(survey)
@@ -373,6 +352,9 @@ How does this all relate to my postdoc?
 
 **Tātaritanga** = analysis
 
+<hr>
+
+**Te Rourou Tātaritanga**
 
 "Tools for analytics and sharing data for the betterment of communities."
 
