@@ -4,7 +4,7 @@ author: Tom Elliott
 date: "Te Rourou Tātaritanga<br>Victoria University of Wellington<br><br>tomelliott.co.nz"
 output:
     revealjs::revealjs_presentation:
-        theme: night
+        theme: simple
         center: true
         slide_level: 1
         mathjax: default
@@ -12,17 +12,20 @@ output:
             controls: false
             hash: true
         transition: none
-        css:
-            assets/fontawesome/css/all.css
+        css: assets/style/theme.css
 ---
 
 
 # Updates
-```{sass, echo=FALSE}
+```{sass, echo=FALSE,eval=FALSE}
+@import url('https://fonts.googleapis.com/css2?family=Farro&family=Poppins&display=swap')
+
 $col1: #18afe3
 $col2: #094b85
 .reveal
     @import "assets/fontawesome/scss/fontawesome"
+    h1, h2, h3, h4, h5, h6
+        font-family: "Farro"
 
     pre
         margin-top: 5px
@@ -164,7 +167,7 @@ iNZight()
 
 #
 
-```{sass,echo=FALSE}
+```{sass,echo=FALSE,eval=F}
 .reveal section .dual-panel
     display: flex
     align-items: center
