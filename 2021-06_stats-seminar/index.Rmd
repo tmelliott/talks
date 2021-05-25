@@ -289,7 +289,7 @@ reptype = "JK1"
 
     * inputs $\equiv$ arguments
 
-* packages don't need GUI 
+* packages don't need GUI
 
     * `iNZightPlots::inzplot()`
 
@@ -308,10 +308,22 @@ reptype = "JK1"
 
 ```{r}
 library(iNZightTools)
-iris_filtered <- filterNumeric(iris, "Sepal.Width", "<", 100)
+iris_filtered <- filterNumeric(iris, "Sepal.Width", "<", 3.5)
 head(iris_filtered)
 code(iris_filtered)
 ```
+
+
+***
+## A slightly more complex example
+
+
+```{r}
+iris_agg <- aggregateData(iris, "Species", c("median", "var"), "Sepal.Length")
+head(iris_agg)
+code(iris_agg)
+```
+
 
 
 ***
