@@ -54,7 +54,7 @@ ricon <- "<img src=\"assets/images/Rlogo.svg\" class=\"logo\" >"
 <li class="fragment">useful for <strong>probabilistic journey planning</strong></li>
 </ul>
 
-<p class="fragment">If you're interested ... https://tomelliott.co.nz/phd</p>
+<p class="fragment">If you're interested ... [tomelliott.co.nz/phd](https://tomelliott.co.nz/phd)</p>
 
 #
 
@@ -391,7 +391,7 @@ Or: "Informatics for Social Services and Wellbeing"
 
 6. Machine learning and AI methods
 
-https://terourou.org
+[terourou.org](https://terourou.org)
 
 ***
 
@@ -409,7 +409,7 @@ https://terourou.org
 
 6. Machine learning and AI methods
 
-https://terourou.org
+[terourou.org](https://terourou.org)
 
 
 ***
@@ -424,39 +424,56 @@ https://terourou.org
 ***
 ## iNZight to the rescue!
 
-* many upcoming researchers will have used iNZight at high school or university
+* high school and/or university
 
-* no need to learn to code, OR remember how to do things you haven't done in 2 years
+* no coding necessary
 
-* currently working on deploying a demo of iNZight in the Stats NZ data lab --- watch this space!
+* easy to learn **and relearn**
 
-    * intial goal: confine to small datasets
-    * primary researcher can prepare using SQL to select/join data
-    * other researchers (without great coding skills) can easily explore the data --- graphs, tables, models!
-    * offers a restricted set of methods which can help prevent novices from running really-big-queries and causing havoc on the servers
-    * and build from there!
+* iNZight in Stats NZ data lab ...? Watch this space!
+
 
 ***
-## Outside the data lab
+## iNZight in the Data Lab (WIP)
 
-* lots of data outside the datalab
+Start confined to (example) small data sets ...
 
-* many iwi groups, pacific nations, etc. have specific needs for simple (to complex) population summaries/demographic outputs
+* primary researcher: SQL $\Rightarrow$ CSV
 
-* iNZight means they can do it every 1--2 years without needing to train/retrain/pay expensive statisticians
+* non-coding researchers: graphs, tables, ...
 
-* iNZight also produces code: generate script to re-run/edit as necessary (without having to do all the hard stuff first)
+... and build from there!
+
+***
+## iNZight outside the Data Lab
+
+
+* iwi groups, pacific nations, etc. with specific needs
+
+    * population summaries (tables of counts)
+
+    * regression models
+
+    * demographic models ...
+
+* easy to learn **and relearn** 
+
+    * repeat analyses after 6 months / 2 years
+
+    * no (or low) (re)training or consultation costs
+
+* produces R code script
 
 ***
 ## Bayesian demography
 
-* why limit yourself to tables when you can fit hierarchical Bayesian models with model-specific priors, likelihoods, ... ?
+<p><em>Why limit yourself to tables when you can fit hierarchical Bayesian models with model-specific priors, likelihoods, … ?</em></p>
 
-* John Bryant has a set of R packages (dembase, demest, ...) for doing Bayesian demography
-
-* using them is a bit of a challenge (especially if you don't do much R coding!)
-
-* so we tested out iNZight's new add-on system ...
+<ul class="fragment">
+<li><p>John Bryant’s R packages (<strong>dembase</strong>, <strong>demest</strong>, …) for Bayesian demography</p></li>
+<li><p>R coding required (and data transformations, working with multi-dimensional arrays, …)</p></li>
+<li class="fragment"><p>so we tested out iNZight’s new add-on system …</p></li>
+</ul>
 
 ***
 ## DEMO
@@ -469,47 +486,52 @@ Both work and 'fun'
 ***
 ## IDI Search App
 
-* to get access to the IDI, you need to put together a research proposal
-
-* putting together a research proposal requires knowing what data is available to investigate
-
-* that data is hidden away in the IDI
+<ul>
+<li><p>to get access to the IDI, you need to put together a research proposal</p></li>
+<li><p>putting together a research proposal requires knowing what data is available to investigate</p></li>
+<li class="fragment"><p>that data is hidden away in the IDI</p></li>
+</ul>
 
 ***
 
 ## IDI Search app
 
-* we put together a simple web app providing a searchable database so prospective (and current) IDI researchers can explore what's available
+* simple web app (ReactJS)
 
-* build using ReactJS
+* searchable database (schema, table name, variable name, descriptions where available)
+
+* prospective (and current) IDI researchers can explore what's available
+
+[terourou.org/idisearch](https://terourou.org/idisearch)
+
 
 ***
 ## DEMO
 
-https://idi-search.web.app/
+[idi-search.web.app](https://idi-search.web.app/)
 
 ***
 ## Bus display v2
 
 * the display in 302 was broken
 
-* so I rebuilt it again, this time using ReactJS + d3
+* rebuilt it (again) using ReactJS + d3
 
-* simpler than the last version (no 'history' as it just uses real-time data, no backing server)
+* uses newly available real-time occupancy 
 
 ***
 ## DEMO
 
-https://tomelliott.co.nz/bus-display/
+[tomelliott.co.nz/bus-display](https://tomelliott.co.nz/bus-display/)
 
 ***
 ## Lots of ReactJS ...
 
-* it's my goal to, one day, put together a prototype of a new version of iNZight using ReactJS and R-serve
+* long-term goal: a prototype of iNZight built with ReactJS and R-serve
 
-* one version that runs on Windows / macOS / Linux / web
+* a single app for Windows / macOS / Linux / web
 
-* plus capability of having a local R server, remote R server - firewall, etc.
+* connecting to local/remote R server (user permissions, firewall, etc.)
 
 ***
 ## NO DEMO
@@ -527,4 +549,3 @@ Twitter: @tomelliottnz | @iNZightUoA | @terourou
 
 tomelliott.co.nz | inzight.nz | terourou.org
 
-# References
