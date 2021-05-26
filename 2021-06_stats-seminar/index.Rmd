@@ -28,7 +28,7 @@ ricon <- "<img src=\"assets/images/Rlogo.svg\" class=\"logo\" >"
 ## PhD thesis
 
 * submitted 9th April
-* defended 1st August
+* defended 25th August
 * graduation tomorrow!
 
 #

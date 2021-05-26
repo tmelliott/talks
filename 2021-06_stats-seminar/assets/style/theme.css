@@ -5,11 +5,14 @@
     --light-blue: #18afe3;
     --light-blue2: #0b97c8;
     --dark-blue: #094b85;
+    --bg-blue: #ddecf3;
+    --bg-blue2: #f2fbff;
     --red: #bd4112;
 }
 
 body {
-    background: #e6f0f5;
+    /* background: #e6f0f5; */
+    background: linear-gradient(to top right, var(--bg-blue), var(--bg-blue2));
 }
 
 .reveal {
