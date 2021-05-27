@@ -16,13 +16,13 @@ output:
 ---
 
 
-# Updates
+<!--# Updates-->
 
 ```{r,echo=FALSE}
 ricon <- "<i class=\"fab fa-r-project\"></i>"
 ricon <- "<img src=\"assets/images/Rlogo.svg\" class=\"logo\" >"
 ```
-
+<!--
 #
 
 ## PhD thesis
@@ -55,8 +55,7 @@ ricon <- "<img src=\"assets/images/Rlogo.svg\" class=\"logo\" >"
 </ul>
 
 <p class="fragment">If you're interested ... [tomelliott.co.nz/phd](https://tomelliott.co.nz/phd)</p>
-
-#
+-->
 
 ## Postdoc @ VUW @ UoA
 
@@ -123,7 +122,7 @@ iNZight()
 <li><span class="fa-li"><i class="fas fa-users"></i></span> <strong>democratisation</strong>
 <p>See Chris Wild's talks featuring hits like <i class="fas fa-music"></i> <em>We Will Plot You</em></p>
 </li>
-<li><span class="fa-li"><i class="fas fa-tachometer-alt"></i></span> <strong>rapid research development</strong> (Andrew Sporle)
+<li><span class="fa-li"><i class="fas fa-tachometer-alt"></i></span> <strong>rapid research development</strong>
 <p>for organisations/groups with low/no money/time/both</p>
 </li>
 </ul>
@@ -197,14 +196,7 @@ Export results/code
 In `r ricon`
 
 ```r
-some_data <- read.csv('path/to/data')
-
-some_svy <- survey::svydesign(~something,
-    weights = ~FXWT3, # or another variable with 'WT' in it ...
-    strata = ~does_it_have_any,
-    fpc = ~i_dont_know_what_this_means
-)
-
+my_survey <- survey::svydesign(...args...)
 ```
 
 #
@@ -218,11 +210,12 @@ iNZight isn't much better ... <span class="fragment"><strong>or is it?!</strong>
 
 #
 
-## mysurvey.zip
+## Academic Performance Index (API) data 
+##### (two-stage cluster sample)
 
 <ul class="fa-ul loose">
-<li><span class="fa-li"><i class="fas fa-file-csv"></i></span> mysurvey.csv</li>
-<li><span class="fa-li"><i class="fas fa-file-alt"></i></span> mysurvey.svydesign</li>
+<li><span class="fa-li"><i class="fas fa-file-csv"></i></span> apiclus2.csv</li>
+<li><span class="fa-li"><i class="fas fa-file-alt"></i></span> apiclus2.svydesign</li>
 </ul>
 
 
@@ -237,14 +230,15 @@ iNZight isn't much better ... <span class="fragment"><strong>or is it?!</strong>
 
 #
 
-## mysurvey.svydesign
+## apiclus2.svydesign
 
 ```
-data = "mysurvey.csv"
-weights = "wt0"
-repweights = "^w[0-4]"
-reptype = "JK1"
+data = "apiclus2.csv"
+ids = "dnum + snum"
+fpc = "fpc1 + fpc2"
 ```
+
+Details: [inzight.nz/docs/survey-specification.html](https://inzight.nz/docs/survey-specification.html)
 
 <ul class="fa-ul loose">
 <li><span class="fa-li"><i class="fas fa-wheelchair"></i></span> accessible</li>
@@ -350,64 +344,30 @@ code(dclus2_filtered)
 **Big thanks to the 'srvyr' package!**
 
 
-# Te Rourou Tātaritanga
+# Te Rourou Tātaritanga {#terourou}
 
-How does this all relate to my postdoc?
 
-***
 
-**Rourou** = basket
+<p>
+<img src="assets/images/rourou.png" class="noborder fragment" data-fragment-index="1" height=150 />
+<img src="assets/images/analytics.png" class="fragment noborder" height=150 />
+</p>
 
-   *Nā tō rourou, nā taku rourou, ka ora ai te iwi.*
-
-   (With your food basket and my food basket the people will thrive.)
-
-**Tātaritanga** = analysis
-
-<hr>
-
-**Te Rourou Tātaritanga**
-
-"Tools for analytics and sharing data for the betterment of communities."
-
-<hr>
-
-Or: "Informatics for Social Services and Wellbeing"
+<p class="fragment current-visible" data-fragment-index="1"><em>Nā tō rourou, nā taku rourou, ka ora ai te iwi.</em></p>
 
 
 ***
 
 ## Primary goals
 
-1. Improve data standards
-
-2. Promote Māori data sovereignty
-
-3. Develop systems to support access
-
-4. Evaluate synthesising of datasets
-
-5. Security and privacy implications
-
-6. Machine learning and AI methods
-
-[terourou.org](https://terourou.org)
-
-***
-
-## Primary goals
-
-1. **Improve data standards**
-
-2. **Promote Māori data sovereignty**
-
-3. **Develop systems to support access**
-
-4. Evaluate synthesising of datasets
-
-5. Security and privacy implications
-
-6. Machine learning and AI methods
+<ol type="1">
+<li><p>Improve data standards</p></li>
+<li class="fragment highlight-blue" data-fragment-index="1"><p>Promote Māori data sovereignty</p></li>
+<li class="fragment highlight-blue" data-fragment-index="1"><p>Develop systems to support access</p></li>
+<li><p>Evaluate synthesising of datasets</p></li>
+<li><p>Security and privacy implications</p></li>
+<li><p>Machine learning and AI methods</p></li>
+</ol>
 
 [terourou.org](https://terourou.org)
 
@@ -448,7 +408,7 @@ Start confined to (example) small data sets ...
 ## iNZight outside the Data Lab
 
 
-* iwi groups, pacific nations, etc. with specific needs
+* iwi, community groups, pacific nations, etc. with specific needs
 
     * population summaries (tables of counts)
 
@@ -483,14 +443,6 @@ Start confined to (example) small data sets ...
 
 Both work and 'fun'
 
-***
-## IDI Search App
-
-<ul>
-<li><p>to get access to the IDI, you need to put together a research proposal</p></li>
-<li><p>putting together a research proposal requires knowing what data is available to investigate</p></li>
-<li class="fragment"><p>that data is hidden away in the IDI</p></li>
-</ul>
 
 ***
 
@@ -513,11 +465,16 @@ Both work and 'fun'
 ***
 ## Bus display v2
 
-* the display in 302 was broken
+<img src="assets/images/busdisplay.jpg" class="pos-fix fragment current-visible">
 
-* rebuilt it (again) using ReactJS + d3
+<ul>
+<li>
+<p>the display in 302 was broken</p>
+</li>
 
-* uses newly available real-time occupancy 
+<li class="fragment"><p>rebuilt it (again) using ReactJS + d3</p></li>
+<li class="fragment"><p>uses newly available real-time occupancy</p></li>
+</ul>
 
 ***
 ## DEMO
@@ -533,9 +490,6 @@ Both work and 'fun'
 
 * connecting to local/remote R server (user permissions, firewall, etc.)
 
-***
-## NO DEMO
-
 
 
 
@@ -543,9 +497,21 @@ Both work and 'fun'
 # Thank you
 
 
-Github: tmelliott | iNZightVIT | terourou
+<div class="social">
 
-Twitter: @tomelliottnz | @iNZightUoA | @terourou
+<i class="fab fa-github"></i>
+<span>tmelliott</span>
+<span>iNZightVIT</span>
+<span>terourou</span>
 
-tomelliott.co.nz | inzight.nz | terourou.org
+<i class="fab fa-twitter"></i>
+<span>@tomelliottnz</span>
+<span>@iNZightUoA</span>
+<span>@terourou</span>
 
+<i class="fas fa-link"></i>
+<span>tomelliott.co.nz</span>
+<span>inzight.nz</span>
+<span>terourou.org</span>
+
+</div>
