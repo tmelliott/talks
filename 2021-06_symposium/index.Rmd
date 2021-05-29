@@ -1,0 +1,52 @@
+---
+title: "Analysing Surveys with iNZight"
+author: "Dr. Tom Elliott\\linebreak\\linebreak Te Rourou Tātaritanga\\linebreak Victoria University of Wellington\\linebreak \\linebreak University of Auckland"
+date: "Innovations in Applied Data Symposium\\linebreak 3 June 2021"
+output: beamer_presentation
+header-includes:
+  - \titlegraphic{\includegraphics[width=2cm]{trr}\hspace*{1cm}\includegraphics[width=2cm]{vuw}\hspace*{1cm}\includegraphics[width=0.7cm]{uoa}\hspace*{1cm}\includegraphics[width=2cm]{inz}}
+---
+
+# iNZight
+
+* Graphical user interface (GUI) for data visualisation/analysis with R
+* Democratisation of data
+* Novices **and** researchers with little time/skill/money
+* Rapid research development (graphics, summaries, models, R code)
+
+
+# Surveys
+
+* Require user to know and specify design
+* Graphs/summaries/analyses need to account for survey design/weights
+
+* Many important survey datasets (some in the IDI)
+    * Te Kupenga
+    * ...
+* Easy for novice users to make mistakes, get wrong results
+
+
+# iNZight meets Surveys
+
+* survey specification file
+```
+data = 'path/to/data.csv'
+ids = clus1 + clus2
+strata = strat
+weights = wt
+```
+* Importing spec automatically loads data & sets up design info
+* Immediately start making graphs/summaries/analyses
+
+```{=latex}
+\vfill{}
+
+\begin{center}
+\begin{tabular}{rl}
+Tom Elliott & tom.elliott@vuw.ac.nz \\
+Te Rourou Tātaritanga & terourou.org \\
+iNZight & inzight.nz
+\end{tabular}
+\end{center}
+
+```
