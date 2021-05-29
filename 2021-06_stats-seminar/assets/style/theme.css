@@ -5,11 +5,14 @@
     --light-blue: #18afe3;
     --light-blue2: #0b97c8;
     --dark-blue: #094b85;
+    --bg-blue: #ddecf3;
+    --bg-blue2: #f2fbff;
     --red: #bd4112;
 }
 
 body {
-    background: #e6f0f5;
+    /* background: #e6f0f5; */
+    background: linear-gradient(to top right, var(--bg-blue), var(--bg-blue2));
 }
 
 .reveal {
@@ -107,6 +110,19 @@ code span.st {
     box-shadow: none;
 }
 
+.reveal section img.noborder {
+    border: none;
+}
+
+.reveal section img.pos-fix {
+    position: fixed;
+    max-height: 90vh;
+    left: 0;
+    right: 0;
+    bottom: 100%;
+    transform: translateY(80%);
+}
+
 
 .reveal section .dual-panel {
     display: flex;
@@ -131,4 +147,23 @@ code span.st {
     left: 0;
     width: 100%;
     transform: translateY(-50%);
+}
+
+
+.reveal section .social {
+    margin-top: 4em;
+    display: flex;
+    justify-content: space-around;
+}
+.reveal section .social p {
+    display: flex;
+    flex-direction: column;
+}
+.reveal section .social i {
+    margin-bottom: 0.5em;
+    font-size: 2em;
+}
+.reveal section .social p span {
+    font-size: 0.9em;
+    line-height: 1.5em;
 }

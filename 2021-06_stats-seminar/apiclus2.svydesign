@@ -1,0 +1,3 @@
+data = "apiclus2.csv"
+ids = "dnum + snum"
+fpc = "fpc1 + fpc2"
