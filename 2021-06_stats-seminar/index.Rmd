@@ -88,7 +88,7 @@ iNZight()
 # ![iNZight](assets/images/inzight_logo.png)
 
 
-* my side-project since 2013/14
+* lead developer since 2013/14
 
 * shifting focus as audience has evolved
 
@@ -210,7 +210,7 @@ iNZight isn't much better ... <span class="fragment"><strong>or is it?!</strong>
 
 #
 
-## Academic Performance Index (API) data 
+## Academic Performance Index (API) data
 ##### (two-stage cluster sample)
 
 <ul class="fa-ul loose">
@@ -375,6 +375,8 @@ code(dclus2_filtered)
 ***
 ## The Integrated Data Infrastructure (IDI)
 
+<img src="assets/images/idi.png" class="noborder" width="500" />
+
 * database connecting data across NZs sectors
 
 * high security environment
@@ -416,7 +418,7 @@ Start confined to (example) small data sets ...
 
     * demographic models ...
 
-* easy to learn **and relearn** 
+* easy to learn **and relearn**
 
     * repeat analyses after 6 months / 2 years
 
@@ -425,9 +427,9 @@ Start confined to (example) small data sets ...
 * produces R code script
 
 ***
-## Bayesian demography
+## Bayesian small area demography
 
-<p><em>Why limit yourself to tables when you can fit hierarchical Bayesian models with model-specific priors, likelihoods, … ?</em></p>
+<p><em>Many communities need to use specialist techniques to estimate birth/death rates, etc.</em></p>
 
 <ul class="fragment">
 <li><p>John Bryant’s R packages (<strong>dembase</strong>, <strong>demest</strong>, …) for Bayesian demography</p></li>
@@ -484,11 +486,13 @@ Both work and 'fun'
 ***
 ## Lots of ReactJS ...
 
-* long-term goal: a prototype of iNZight built with ReactJS and R-serve
+<ul class="fragment loose">
+<li>long-term goal: a prototype of iNZight built with ReactJS and R-serve</li>
 
-* a single app for Windows / macOS / Linux / web
+<li>a single app for Windows / macOS / Linux / web</li>
 
-* connecting to local/remote R server (user permissions, firewall, etc.)
+<li>connecting to local/remote R server (user permissions, firewall, etc.)</li>
+</ul>
 
 
 
@@ -514,4 +518,11 @@ Both work and 'fun'
 <span>inzight.nz</span>
 <span>terourou.org</span>
 
+</div>
+
+<div class="footer">
+<img src="assets/images/inz.png" />
+<img src="assets/images/trr.png" />
+<img src="assets/images/vuw.png" />
+<img src="assets/images/uoa.png" />
 </div>
