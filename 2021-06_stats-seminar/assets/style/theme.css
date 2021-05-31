@@ -151,7 +151,7 @@ code span.st {
 
 
 .reveal section .social {
-    margin: 3em 0;
+    margin: 2em 0;
     display: flex;
     justify-content: space-around;
 }
@@ -176,5 +176,5 @@ code span.st {
     border: none;
     height: 3em;
     flex: 1;
-    margin: 1em;
+    margin: 0 1em;
 }
