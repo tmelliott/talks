@@ -73,7 +73,7 @@ ricon <- "<img src=\"assets/images/Rlogo.svg\" class=\"logo\" >"
 
 
 
-#
+***
 
 ```{r,eval=FALSE}
 library(iNZight)
@@ -127,6 +127,9 @@ iNZight()
 </li>
 </ul>
 
+
+# Surveys and iNZight
+
 # ![iNZight](assets/images/inzight_logo.png)
 
 * recent focus on surveys --- now handled natively!
@@ -138,9 +141,7 @@ iNZight()
 
 * key goal is **removal of barriers**
 
-# Surveys and iNZight
-
-#
+***
 
 <div class="dual-panel">
 <div class="left-panel">
@@ -186,12 +187,12 @@ Export results/code
 </div>
 </div>
 
-#
+***
 
 ## What if `data` is from a survey?
 
 
-#
+***
 
 In `r ricon`
 
@@ -199,7 +200,7 @@ In `r ricon`
 my_survey <- survey::svydesign(...args...)
 ```
 
-#
+***
 
 iNZight isn't much better ... <span class="fragment"><strong>or is it?!</strong></span>
 
@@ -208,7 +209,7 @@ iNZight isn't much better ... <span class="fragment"><strong>or is it?!</strong>
 (Remember survey variables *never* have nice names)
 
 
-#
+***
 
 ## Academic Performance Index (API) data
 ##### (two-stage cluster sample)
@@ -218,19 +219,9 @@ iNZight isn't much better ... <span class="fragment"><strong>or is it?!</strong>
 <li><span class="fa-li"><i class="fas fa-file-alt"></i></span> apiclus2.svydesign</li>
 </ul>
 
+***
 
-#
-
-## Demo
-
-<img src="assets/images/inzight_main_window.png"
-    alt="iNZight main window"
-    width="80%"
-    >
-
-#
-
-## apiclus2.svydesign
+## Demo: apiclus2.svydesign
 
 ```
 data = "apiclus2.csv"
@@ -409,14 +400,13 @@ Start confined to (example) small data sets ...
 ***
 ## iNZight outside the Data Lab
 
-
-* iwi, community groups, pacific nations, etc. with specific needs
+* groups/organisations/communities
 
     * population summaries (tables of counts)
 
     * regression models
 
-    * demographic models ...
+    * demographic information ...?
 
 * easy to learn **and relearn**
 
@@ -429,7 +419,7 @@ Start confined to (example) small data sets ...
 ***
 ## Bayesian small area demography
 
-<p><em>Many communities need to use specialist techniques to estimate birth/death rates, etc.</em></p>
+*Some important demographic information for communites (e.g., birth or death rates) requires specialist techniques and models.*
 
 <ul class="fragment">
 <li><p>John Bryant’s R packages (<strong>dembase</strong>, <strong>demest</strong>, …) for Bayesian demography</p></li>
@@ -452,9 +442,9 @@ Both work and 'fun'
 
 * simple web app (ReactJS)
 
-* searchable database (schema, table name, variable name, descriptions where available)
+* searchable database
 
-* prospective (and current) IDI researchers can explore what's available
+* researchers can explore what's available
 
 [terourou.org/idisearch](https://terourou.org/idisearch)
 
