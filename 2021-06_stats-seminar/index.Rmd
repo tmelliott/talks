@@ -61,7 +61,7 @@ ricon <- "<img src=\"assets/images/Rlogo.svg\" class=\"logo\" >"
 
 * MBIE Endeavour grant
 
-    * Colin Simpson (VUW), Barry Milne (COMPASS), Andrew Sporle
+    * Colin Simpson, Barry Milne, Andrew Sporle
 
     * Informatics for Social Services and Wellbeing ...
 
@@ -107,12 +107,23 @@ iNZight()
 <ul class="fa-ul loose">
 <li><span class="fa-li"><i class="fas fa-graduation-cap"></i></span> education (school/university/MOOC)</li>
 <li><span class="fa-li"><i class="fas fa-globe"></i></span> unexpected places
-<ul class="fa-ul loose">
+<!--<ul class="fa-ul loose">
     <li class="fragment"><span class="fa-li"><i class="fas fa-newspaper"></i></span> data journalism</li>
     <li class="fragment"><span class="fa-li"><i class="fas fa-paw"></i></span> wildlife manager in Canada</li>
-</ul>
+</ul>-->
 </li>
 </ul>
+
+
+---
+
+![Alberto Cairo](assets/images/alberto3.png)
+
+---
+![The Functional Art](assets/images/alberto-inzight.jpg)
+
+http://www.thefunctionalart.com/
+
 
 # ![iNZight](assets/images/inzight_logo.png)
 
@@ -123,7 +134,7 @@ iNZight()
 <p>See Chris Wild's talks featuring hits like <i class="fas fa-music"></i> <em>We Will Plot You</em></p>
 </li>
 <li><span class="fa-li"><i class="fas fa-tachometer-alt"></i></span> <strong>rapid research development</strong>
-<p>for organisations/groups with low/no money/time/both</p>
+<p>for organisations/groups with low/no money/time/skill</p>
 </li>
 </ul>
 
@@ -132,16 +143,21 @@ iNZight()
 
 # ![iNZight](assets/images/inzight_logo.png)
 
-* recent focus on surveys --- now handled natively!
+* v4.1: surveys now handled natively
 
     * plots
+
     * summaries (tables of counts)
+
     * inference / modelling
+
     * data wrangling ...
 
-* key goal is **removal of barriers**
+* same goal: **removal of barriers**
 
 ***
+
+## Flashback: the usual iNZight process
 
 <div class="dual-panel">
 <div class="left-panel">
@@ -231,7 +247,7 @@ fpc = "fpc1 + fpc2"
 
 Details: [inzight.nz/docs/survey-specification.html](https://inzight.nz/docs/survey-specification.html)
 
-<ul class="fa-ul loose">
+<ul class="fa-ul loose fragment">
 <li><span class="fa-li"><i class="fas fa-wheelchair"></i></span> accessible</li>
 <li><span class="fa-li"><i class="fas fa-tachometer-alt"></i></span> quickly open and explore</li>
 <li><span class="fa-li"><i class="fas fa-desktop"></i></span> business as usual
@@ -290,12 +306,18 @@ Details: [inzight.nz/docs/survey-specification.html](https://inzight.nz/docs/sur
 ***
 ## An example: Filtering data
 
+```{r,echo=F}
+pretty <- function(x) {
+    x <- paste(x, collapse = "\n")
+    cat(iNZightTools::tidy_all_code(x), sep = "\n")
+}
+```
 
 ```{r}
 library(iNZightTools)
 iris_filtered <- filterNumeric(iris, "Sepal.Width", "<", 3.5)
 head(iris_filtered)
-code(iris_filtered)
+pretty(code(iris_filtered))
 ```
 
 
@@ -306,7 +328,7 @@ code(iris_filtered)
 ```{r}
 iris_agg <- aggregateData(iris, "Species", c("median", "var"), "Sepal.Length")
 head(iris_agg)
-code(iris_agg)
+pretty(code(iris_agg))
 ```
 
 
@@ -324,15 +346,21 @@ code(iris_agg)
 ```{r,message=F,warning=F}
 library(survey)
 data(api, package = "survey")
+
 dclus2 <- svydesign(id = ~dnum+snum,
     fpc = ~fpc1+fpc2,
     data = apiclus2
 )
+
 dclus2_filtered <- filterNumeric(dclus2, "api99", ">=", 700)
-code(dclus2_filtered)
+pretty(code(dclus2_filtered))
 ```
 
-**Big thanks to the 'srvyr' package!**
+**Big thanks to**
+<img src="assets/images/srvyr.png" height="100"
+    class="noborder"
+    style="transform:translateY(50%)"
+    />
 
 
 # Te Rourou Tātaritanga {#terourou}
@@ -344,8 +372,14 @@ code(dclus2_filtered)
 <img src="assets/images/analytics.png" class="fragment noborder" height=150 />
 </p>
 
-<p class="fragment current-visible" data-fragment-index="1"><em>Nā tō rourou, nā taku rourou, ka ora ai te iwi.</em></p>
+<p class="fragment current-visible" data-fragment-index="1"><em>Nā tō rourou nā taku rourou,<br>ka ora ai te iwi.</em></p>
 
+
+# Te Rourou Tātaritanga {#terourou2}
+
+<p>
+<img src="assets/images/rourou-analytics.png" class="noborder" height=250 />
+</p>
 
 ***
 
@@ -415,6 +449,9 @@ Start confined to (example) small data sets ...
     * no (or low) (re)training or consultation costs
 
 * produces R code script
+
+
+
 
 ***
 ## Bayesian small area demography
