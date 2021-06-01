@@ -372,7 +372,7 @@ pretty(code(dclus2_filtered))
 <img src="assets/images/analytics.png" class="fragment noborder" height=150 />
 </p>
 
-<p class="fragment current-visible" data-fragment-index="1"><em>Nā tō rourou nā taku rourou,<br>ka ora ai te iwi.</em></p>
+<p class="fragment current-visible" data-fragment-index="1"><em>Nā tō rourou, nā taku rourou,<br>ka ora ai te iwi.</em></p>
 
 
 # Te Rourou Tātaritanga {#terourou2}
