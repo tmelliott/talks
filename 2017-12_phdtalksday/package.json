@@ -26,7 +26,7 @@
     "browser-sync": "^2.27.10",
     "d3": "^4.11.0",
     "font-awesome": "^4.7.0",
-    "gulp-autoprefixer": "^4.0.0",
+    "gulp-autoprefixer": "^8.0.0",
     "gulp-concat": "^2.6.1",
     "gulp-reveal": "^1.0.0",
     "gulp-ruby-sass": "^2.1.1",
