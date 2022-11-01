@@ -10,6 +10,8 @@ jobs:
   render:
     name: Render talk
     runs-on: macOS-latest
+    env:
+      BASE_URL: "/talks/nzsa2022"
     steps:
       - uses: actions/checkout@v2
 
