@@ -2,6 +2,7 @@ on:
   push:
     paths:
       - "2022-11-22_nzsa-unconf"
+      - ".github/workflows/render-nzsa2022.yaml"
 
 name: Render NZSA 2022 Talk
 
