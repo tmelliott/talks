@@ -5,7 +5,7 @@ import QRCode from "react-qr-code";
 const refs = [
   <>
     Elliott, Milne, Li, Simpson, and Sporle (2021).{" "}
-    <em>IDI Search: A web app for searching New Zealand's IDI.</em>{" "}
+    <em>IDI Search: A web app for searching New Zealand&apos;s IDI.</em>{" "}
     https://idisearch.terourou.org.
   </>,
   <>
@@ -27,8 +27,11 @@ const EndSlide = () => {
       </div>
 
       <div className="flex flex-col gap-4">
-        {refs.map((ref) => (
-          <div className="rounded-lg bg-slate-200 bg-opacity-20 p-2 px-4 shadow">
+        {refs.map((ref, i) => (
+          <div
+            key={i}
+            className="rounded-lg bg-slate-200 bg-opacity-20 p-2 px-4 shadow"
+          >
             {ref}
           </div>
         ))}

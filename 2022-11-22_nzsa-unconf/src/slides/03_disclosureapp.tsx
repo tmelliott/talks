@@ -16,7 +16,7 @@ const DisclosureApp = () => {
           </li>
           <li className="list-none">
             B. Hosting on server with no security/privacy controls/guarantees
-            ("blackbox")
+            (&ldquo;blackbox&rdquo;)
           </li>
           <li>Preferable solution:</li>
           <li className="list-none">

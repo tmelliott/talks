@@ -6,7 +6,7 @@ const IDISearchApp = () => {
       <div className="container mx-auto mt-12 flex h-full flex-col gap-8 text-lg">
         <ul className="list-disc">
           <li>Integrated Data Infrastructure</li>
-          <li>Contains 10's thousands variables across NZ agencies</li>
+          <li>Contains 10&apos;s thousands variables across NZ agencies</li>
           <li>
             Difficult to know what data is available without having access to it
           </li>
