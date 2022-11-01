@@ -1,7 +1,7 @@
 on:
   push:
     paths:
-      - '2022-11-22_nzsa-unconf'
+      - "2022-11-22_nzsa-unconf"
 
 name: Render NZSA 2022 Talk
 
@@ -13,7 +13,8 @@ jobs:
       - uses: actions/checkout@v2
 
       - uses: actions/setup-node@v1
-        with: node-version: 16
+        with:
+          node-version: 16
 
       - name: Build site
         working-directory: 2022-11-22_nzsa-unconf
