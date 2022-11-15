@@ -9,7 +9,7 @@
 const config = {
   reactStrictMode: true,
   swcMinify: true,
-  // basePath: process.env.BASE_URL ?? "",
-  // assetPrefix: "./",
+  basePath: process.env.BASE_URL ?? "",
+  assetPrefix: (process.env.BASE_URL ?? "") + "/",
 };
 export default config;
