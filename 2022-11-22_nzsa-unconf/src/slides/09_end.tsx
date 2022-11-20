@@ -30,25 +30,25 @@ const socialLinks: socialLinkType[] = [
   },
 ];
 
-const refs = [
-  <>
-    Elliott, Milne, Li, Simpson, and Sporle (2021).{" "}
-    <em>IDI Search: A web app for searching New Zealand&apos;s IDI.</em>{" "}
-    https://idisearch.terourou.org.
-  </>,
-  <>
-    Elliott, Milne, Roberts, Simpson, and Sporle (2022).{" "}
-    <em>Disclosure Risk Calculator.</em> https://risk.terourou.org.
-  </>,
-  <>
-    Urbanek, S. (2003) "Rserve - A Fast Way to Provide R Functionality to
-    Applications" in{" "}
-    <em>
-      Proc. of the 3rd International Workshop on Distributed Statistical
-      Computing{" "}
-    </em>
-  </>,
-];
+// const refs = [
+//   <>
+//     Elliott, Milne, Li, Simpson, and Sporle (2021).{" "}
+//     <em>IDI Search: A web app for searching New Zealand&apos;s IDI.</em>{" "}
+//     https://idisearch.terourou.org.
+//   </>,
+//   <>
+//     Elliott, Milne, Roberts, Simpson, and Sporle (2022).{" "}
+//     <em>Disclosure Risk Calculator.</em> https://risk.terourou.org.
+//   </>,
+//   <>
+//     Urbanek, S. (2003) "Rserve - A Fast Way to Provide R Functionality to
+//     Applications" in{" "}
+//     <em>
+//       Proc. of the 3rd International Workshop on Distributed Statistical
+//       Computing{" "}
+//     </em>
+//   </>,
+// ];
 
 const links = [
   "https://idisearch.terourou.org",
