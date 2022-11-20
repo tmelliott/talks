@@ -55,7 +55,7 @@ const TitleSlide = () => {
               {link.network ? (
                 <>
                   {link.network === "web" && (
-                    <div className="flex h-[40px] w-[40px] items-center justify-center rounded-full bg-black">
+                    <div className="flex h-[40px] w-[40px] items-center justify-center rounded-full bg-black shadow-lg">
                       <GlobeAltIcon
                         height={24}
                         width={24}
@@ -65,13 +65,17 @@ const TitleSlide = () => {
                     </div>
                   )}
                   {link.network === "mastodon" && (
-                    <div className="flex h-[40px] w-[40px] items-center justify-center rounded-full bg-[#6364FF] text-white">
+                    <div className="flex h-[40px] w-[40px] items-center justify-center rounded-full bg-[#6364FF] text-white shadow-lg">
                       <MastodonLogo />
                     </div>
                   )}
                 </>
               ) : (
-                <SocialIcon url={link.url} style={{ height: 40, width: 40 }} />
+                <SocialIcon
+                  url={link.url}
+                  style={{ height: 40, width: 40 }}
+                  className="drop-shadow-lg"
+                />
               )}
               {link.title}
             </div>

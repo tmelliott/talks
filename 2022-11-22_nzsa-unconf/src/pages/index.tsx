@@ -26,7 +26,7 @@ const Home: NextPage = () => {
 
       <main
         ref={ref}
-        className="relative h-screen w-screen snap-y snap-mandatory overflow-x-hidden bg-gradient-to-br from-blue-100 to-blue-200"
+        className="relative h-screen w-screen snap-y snap-mandatory overflow-x-hidden bg-gradient-to-br from-stone-100 to-stone-200"
       >
         <motion.div
           style={{ scaleX: scrollYProgress }}
@@ -97,7 +97,9 @@ const Slide = ({
   return (
     <section className="mx-auto flex h-screen w-full snap-start flex-col justify-center gap-4 p-8">
       <hgroup className="mx-auto flex w-full flex-col items-center gap-y-4 text-center">
-        <h1 className="text-4xl">{title}</h1>
+        <h1 className={`text-3xl ${style === "standard" && "uppercase"}`}>
+          {title}
+        </h1>
         {subtitle && (
           <h2 className="text-2xl italic text-neutral-800">{subtitle}</h2>
         )}
