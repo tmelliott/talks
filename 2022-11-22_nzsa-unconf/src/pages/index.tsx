@@ -69,22 +69,22 @@ const Home: NextPage = () => {
         </Slide>
 
         <Slide title={"IDI Search App"}>
+          <IDISearchAppDemo />
+        </Slide>
+
+        <Slide title={"IDI Search App"}>
           <IDISearchApp />
         </Slide>
 
-        <Slide title={"IDI Search App - DEMO!"}>
-          <IDISearchAppDemo />
+        <Slide title={"Disclosure Risk Calculator"}>
+          <DisclosureAppDemo />
         </Slide>
 
         <Slide title={"Disclosure Risk Calculator"}>
           <DisclosureApp />
         </Slide>
 
-        <Slide title={"Disclosure Risk Calculator - DEMO!"}>
-          <DisclosureAppDemo />
-        </Slide>
-
-        <Slide title="Thank you!" style="main">
+        <Slide title="" style="main">
           <EndSlide />
         </Slide>
       </main>
