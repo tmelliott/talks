@@ -10,7 +10,6 @@ import IDISearchApp from "../slides/02_idisearchapp";
 import IDISearchAppDemo from "../slides/02_idisearchapp_demo";
 import DisclosureApp from "../slides/03_disclosureapp";
 import DisclosureAppDemo from "../slides/03_disclosureapp_demo";
-import DisclosureAppDetails from "../slides/03_disclosureapp_details";
 import EndSlide from "../slides/09_end";
 
 const Home: NextPage = () => {
