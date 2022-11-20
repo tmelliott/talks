@@ -1,8 +1,8 @@
 import { type NextPage } from "next";
 import Head from "next/head";
-import { motion, useScroll } from "framer-motion";
+import { motion, useMotionValue, useScroll } from "framer-motion";
 import TitleSlide from "../slides/00_title";
-import { useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import ReactJSLogo from "../components/logos/ReactJSLogo";
 import RLogo from "../components/logos/RLogo";
 import Introduction from "../slides/01_introduction";
@@ -12,9 +12,20 @@ import DisclosureApp from "../slides/03_disclosureapp";
 import DisclosureAppDemo from "../slides/03_disclosureapp_demo";
 import EndSlide from "../slides/09_end";
 
+const TALK_LENGTH_MINUTES = 15;
+const progress = {
+  initial: {
+    scaleX: 0,
+  },
+  final: {
+    scaleX: 1,
+    transition: { duration: TALK_LENGTH_MINUTES * 60, ease: "linear" },
+  },
+};
+
 const Home: NextPage = () => {
   const ref = useRef(null);
-  const { scrollYProgress } = useScroll({ container: ref });
+  const [started, setStarted] = useState(false);
 
   return (
     <>
@@ -29,13 +40,15 @@ const Home: NextPage = () => {
         className="relative h-screen w-screen snap-y snap-mandatory overflow-x-hidden bg-gradient-to-br from-stone-100 to-stone-200"
       >
         <motion.div
-          style={{ scaleX: scrollYProgress }}
-          className="fixed z-10 h-1 w-full origin-left bg-blue-400"
+          variants={progress}
+          initial="initial"
+          animate={started ? "final" : "initial"}
+          className="fixed z-10 h-[2px] w-full origin-left bg-blue-400"
         />
 
         <Slide
           title={
-            <div className="drop-shadow-lg">
+            <div className="drop-shadow-lg" onClick={() => setStarted(true)}>
               Introducing <em>IDI Search</em> and{" "}
               <em>Disclosure Risk Calculator</em>
             </div>
