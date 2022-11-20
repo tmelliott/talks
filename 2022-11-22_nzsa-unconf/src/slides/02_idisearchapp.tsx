@@ -1,56 +1,118 @@
-import Structure from "../components/Structure";
+import React, { useState } from "react";
+
+import {
+  ArchiveBoxIcon,
+  ArrowRightIcon,
+  ArrowsRightLeftIcon,
+  CircleStackIcon,
+  TableCellsIcon,
+  UsersIcon,
+} from "@heroicons/react/24/solid";
+
+type PageStateType = number;
+const states: PageStateType[] = [0, 1, 2, 3];
 
 const IDISearchApp = () => {
+  const [state, setState] = useState<PageStateType>(0);
+
+  const progressState = () => {
+    setState((state) => Math.min(Math.max(...states), state + 1));
+  };
+
   return (
-    <div className="flex h-full flex-col justify-between">
-      <div className="container mx-auto mt-12 flex h-full flex-col gap-8 text-lg">
-        <ul className="list-disc">
-          <li>Integrated Data Infrastructure</li>
-          <li>Contains 10&apos;s thousands variables across NZ agencies</li>
-          <li>
-            Difficult to know what data is available without having access to it
-          </li>
-          <li>Need to develop and propose research Q to gain access!</li>
-        </ul>
+    <div className="flex h-full flex-col justify-center gap-24">
+      <div
+        className="container relative mx-auto flex items-center justify-center gap-8"
+        onClick={progressState}
+      >
+        {/* DATA BOXES SPINNING! */}
+        <div
+          className={`${
+            state > 0 ? "animate-spin-slow" : ""
+          } mr-16 flex flex-col gap-14 transition-opacity`}
+        >
+          <div className="relative">
+            <TableCellsIcon
+              height={120}
+              className={`${state > 0 ? "animate-spin-slow-reverse" : ""}`}
+            />
+            {state === 0 && (
+              <p className="absolute left-full top-1/2 translate-x-6 -translate-y-1/2 whitespace-nowrap text-xl">
+                Lists of database variables
+              </p>
+            )}
+          </div>
+          <div className="relative">
+            <ArchiveBoxIcon
+              height={120}
+              className={`${state > 0 ? "animate-spin-slow-reverse" : ""}`}
+            />
+            {state === 0 && (
+              <p className="absolute left-full top-1/2 translate-x-6 -translate-y-1/2 whitespace-nowrap text-xl">
+                Data Dictionaries
+              </p>
+            )}
+          </div>
+        </div>
 
-        <ul className="list-disc">
-          <li>
-            Need a way to make information about the variables inside the IDI
-            available to anyone
-          </li>
-          <li className="list-none text-green-700">
-            Step 1: Generate a list of all variables in the IDI
-          </li>
-          <li className="list-none text-green-700">
-            Step 2: Collate that information across multiple DBs into a single,
-            organised, searchable list/database
-          </li>
-          <li className="list-none text-green-700">
-            Step 3: Create a simple web app users can use to browse the
-            information
-          </li>
-        </ul>
+        {/* ARROW FROM DATA TO R */}
+        <div className={`${state < 1 && "opacity-0"} transition-opacity`}>
+          <ArrowsRightLeftIcon height={60} />
+        </div>
 
-        <ul className="list-disc">
-          <li>A lot of variable names are not very informative</li>
-          <li>
-            Datalab contains Data Dictionaries containing metadata about
-            variables!
-          </li>
-          <li className="list-none text-green-700">
-            Step 4: Output data dictionaries from Datalab
-          </li>
-          <li className="list-none text-green-700">
-            Step 5: Extract information from data dictionaries and merge with
-            variable lists
-          </li>
-          <li className="list-none text-green-700">
-            Step 6: Extend app to make use of this new information
-          </li>
-        </ul>
+        {/* R LOGO */}
+        <div className={`${state < 1 && "opacity-0"} transition-opacity`}>
+          <img src="/Rlogo.svg" alt="R Logo" height={180} width={180} />
+        </div>
+
+        {/* ARROW FROM R TO DATABASE */}
+        <div className={`${state < 2 && "opacity-0"} transition-opacity`}>
+          <ArrowRightIcon height={60} />
+        </div>
+
+        {/* DATABASE ICON */}
+        <div className={`${state < 2 && "opacity-0"} transition-opacity`}>
+          <CircleStackIcon height={180} />
+        </div>
+
+        {/* ARROW FROM DATABASE TO REACT */}
+        <div className={`${state < 3 && "opacity-0"} transition-opacity`}>
+          <ArrowsRightLeftIcon height={60} />
+        </div>
+
+        {/* REACT LOGO */}
+        <div className={`${state < 3 && "opacity-0"} transition-opacity`}>
+          <img
+            src="/ReactLogo.svg"
+            alt="ReactJS Logo"
+            height={180}
+            width={180}
+          />
+        </div>
+
+        {/* ARROW FROM REACT TO USERS */}
+        <div className={`${state < 3 && "opacity-0"} transition-opacity`}>
+          <ArrowsRightLeftIcon height={60} />
+        </div>
+
+        {/* USERS ICON */}
+        <div className={`${state < 3 && "opacity-0"} transition-opacity`}>
+          <UsersIcon height={180} />
+        </div>
       </div>
-
-      <Structure type="oneway" />
+      <div>
+        <div className="flex justify-center gap-4">
+          {states.map((x) => (
+            <div
+              key={`state-` + x}
+              onClick={(e) => setState(x)}
+              className={`h-4 w-4 cursor-pointer rounded-full border-4 border-blue-300 ${
+                state === x && "bg-blue-300"
+              }`}
+            ></div>
+          ))}
+        </div>
+      </div>
     </div>
   );
 };

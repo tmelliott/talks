@@ -3,6 +3,8 @@ import Head from "next/head";
 import { motion, useScroll } from "framer-motion";
 import TitleSlide from "../slides/00_title";
 import { useRef } from "react";
+import ReactJSLogo from "../components/logos/ReactJSLogo";
+import RLogo from "../components/logos/RLogo";
 import Introduction from "../slides/01_introduction";
 import IDISearchApp from "../slides/02_idisearchapp";
 import IDISearchAppDemo from "../slides/02_idisearchapp_demo";
@@ -34,16 +36,16 @@ const Home: NextPage = () => {
 
         <Slide
           title={
-            <>
+            <div className="drop-shadow-lg">
               Introducing <em>IDI Search</em> and{" "}
               <em>Disclosure Risk Calculator</em>
-            </>
+            </div>
           }
           subtitle={
-            <>
-              Two <strong>ReactJS</strong> web apps powered by{" "}
-              <strong>R</strong>
-            </>
+            <div className="drop-shadow">
+              Two <ReactJSLogo />
+              <strong>ReactJS</strong> web apps powered by <RLogo />
+            </div>
           }
           style="main"
         >
@@ -68,10 +70,6 @@ const Home: NextPage = () => {
 
         <Slide title={"Disclosure Risk Calculator - DEMO!"}>
           <DisclosureAppDemo />
-        </Slide>
-
-        <Slide title={"Disclosure Risk Calculator"} subtitle="Details">
-          <DisclosureAppDetails />
         </Slide>
 
         <Slide title="Thank you!" style="main">

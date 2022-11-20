@@ -8,7 +8,7 @@ import {
 } from "@heroicons/react/24/solid";
 
 type PageStateType = number;
-const states: PageStateType[] = [0, 1, 2, 3, 4, 5];
+const states: PageStateType[] = [0, 1, 2, 3, 4];
 
 const Introduction = () => {
   const [state, setState] = useState<PageStateType>(0);
@@ -27,21 +27,17 @@ const Introduction = () => {
         <div className={`${state == 0 && "opacity-0"} transition-opacity`}>
           <ArrowsRightLeftIcon height={60} />
         </div>
-        <div className={`${state === 4 && "opacity-10"} transition-opacity`}>
+        <div className={`transition-opacity`}>
           <img src="/Rlogo.svg" alt="R Logo" height={180} width={180} />
         </div>
-        <div
-          className={`${
-            (state <= 1 || state === 4) && "opacity-0"
-          } transition-opacity`}
-        >
-          {state < 5 ? (
+        <div className={`${state <= 2 && "opacity-0"} transition-opacity`}>
+          {state < 4 ? (
             <ArrowRightIcon height={60} />
           ) : (
             <ArrowsRightLeftIcon height={60} />
           )}
         </div>
-        <div className={`${state === 4 && "opacity-10"} transition-opacity`}>
+        <div className={`transition-opacity`}>
           <img
             src="/ReactLogo.svg"
             alt="ReactJS Logo"
@@ -49,23 +45,10 @@ const Introduction = () => {
             width={180}
           />
         </div>
-        <div className={`${state <= 2 && "opacity-0"} transition-opacity`}>
+        <div className={`${state <= 1 && "opacity-0"} transition-opacity`}>
           <ArrowsRightLeftIcon height={60} />
         </div>
         <UsersIcon height={180} />
-
-        <div
-          className={`absolute flex items-center justify-center text-2xl transition-opacity ${
-            state === 4 ? "opacity-1" : "opacity-0"
-          }`}
-        >
-          <img
-            src="/shinyhex.png"
-            alt="ReactJS Logo"
-            height={180}
-            width={180}
-          />
-        </div>
       </div>
       <div>
         <div className="flex justify-center gap-4">
