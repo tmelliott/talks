@@ -64,6 +64,38 @@ const Home: NextPage = () => {
           <TitleSlide />
         </Slide>
 
+        <Slide title="Introduction">
+          <div ref={ref} className="flex h-full flex-col justify-center gap-24">
+            <div className="container mx-auto flex max-w-4xl flex-col gap-10 text-lg">
+              <p>
+                As part of my work with <em>Te Rourou Tātaritanga</em>, I have
+                been developing some web applications. This has given me an
+                opportunity to combine two of my passions:{" "}
+                <strong>R programming</strong> and{" "}
+                <strong>web development</strong>.
+              </p>
+              <p>
+                The two apps are the <em>IDI Search App</em>, a simple interface
+                that allows researchers to explore the contents of Stats NZ's
+                IDI, and the <em>Disclosure Risk Calculator</em> for estimating
+                the risk of disclosure in microdata.
+              </p>
+              <p>
+                Each of these applications use <strong>ReactJS</strong> for the
+                user interface, while data processing is performed using{" "}
+                <strong>R</strong>.
+              </p>
+              <p>
+                In this <span className="line-through">talk</span> post, I will
+                outline the general structure of these applications and
+                demonstrate how the they work behind-the-scenes. If you would
+                like more details, please get in touch with me as I am very
+                happy to discuss!
+              </p>
+            </div>
+          </div>
+        </Slide>
+
         <Slide title={"Introduction"}>
           <Introduction />
         </Slide>
